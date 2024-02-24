@@ -50,6 +50,7 @@ const apiFetchVendure =
         const authToken = r.headers.get('vendure-auth-token');
         if (authToken != null) {
           token = authToken;
+          window.localStorage.setItem('vendure-admin-token', token);
         }
         return handleFetchResponse(r);
       })

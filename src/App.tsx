@@ -5,10 +5,15 @@ import { Menu } from '@/common/Menu';
 import { useEffect, useState } from 'react';
 import { storefrontApiMutation, token } from '@/common/client';
 import { Button, Stack, TextField } from '@aexol-studio/styling-system';
+import styled from '@emotion/styled';
 
 const router = createBrowserRouter([
   {
     path: '/',
+    element: <Home />,
+  },
+  {
+    path: '/products',
     element: <Home />,
   },
 ]);
@@ -30,7 +35,12 @@ function App() {
   return (
     <Layout>
       <Menu />
-      {isLoggedIn === 'yes' && <RouterProvider router={router} />}
+
+      {isLoggedIn === 'yes' && (
+        <Content>
+          <RouterProvider router={router} />
+        </Content>
+      )}
       {isLoggedIn === 'no' && (
         <Stack direction="column" gap="1rem">
           <TextField
@@ -76,6 +86,10 @@ function App() {
                       },
                     },
                   ],
+                }).then((r) => {
+                  if (r.login.__typename === 'CurrentUser') {
+                    setIsLoggedIn('yes');
+                  }
                 });
               }}
             >
@@ -87,5 +101,10 @@ function App() {
     </Layout>
   );
 }
+
+const Content = styled.div`
+  height: 100%;
+  width: 100%;
+`;
 
 export default App;
