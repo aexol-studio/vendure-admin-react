@@ -3,9 +3,10 @@ import { Home } from '@/pages/Home';
 import { Layout } from '@/common/Layout';
 import { Menu } from '@/common/Menu';
 import { useEffect, useState } from 'react';
-import { storefrontApiMutation, token } from '@/common/client';
+import { adminApiMutation, token } from '@/common/client';
 import { Button, Stack, TextField } from '@aexol-studio/styling-system';
 import styled from '@emotion/styled';
+import { ProductListPage } from '@/pages/products/List';
 
 const router = createBrowserRouter([
   {
@@ -14,7 +15,7 @@ const router = createBrowserRouter([
   },
   {
     path: '/products',
-    element: <Home />,
+    element: <ProductListPage />,
   },
 ]);
 
@@ -34,7 +35,11 @@ function App() {
 
   return (
     <Layout>
-      <Menu />
+      <Menu
+        onLogout={() => {
+          setIsLoggedIn('no');
+        }}
+      />
 
       {isLoggedIn === 'yes' && (
         <Content>
@@ -67,7 +72,7 @@ function App() {
           <Stack justify="end">
             <Button
               onClick={() => {
-                storefrontApiMutation()({
+                adminApiMutation()({
                   login: [
                     {
                       username: formState.username,

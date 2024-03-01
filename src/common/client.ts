@@ -1,7 +1,6 @@
 import { GraphQLError, GraphQLResponse, Thunder, ZeusScalars, chainOptions, fetchOptions } from '@/zeus';
-
-export let token: string | null =
-  typeof window !== 'undefined' ? window.localStorage.getItem('vendure-admin-token') : null;
+const VTOKEN = 'vendure-admin-token';
+export let token: string | null = window.localStorage.getItem(VTOKEN);
 
 export const scalars = ZeusScalars({
   Money: {
@@ -35,8 +34,11 @@ const apiFetchVendure =
           return response.data;
         });
     }
+    console.log({ token });
     const additionalHeaders: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
+    console.log(additionalHeaders);
     return fetch(`${options[0]}`, {
+      ...fetchOptions,
       body: JSON.stringify({ query, variables }),
       method: 'POST',
       credentials: 'include',
@@ -44,13 +46,13 @@ const apiFetchVendure =
         'Content-Type': 'application/json',
         ...additionalHeaders,
       },
-      ...fetchOptions,
     })
       .then((r) => {
         const authToken = r.headers.get('vendure-auth-token');
         if (authToken != null) {
           token = authToken;
-          window.localStorage.setItem('vendure-admin-token', token);
+          window.localStorage.setItem(VTOKEN, token);
+          console.log({ authToken });
         }
         return handleFetchResponse(r);
       })
@@ -80,14 +82,14 @@ const buildHeaders = (ctx: { locale: string; channel?: string }): Parameters<typ
   };
 };
 
-export const storefrontApiQuery = (ctx: { locale: string; channel?: string } = { locale: 'en' }) => {
+export const adminApiQuery = (ctx: { locale: string; channel?: string } = { locale: 'en' }) => {
   const HOST = `${VENDURE_HOST}?languageCode=${ctx.locale}`;
   return VendureChain(HOST, {
     ...buildHeaders(ctx),
   })('query', { scalars });
 };
 
-export const storefrontApiMutation = (ctx: { locale: string; channel?: string } = { locale: 'en' }) => {
+export const adminApiMutation = (ctx: { locale: string; channel?: string } = { locale: 'en' }) => {
   const HOST = `${VENDURE_HOST}?languageCode=${ctx.locale}`;
 
   return VendureChain(HOST, {
@@ -122,4 +124,9 @@ const handleFetchResponse = (response: Response): Promise<GraphQLResponse> => {
     });
   }
   return response.json() as Promise<GraphQLResponse>;
+};
+
+export const logOut = () => {
+  window.localStorage.removeItem(VTOKEN);
+  token = null;
 };
