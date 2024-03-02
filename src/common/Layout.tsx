@@ -9,4 +9,5 @@ const Main = styled.div`
   width: 100vw;
   height: 100vh;
   display: flex;
+  background-color: ${(p) => p.theme.neutrals.L8};
 `;
