@@ -7,7 +7,6 @@ import { adminApiMutation, token } from '@/common/client';
 import { Button, Stack, TextField } from '@aexol-studio/styling-system';
 import styled from '@emotion/styled';
 import { ProductListPage } from '@/pages/products/List';
-
 const router = createBrowserRouter([
   {
     path: '/',
@@ -32,7 +31,6 @@ function App() {
       setIsLoggedIn('no');
     }
   }, []);
-
   return (
     <Layout>
       <Menu

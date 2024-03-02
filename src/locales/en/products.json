@@ -1,0 +1,8 @@
+{
+    "add":"Add product",
+    "image":"image",
+    "name":"name",
+    "slug":"slug",
+    "variants":"variants",
+    "enabled":"enabled"
+}

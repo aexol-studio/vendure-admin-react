@@ -42,14 +42,12 @@ export const ProductTileSelector = Selector('Product')({
   id: true,
   name: true,
   slug: true,
+  enabled: true,
   collections: {
     name: true,
     slug: true,
   },
-  variants: {
-    currencyCode: true,
-    price: true,
-  },
+  variantList: [{}, { totalItems: true }],
   featuredAsset: {
     source: true,
     preview: true,
