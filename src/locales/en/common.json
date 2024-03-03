@@ -1,6 +1,7 @@
 {
     "menu":{
         "products":"products",
+        "collections":"collections",
         "logOut":"log out"
     }
 }

@@ -7,6 +7,7 @@ import { adminApiMutation, token } from '@/common/client';
 import { Button, Stack, TextField } from '@aexol-studio/styling-system';
 import styled from '@emotion/styled';
 import { ProductListPage } from '@/pages/products/List';
+import { CollectionsListPage } from '@/pages/collections/List';
 const router = createBrowserRouter([
   {
     path: '/',
@@ -15,6 +16,10 @@ const router = createBrowserRouter([
   {
     path: '/products',
     element: <ProductListPage />,
+  },
+  {
+    path: '/collections',
+    element: <CollectionsListPage />,
   },
 ]);
 
@@ -109,6 +114,7 @@ const Content = styled.div`
   height: 100%;
   width: 100%;
   overflow-y: auto;
+  padding: 1rem;
 `;
 
 export default App;

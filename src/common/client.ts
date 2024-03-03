@@ -34,9 +34,7 @@ const apiFetchVendure =
           return response.data;
         });
     }
-    console.log({ token });
     const additionalHeaders: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
-    console.log(additionalHeaders);
     return fetch(`${options[0]}`, {
       ...fetchOptions,
       body: JSON.stringify({ query, variables }),
@@ -52,7 +50,6 @@ const apiFetchVendure =
         if (authToken != null) {
           token = authToken;
           window.localStorage.setItem(VTOKEN, token);
-          console.log({ authToken });
         }
         return handleFetchResponse(r);
       })

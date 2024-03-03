@@ -13,5 +13,4 @@ i18next
     fallbackLng: 'en',
     debug: true,
   });
-console.log(resources);
 export default i18next;

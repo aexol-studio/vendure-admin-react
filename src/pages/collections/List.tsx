@@ -1,51 +1,57 @@
 import { adminApiQuery } from '@/common/client';
 import { TH, TableAvatar, TableRow } from '@/common/components/table/table';
-import { ProductTileSelector } from '@/graphql/base';
+import { CollectionSelector } from '@/graphql/base';
 import { useList } from '@/lists/useList';
 import { ResolverInputTypes } from '@/zeus';
 import { Stack, Typography } from '@aexol-studio/styling-system';
 import styled from '@emotion/styled';
 import { useTranslation } from 'react-i18next';
 
-const getProducts = async (paginate: ResolverInputTypes['ProductListOptions']) => {
+const getCollections = async (paginate?: ResolverInputTypes['ProductListOptions']) => {
   const response = await adminApiQuery()({
-    products: [{ options: paginate }, { items: ProductTileSelector, totalItems: true }],
+    collections: [
+      {
+        options: {
+          ...paginate,
+          topLevelOnly: true,
+        },
+      },
+      { items: CollectionSelector, totalItems: true },
+    ],
   });
-  return response.products;
+  return response.collections;
 };
 
-export const ProductListPage = () => {
-  const { objects: products, Paginate } = useList({
+export const CollectionsListPage = () => {
+  const { objects: collections, Paginate } = useList({
     route: async (p) => {
-      return getProducts({ take: 10, skip: p.page });
+      return getCollections({ take: 10, skip: p.page });
     },
     limit: 10,
-    cacheKey: 'products',
+    cacheKey: 'collections',
   });
   const { t } = useTranslation('products');
   return (
     <Stack direction="column">
-      <ProductRow>
+      <CollectionRow>
         <div />
         <TH>{t('name')}</TH>
         <TH>{t('slug')}</TH>
-        <TH>{t('variants')}</TH>
-      </ProductRow>
-      {products?.map((p) => {
+      </CollectionRow>
+      {collections?.map((p) => {
         return (
-          <ProductRow gap="1rem" key={p.id}>
+          <CollectionRow gap="1rem" key={p.slug}>
             <TableAvatar src={p.featuredAsset?.preview + '?preset=tiny'} />
             <Typography>{p.name}</Typography>
             <Typography>{p.slug}</Typography>
-            <Typography>{p.variantList.totalItems}</Typography>
-          </ProductRow>
+          </CollectionRow>
         );
       })}
       {Paginate}
     </Stack>
   );
 };
-const ProductRow = styled(TableRow)`
+const CollectionRow = styled(TableRow)`
   display: grid;
-  grid-template-columns: 2rem 3fr 3fr 1fr;
+  grid-template-columns: 2rem 3fr 3fr;
 `;
