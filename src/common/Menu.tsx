@@ -1,44 +1,56 @@
-import { logOut } from '@/common/client';
-import { BagShopping, SideMenuButton, Stack } from '@aexol-studio/styling-system';
+import { logOut, loginAtom } from '@/common/client';
+import { BagShopping, Book, Folder, Stack, Typography } from '@aexol-studio/styling-system';
 import styled from '@emotion/styled';
+import { useAtom } from 'jotai';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 
-export const Menu: React.FC<{ children?: React.ReactNode; onLogout: () => void }> = ({ onLogout }) => {
+export const Menu: React.FC<{ children?: React.ReactNode }> = () => {
   const { t } = useTranslation(['common']);
+  const [, setIsLoggedIn] = useAtom(loginAtom);
   return (
     <React.Suspense fallback="loading...">
       <Sidebar direction="column">
-        <SideMenuButton
-          icon={<BagShopping />}
-          label={t('menu.products')}
-          href="/products"
-          LinkComponent={styled.a`
-            display: block;
-          `}
-        />
-        <SideMenuButton
-          icon={<BagShopping />}
-          label={t('menu.collections')}
-          href="/collections"
-          LinkComponent={styled.a`
-            display: block;
-          `}
-        />
-        <SideMenuButton
+        <SideMenuButton icon={<Book />} label={t('menu.products')} href="/products" />
+        <SideMenuButton icon={<Folder />} label={t('menu.collections')} href="/collections" />
+        <MenuButton
+          align="center"
+          gap="0.5rem"
           onClick={() => {
             logOut();
-            onLogout();
+            setIsLoggedIn('no');
           }}
-          label={t('menu.logOut')}
-          href="/"
-          LinkComponent={styled.a``}
-        />
+        >
+          <BagShopping />
+          <Typography variant="Body 2 R">{t('menu.logOut')}</Typography>
+        </MenuButton>
       </Sidebar>
     </React.Suspense>
   );
 };
-
+const SideMenuButton: React.FC<{
+  label: string;
+  href: string;
+  icon: React.ReactNode;
+}> = ({ href, icon, label }) => {
+  return (
+    <Link to={href}>
+      <MenuButton align="center" gap="0.5rem">
+        {icon}
+        <Typography variant="Body 2 SB">{label}</Typography>
+      </MenuButton>
+    </Link>
+  );
+};
+const MenuButton = styled(Stack)`
+  padding: 0.5rem 1.25rem;
+  border-bottom: ${(p) => p.theme.neutrals.L6} 1px solid;
+  svg {
+    color: ${(p) => p.theme.text.active};
+    width: 1rem;
+  }
+`;
 const Sidebar = styled(Stack)`
   width: 24rem;
   height: 100%;

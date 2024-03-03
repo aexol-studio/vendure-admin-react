@@ -10,4 +10,7 @@ const Main = styled.div`
   height: 100vh;
   display: flex;
   background-color: ${(p) => p.theme.neutrals.L8};
+  a {
+    text-decoration: none;
+  }
 `;

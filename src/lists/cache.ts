@@ -18,9 +18,13 @@ export const cache = <T>(cacheable: PaginatedCacheables, limit: number) => {
     if (!v) return;
     return v;
   };
+  const reset = () => {
+    window.localStorage.removeItem(cacheKey);
+  };
   return {
     get,
     set,
+    reset,
   };
 };
 

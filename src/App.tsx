@@ -1,30 +1,35 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { Home } from '@/pages/Home';
+import { Root } from '@/pages/Root';
 import { Layout } from '@/common/Layout';
-import { Menu } from '@/common/Menu';
 import { useEffect, useState } from 'react';
-import { adminApiMutation, token } from '@/common/client';
+import { adminApiMutation, loginAtom, token } from '@/common/client';
 import { Button, Stack, TextField } from '@aexol-studio/styling-system';
-import styled from '@emotion/styled';
 import { ProductListPage } from '@/pages/products/List';
 import { CollectionsListPage } from '@/pages/collections/List';
+import { useAtom } from 'jotai';
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <Home />,
-  },
-  {
-    path: '/products',
-    element: <ProductListPage />,
-  },
-  {
-    path: '/collections',
-    element: <CollectionsListPage />,
+    element: <Root />,
+    children: [
+      {
+        path: 'products',
+        element: <ProductListPage />,
+      },
+      {
+        path: 'products/:id',
+        element: <ProductListPage />,
+      },
+      {
+        path: 'collections',
+        element: <CollectionsListPage />,
+      },
+    ],
   },
 ]);
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState<'yes' | 'no' | 'loading'>('loading');
+  const [isLoggedIn, setIsLoggedIn] = useAtom(loginAtom);
   const [formState, setFormState] = useState({
     username: '',
     password: '',
@@ -37,84 +42,69 @@ function App() {
     }
   }, []);
   return (
-    <Layout>
-      <Menu
-        onLogout={() => {
-          setIsLoggedIn('no');
-        }}
-      />
-
-      {isLoggedIn === 'yes' && (
-        <Content>
-          <RouterProvider router={router} />
-        </Content>
-      )}
+    <>
+      {isLoggedIn === 'yes' && <RouterProvider router={router} />}
       {isLoggedIn === 'no' && (
-        <Stack direction="column" gap="1rem">
-          <TextField
-            value={formState.username}
-            onChange={(e) =>
-              setFormState({
-                ...formState,
-                username: e.target.value,
-              })
-            }
-            placeholder="username"
-          />
-          <TextField
-            onChange={(e) =>
-              setFormState({
-                ...formState,
-                password: e.target.value,
-              })
-            }
-            value={formState.password}
-            placeholder="password"
-            type="password"
-          />
-          <Stack justify="end">
-            <Button
-              onClick={() => {
-                adminApiMutation()({
-                  login: [
-                    {
-                      username: formState.username,
-                      password: formState.password,
-                    },
-                    {
-                      __typename: true,
-                      '...on CurrentUser': {
-                        id: true,
+        <Layout>
+          <Stack direction="column" gap="1rem">
+            <TextField
+              value={formState.username}
+              onChange={(e) =>
+                setFormState({
+                  ...formState,
+                  username: e.target.value,
+                })
+              }
+              placeholder="username"
+            />
+            <TextField
+              onChange={(e) =>
+                setFormState({
+                  ...formState,
+                  password: e.target.value,
+                })
+              }
+              value={formState.password}
+              placeholder="password"
+              type="password"
+            />
+            <Stack justify="end">
+              <Button
+                onClick={() => {
+                  adminApiMutation()({
+                    login: [
+                      {
+                        username: formState.username,
+                        password: formState.password,
                       },
-                      '...on InvalidCredentialsError': {
-                        message: true,
+                      {
+                        __typename: true,
+                        '...on CurrentUser': {
+                          id: true,
+                        },
+                        '...on InvalidCredentialsError': {
+                          message: true,
+                        },
+                        '...on NativeAuthStrategyError': {
+                          message: true,
+                        },
                       },
-                      '...on NativeAuthStrategyError': {
-                        message: true,
-                      },
-                    },
-                  ],
-                }).then((r) => {
-                  if (r.login.__typename === 'CurrentUser') {
-                    setIsLoggedIn('yes');
-                  }
-                });
-              }}
-            >
-              Login
-            </Button>
+                    ],
+                  }).then((r) => {
+                    if (r.login.__typename === 'CurrentUser') {
+                      setIsLoggedIn('yes');
+                    }
+                  });
+                }}
+              >
+                Login
+              </Button>
+            </Stack>
           </Stack>
-        </Stack>
+        </Layout>
       )}
-    </Layout>
+    </>
   );
 }
-
-const Content = styled.div`
-  height: 100%;
-  width: 100%;
-  overflow-y: auto;
-  padding: 1rem;
-`;
 
 export default App;

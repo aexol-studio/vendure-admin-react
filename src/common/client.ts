@@ -1,4 +1,5 @@
 import { GraphQLError, GraphQLResponse, Thunder, ZeusScalars, chainOptions, fetchOptions } from '@/zeus';
+import { atom } from 'jotai';
 const VTOKEN = 'vendure-admin-token';
 export let token: string | null = window.localStorage.getItem(VTOKEN);
 
@@ -127,3 +128,5 @@ export const logOut = () => {
   window.localStorage.removeItem(VTOKEN);
   token = null;
 };
+
+export const loginAtom = atom<'no' | 'yes' | 'unknown'>('unknown');
