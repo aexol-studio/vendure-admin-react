@@ -4,7 +4,7 @@ import styled from '@emotion/styled';
 import { useAtom } from 'jotai';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 
 export const Menu: React.FC<{ children?: React.ReactNode }> = () => {
   const { t } = useTranslation(['common']);
@@ -35,12 +35,14 @@ const SideMenuButton: React.FC<{
   icon: React.ReactNode;
 }> = ({ href, icon, label }) => {
   return (
-    <Link to={href}>
+    <NavLink to={href}>
       <MenuButton align="center" gap="0.5rem">
         {icon}
-        <Typography variant="Body 2 SB">{label}</Typography>
+        <Typography color="inherit" variant="Body 2 SB">
+          {label}
+        </Typography>
       </MenuButton>
-    </Link>
+    </NavLink>
   );
 };
 const MenuButton = styled(Stack)`
@@ -56,4 +58,10 @@ const Sidebar = styled(Stack)`
   height: 100%;
   padding: 1rem;
   background-color: ${(p) => p.theme.neutrals.L8};
+  a {
+    color: ${(p) => p.theme.text.default};
+    &.active {
+      color: ${(p) => p.theme.text.active};
+    }
+  }
 `;

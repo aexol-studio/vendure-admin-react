@@ -27,8 +27,8 @@ export const useList = <T extends PromisePaginated>({
     const c = cache<{
       items: GenericReturn<T>;
       totalItems: number;
-    }>(cacheKey, limit);
-    const valueFromCache = c.get(pageNumber);
+    }>(cacheKey, limit.toString());
+    const valueFromCache = c.get(pageNumber.toString());
     if (valueFromCache) {
       setObjects(valueFromCache.items);
       setTotal(valueFromCache.totalItems);
@@ -39,7 +39,7 @@ export const useList = <T extends PromisePaginated>({
     }).then((r) => {
       setObjects(r.items);
       setTotal(r.totalItems);
-      c.set(pageNumber, r);
+      c.set(pageNumber.toString(), r);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageNumber]);

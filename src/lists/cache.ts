@@ -1,20 +1,21 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export type PaginatedCacheables = 'products' | 'collections' | 'orders';
+export type PaginatedCacheables = 'products' | 'collections' | 'orders' | 'facets';
+export type DetailCacheables = 'productDetail' | 'orderDetail' | 'collectionDetail' | 'facetDetail';
 
-export const cache = <T>(cacheable: PaginatedCacheables, limit: number) => {
-  const cacheKey = `${cacheable}.${limit}`;
-  const getCacheable = (): Record<number, T> => {
+export const cache = <T>(cacheable: PaginatedCacheables | DetailCacheables, extraKey?: string) => {
+  const cacheKey = extraKey ? `${cacheable}.${extraKey}` : cacheable;
+  const getCacheable = (): Record<string, T> => {
     const v = window.localStorage.getItem(cacheKey);
     if (v) return JSON.parse(v);
     return {};
   };
-  const set = (page: number, value: T) => {
+  const set = (key: string, value: T) => {
     const currentCacheable = getCacheable();
-    currentCacheable[page] = value;
+    currentCacheable[key] = value;
     window.localStorage.setItem(cacheKey, JSON.stringify(currentCacheable));
   };
-  const get = (page: number) => {
-    const v = getCacheable()[page];
+  const get = (key: string) => {
+    const v = getCacheable()[key];
     if (!v) return;
     return v;
   };
@@ -28,7 +29,7 @@ export const cache = <T>(cacheable: PaginatedCacheables, limit: number) => {
   };
 };
 
-export const resetCache = (cacheable: PaginatedCacheables, limit: number) => {
-  const cacheKey = `${cacheable}.${limit}`;
+export const resetCache = (cacheable: PaginatedCacheables | DetailCacheables, extraKey: string) => {
+  const cacheKey = `${cacheable}.${extraKey}`;
   window.localStorage.removeItem(cacheKey);
 };

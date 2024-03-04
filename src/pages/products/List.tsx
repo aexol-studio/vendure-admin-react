@@ -6,6 +6,7 @@ import { ResolverInputTypes } from '@/zeus';
 import { Stack, Typography } from '@aexol-studio/styling-system';
 import styled from '@emotion/styled';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 
 const getProducts = async (paginate: ResolverInputTypes['ProductListOptions']) => {
   const response = await adminApiQuery()({
@@ -35,7 +36,9 @@ export const ProductListPage = () => {
         return (
           <ProductRow gap="1rem" key={p.id}>
             <TableAvatar src={p.featuredAsset?.preview + '?preset=tiny'} />
-            <Typography>{p.name}</Typography>
+            <Link to={`/products/${p.slug}/`}>
+              <Typography>{p.name}</Typography>
+            </Link>
             <Typography>{p.slug}</Typography>
             <Typography>{p.variantList.totalItems}</Typography>
           </ProductRow>

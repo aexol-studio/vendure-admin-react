@@ -11,6 +11,7 @@ const Main = styled.div`
   display: flex;
   background-color: ${(p) => p.theme.neutrals.L8};
   a {
+    display: contents;
     text-decoration: none;
   }
 `;

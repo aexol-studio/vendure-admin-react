@@ -7,6 +7,7 @@ import { Button, Stack, TextField } from '@aexol-studio/styling-system';
 import { ProductListPage } from '@/pages/products/List';
 import { CollectionsListPage } from '@/pages/collections/List';
 import { useAtom } from 'jotai';
+import { ProductDetailPage } from '@/pages/products/Detail';
 const router = createBrowserRouter([
   {
     path: '/',
@@ -17,8 +18,8 @@ const router = createBrowserRouter([
         element: <ProductListPage />,
       },
       {
-        path: 'products/:id',
-        element: <ProductListPage />,
+        path: 'products/:slug',
+        element: <ProductDetailPage />,
       },
       {
         path: 'collections',
