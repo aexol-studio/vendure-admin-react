@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export type PromisePaginated = ({ page }: { page: number }) => Promise<{
+export type PromisePaginated = ({ page, sort }: { page: number; sort?: string }) => Promise<{
   totalItems: number;
   items: any;
 }>;

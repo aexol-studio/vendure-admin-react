@@ -23,11 +23,17 @@ export const useList = <T extends PromisePaginated>({
     return 0;
   }, [searchParams]);
 
+  const sortMethod = useMemo(() => {
+    const sort = searchParams.get('sort');
+    if (sort) return sort;
+    return;
+  }, [searchParams]);
+
   useEffect(() => {
     const c = cache<{
       items: GenericReturn<T>;
       totalItems: number;
-    }>(cacheKey, limit.toString());
+    }>(cacheKey);
     const valueFromCache = c.get(pageNumber.toString());
     if (valueFromCache) {
       setObjects(valueFromCache.items);
@@ -36,13 +42,14 @@ export const useList = <T extends PromisePaginated>({
     }
     route({
       page: pageNumber,
+      sort: sortMethod,
     }).then((r) => {
       setObjects(r.items);
       setTotal(r.totalItems);
       c.set(pageNumber.toString(), r);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pageNumber]);
+  }, [pageNumber, sortMethod]);
 
   return {
     Paginate: (
@@ -59,5 +66,9 @@ export const useList = <T extends PromisePaginated>({
     ),
     total,
     objects,
+    sort: (method: string) =>
+      setSearchParams({
+        sort: method,
+      }),
   };
 };

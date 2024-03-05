@@ -8,6 +8,7 @@ import { ProductListPage } from '@/pages/products/List';
 import { CollectionsListPage } from '@/pages/collections/List';
 import { useAtom } from 'jotai';
 import { ProductDetailPage } from '@/pages/products/Detail';
+import { OrderListPage } from '@/pages/orders/List';
 const router = createBrowserRouter([
   {
     path: '/',
@@ -24,6 +25,15 @@ const router = createBrowserRouter([
       {
         path: 'collections',
         element: <CollectionsListPage />,
+      },
+      {
+        path: 'orders',
+        element: <OrderListPage />,
+      },
+      {
+        // this is not slug but for easier usage with useDetail hook I marked this as slug even its id
+        path: 'orders/:slug',
+        element: <OrderListPage />,
       },
     ],
   },

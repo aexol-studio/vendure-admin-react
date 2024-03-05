@@ -1,5 +1,5 @@
 import { ModelTypes } from '@/zeus';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 type FormField<T> = {
   initialValue?: T;
@@ -20,32 +20,47 @@ export const useGFFLP = <T extends keyof ModelTypes, Z extends keyof ModelTypes[
   useFFLP<Pick<ModelTypes[T], Z>>;
 
 export const useFFLP = <T>(config: {
-  [P in keyof T]: {
+  [P in keyof T]?: {
     validate: (o: T[P]) => string[] | void;
-    render?: (o: T[P], onChange: (c: T[P]) => void) => JSX.Element;
+    initialValue?: T[P];
   };
 }) => {
-  const [state, setState] = useState<{
-    [P in keyof T]: FormField<T[P]>;
-  }>();
-  const setField = <F extends keyof T>(field: F, value: T[F]) => {
-    const invalid = config[field].validate(value);
-    if (state) {
-      state[field] = {
-        ...state[field],
-        value,
-      };
-      if (invalid) {
-        state[field]['errors'] = invalid;
-      } else {
-        state[field]['validatedValue'] = value;
+  const [state, setState] = useState<
+    Partial<{
+      [P in keyof T]: FormField<T[P]>;
+    }>
+  >({});
+  const setField = useCallback(
+    <F extends keyof T>(field: F, value: T[F]) => {
+      const invalid = config[field]?.validate(value);
+      if (state) {
+        state[field] = {
+          ...state[field],
+          value,
+        };
+        if (invalid) {
+          state[field]!['errors'] = invalid;
+        } else {
+          state[field]!['validatedValue'] = value;
+        }
       }
-    }
-    setState(state);
-  };
+      setState(JSON.parse(JSON.stringify(state)));
+    },
+    [config, state],
+  );
   return {
     state,
     setState,
     setField,
   };
+};
+
+export const setInArrayBy = <T>(list: T[], fn: (x: T) => boolean, element: T) => {
+  const ll = list.find((e) => !fn(e));
+  return list
+    .filter((e) => fn(e))
+    .concat({
+      ...ll,
+      ...element,
+    });
 };

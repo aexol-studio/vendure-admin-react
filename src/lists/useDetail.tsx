@@ -6,10 +6,10 @@ import { useParams } from 'react-router-dom';
 export const useDetail = <T extends PromiseDetail>({ route, cacheKey }: { route: T; cacheKey: DetailCacheables }) => {
   const { slug } = useParams();
   const [object, setObject] = useState<GenericReturnDetail<T>>();
+  const c = cache<GenericReturnDetail<T>>(cacheKey);
 
   useEffect(() => {
     if (!slug) return;
-    const c = cache<GenericReturnDetail<T>>(cacheKey);
     const valueFromCache = c.get(slug);
     if (valueFromCache) {
       setObject(valueFromCache);
@@ -26,5 +26,6 @@ export const useDetail = <T extends PromiseDetail>({ route, cacheKey }: { route:
 
   return {
     object,
+    reset: () => slug && c.resetKey(slug),
   };
 };

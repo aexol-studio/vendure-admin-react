@@ -1,5 +1,5 @@
 import { logOut, loginAtom } from '@/common/client';
-import { BagShopping, Book, Folder, Stack, Typography } from '@aexol-studio/styling-system';
+import { BagShopping, Book, CartShoppingFast, Folder, Stack, Typography } from '@aexol-studio/styling-system';
 import styled from '@emotion/styled';
 import { useAtom } from 'jotai';
 import React from 'react';
@@ -14,6 +14,7 @@ export const Menu: React.FC<{ children?: React.ReactNode }> = () => {
       <Sidebar direction="column">
         <SideMenuButton icon={<Book />} label={t('menu.products')} href="/products" />
         <SideMenuButton icon={<Folder />} label={t('menu.collections')} href="/collections" />
+        <SideMenuButton icon={<CartShoppingFast />} label={t('menu.orders')} href="/orders" />
         <MenuButton
           align="center"
           gap="0.5rem"

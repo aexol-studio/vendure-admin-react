@@ -1,8 +1,8 @@
 import { adminApiQuery } from '@/common/client';
 import { TH, TableAvatar, TableRow } from '@/common/components/table/table';
-import { ProductTileSelector } from '@/graphql/base';
+import { ProductTileSelector } from '@/graphql/products';
 import { useList } from '@/lists/useList';
-import { ResolverInputTypes } from '@/zeus';
+import { ResolverInputTypes, SortOrder } from '@/zeus';
 import { Stack, Typography } from '@aexol-studio/styling-system';
 import styled from '@emotion/styled';
 import { useTranslation } from 'react-i18next';
@@ -16,9 +16,18 @@ const getProducts = async (paginate: ResolverInputTypes['ProductListOptions']) =
 };
 
 export const ProductListPage = () => {
-  const { objects: products, Paginate } = useList({
+  const {
+    objects: products,
+    Paginate,
+    sort,
+  } = useList({
     route: async (p) => {
-      return getProducts({ take: 10, skip: p.page });
+      const sort = p.sort
+        ? {
+            [p.sort]: SortOrder.DESC,
+          }
+        : undefined;
+      return getProducts({ take: 10, skip: p.page, sort });
     },
     limit: 10,
     cacheKey: 'products',
@@ -28,7 +37,7 @@ export const ProductListPage = () => {
     <Stack direction="column">
       <ProductRow>
         <div />
-        <TH>{t('name')}</TH>
+        <TH onClick={() => sort('name')}>{t('name')}</TH>
         <TH>{t('slug')}</TH>
         <TH>{t('variants')}</TH>
       </ProductRow>

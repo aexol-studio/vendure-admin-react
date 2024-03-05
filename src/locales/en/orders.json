@@ -1,12 +1,12 @@
 {
-    "add":"Add product",
+    "add":"Add order",
     "image":"image",
     "name":"name",
     "slug":"slug",
     "variants":"variants",
     "enabled":"enabled",
     "forms":{
-        "create":"Create Product",
-        "update":"Update Product"
+        "create":"Create Order",
+        "update":"Update Order"
     }
 }

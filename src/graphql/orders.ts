@@ -101,10 +101,27 @@ export const ActiveOrderSelector = Selector('Order')({
 });
 
 export type ActiveOrderType = FromSelector<typeof ActiveOrderSelector, 'Order', typeof scalars>;
-
+export const OrderListSelector = Selector('Order')({
+  type: true,
+  totalWithTax: true,
+  state: true,
+  active: true,
+  currencyCode: true,
+  createdAt: true,
+  updatedAt: true,
+  shipping: true,
+  orderPlacedAt: true,
+  code: true,
+  id: true,
+  shippingAddress: {
+    fullName: true,
+  },
+  customer: {
+    emailAddress: true,
+  },
+});
 export const OrderSelector = Selector('Order')({
   type: true,
-
   shippingWithTax: true,
   totalWithTax: true,
   subTotalWithTax: true,
@@ -114,6 +131,7 @@ export const OrderSelector = Selector('Order')({
   payments: paymentSelector,
   currencyCode: true,
   shippingLines: shippingLineSelector,
+  id: true,
   lines: {
     id: true,
     quantity: true,

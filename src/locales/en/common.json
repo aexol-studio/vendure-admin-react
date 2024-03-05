@@ -2,6 +2,8 @@
     "menu":{
         "products":"products",
         "collections":"collections",
+        "orders":"orders",
+        "facets":"facets",
         "logOut":"log out"
     }
 }
