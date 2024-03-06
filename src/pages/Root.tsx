@@ -4,6 +4,8 @@ import { Stack, Typography } from '@aexol-studio/styling-system';
 import styled from '@emotion/styled';
 import React from 'react';
 import { Link, Outlet, useMatches } from 'react-router-dom';
+import '../../plugins/example-plugin/main';
+import '../../plugins/example-plugin/polyfills';
 
 export const Root = () => {
   const matches = useMatches();
@@ -17,6 +19,9 @@ export const Root = () => {
   return (
     <Layout>
       <Menu />
+      <div style={{ color: 'black' }}>
+        <web-comp />
+      </div>
       <Content>
         <Stack direction="column">
           <CrumbsStack>

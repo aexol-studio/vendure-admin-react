@@ -6,3 +6,10 @@ declare module 'i18next' {
     resources: typeof resources;
   }
 }
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      'web-comp': { [key: string]: string };
+    }
+  }
+}
