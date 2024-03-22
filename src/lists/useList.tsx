@@ -1,6 +1,14 @@
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
 import { PaginatedCacheables, cache } from '@/lists/cache';
 import { GenericReturn, PromisePaginated } from '@/lists/models';
-import { Pagination } from '@aexol-studio/styling-system';
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
@@ -53,16 +61,34 @@ export const useList = <T extends PromisePaginated>({
 
   return {
     Paginate: (
-      <Pagination
-        page={pageNumber}
-        onPageChange={(p) => {
-          setSearchParams({
-            page: p.toString(),
-          });
-        }}
-        rowsPerPage={limit}
-        totalRows={total}
-      />
+      <Pagination>
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious
+              onClick={() => {
+                setSearchParams({
+                  page: (pageNumber - 1).toString(),
+                });
+              }}
+            />
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationLink>{pageNumber}</PaginationLink>
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationEllipsis />
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationNext
+              onClick={() => {
+                setSearchParams({
+                  page: (pageNumber + 1).toString(),
+                });
+              }}
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
     ),
     total,
     objects,

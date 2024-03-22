@@ -1,6 +1,6 @@
 import { Layout } from '@/common/Layout';
 import { Menu } from '@/common/Menu';
-import { Stack, Typography } from '@aexol-studio/styling-system';
+import { Stack } from '@/components/ui/Stack';
 import styled from '@emotion/styled';
 import React from 'react';
 import { Link, Outlet, useMatches } from 'react-router-dom';
@@ -18,16 +18,16 @@ export const Root = () => {
     <Layout>
       <Menu />
       <Content>
-        <Stack direction="column">
+        <Stack column>
           <CrumbsStack>
             {crumbs.map((c, i) => {
               linkPath.push(c);
               return (
                 <React.Fragment key={c}>
                   <Link to={'/' + linkPath.join('/')}>
-                    <Typography variant="Body 3 M">{c}</Typography>
+                    <p>{c}</p>
                   </Link>
-                  {i !== crumbs.length - 1 && <Typography variant="Body 3 M">/</Typography>}
+                  {i !== crumbs.length - 1 && <p>/</p>}
                 </React.Fragment>
               );
             })}
@@ -40,7 +40,6 @@ export const Root = () => {
 };
 const CrumbsStack = styled(Stack)`
   padding: 1rem;
-  background-color: ${(p) => p.theme.neutrals.L5};
 `;
 
 const Content = styled.div`

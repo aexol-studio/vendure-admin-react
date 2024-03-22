@@ -1,10 +1,14 @@
 import { adminApiMutation, adminApiQuery } from '@/common/client';
+import { Stack } from '@/components/ui/Stack';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { ProductDetailSelector } from '@/graphql/products';
 import { resetCache } from '@/lists/cache';
 import { useDetail } from '@/lists/useDetail';
 import { setInArrayBy, useGFFLP } from '@/lists/useGflp';
 import { LanguageCode, ModelTypes } from '@/zeus';
-import { Button, Select, Stack, TextField, Textarea } from '@aexol-studio/styling-system';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -40,27 +44,21 @@ export const ProductDetailPage = () => {
 
   console.log({ currentTranslationValue, currentTranslationLng, translations });
   return (
-    <Stack direction="column" gap="0rem">
+    <Stack column gap="0rem">
       <Select
-        options={[
-          {
-            label: LanguageCode.en,
-            value: LanguageCode.en,
-          },
-          {
-            label: LanguageCode.pl,
-            value: LanguageCode.pl,
-          },
-        ]}
-        selectedOption={currentTranslationLng}
-        onChange={(e) => {
-          setCurrentTranslationLng(e);
+        defaultValue={LanguageCode.en}
+        onValueChange={(e) => {
+          setCurrentTranslationLng(e as LanguageCode);
         }}
-      />
-      <TextField
-        fullWidth
-        variant="border-bottom"
-        label={t('name')}
+      >
+        <SelectTrigger className="w-[180px]">
+          <SelectValue placeholder="Theme" />
+        </SelectTrigger>
+        <SelectItem value={LanguageCode.en}>{LanguageCode.en}</SelectItem>
+        <SelectItem value={LanguageCode.pl}>{LanguageCode.pl}</SelectItem>
+      </Select>
+      <Input
+        placeholder={t('name')}
         key={currentTranslationLng}
         value={currentTranslationValue?.name}
         onChange={(e) =>
@@ -73,10 +71,10 @@ export const ProductDetailPage = () => {
           )
         }
       />
-      <TextField
+      <Input
         key={currentTranslationLng + 'slug'}
         value={currentTranslationValue?.slug}
-        label={t('slug')}
+        placeholder={t('slug')}
         onChange={(e) =>
           setField(
             'translations',
@@ -88,9 +86,8 @@ export const ProductDetailPage = () => {
         }
       />
       <Textarea
-        fullWidth
         rows={6}
-        label={t('name')}
+        placeholder={t('name')}
         key={currentTranslationLng + 'area'}
         value={currentTranslationValue?.description}
         style={{ margin: 0 }}

@@ -1,10 +1,11 @@
 import { adminApiMutation, adminApiQuery } from '@/common/client';
+import { Stack } from '@/components/ui/Stack';
+import { Button } from '@/components/ui/button';
 import { OrderSelector } from '@/graphql/orders';
 import { resetCache } from '@/lists/cache';
 import { useDetail } from '@/lists/useDetail';
 import { useGFFLP } from '@/lists/useGflp';
 import { ModelTypes } from '@/zeus';
-import { Button, Stack } from '@aexol-studio/styling-system';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 

@@ -1,10 +1,8 @@
 import { adminApiQuery } from '@/common/client';
-import { TH, TableAvatar, TableRow } from '@/common/components/table/table';
+import { Table, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { CollectionSelector } from '@/graphql/base';
 import { useList } from '@/lists/useList';
 import { ResolverInputTypes } from '@/zeus';
-import { Stack, Typography } from '@aexol-studio/styling-system';
-import styled from '@emotion/styled';
 import { useTranslation } from 'react-i18next';
 
 const getCollections = async (paginate?: ResolverInputTypes['ProductListOptions']) => {
@@ -32,26 +30,28 @@ export const CollectionsListPage = () => {
   });
   const { t } = useTranslation('products');
   return (
-    <Stack direction="column">
-      <CollectionRow>
-        <div />
-        <TH>{t('name')}</TH>
-        <TH>{t('slug')}</TH>
-      </CollectionRow>
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>
+            <div />
+          </TableHead>
+          <TableHead>{t('name')}</TableHead>
+          <TableHead>{t('slug')}</TableHead>
+        </TableRow>
+      </TableHeader>
       {collections?.map((p) => {
         return (
-          <CollectionRow gap="1rem" key={p.slug}>
-            <TableAvatar src={p.featuredAsset?.preview + '?preset=tiny'} />
-            <Typography>{p.name}</Typography>
-            <Typography>{p.slug}</Typography>
-          </CollectionRow>
+          <TableRow key={p.slug}>
+            <TableCell>
+              <img src={p.featuredAsset?.preview + '?preset=tiny'} />
+            </TableCell>
+            <TableCell>{p.name}</TableCell>
+            <TableCell>{p.slug}</TableCell>
+          </TableRow>
         );
       })}
       {Paginate}
-    </Stack>
+    </Table>
   );
 };
-const CollectionRow = styled(TableRow)`
-  display: grid;
-  grid-template-columns: 2rem 3fr 3fr;
-`;

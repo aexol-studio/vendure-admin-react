@@ -1,30 +1,27 @@
 import { logOut, loginAtom } from '@/common/client';
-import { BagShopping, Book, CartShoppingFast, Folder, Stack, Typography } from '@aexol-studio/styling-system';
 import styled from '@emotion/styled';
 import { useAtom } from 'jotai';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { NavLink } from 'react-router-dom';
-
+import { BookmarkIcon, FileIcon, BackpackIcon, BarChartIcon } from '@radix-ui/react-icons';
 export const Menu: React.FC<{ children?: React.ReactNode }> = () => {
   const { t } = useTranslation(['common']);
   const [, setIsLoggedIn] = useAtom(loginAtom);
   return (
     <React.Suspense fallback="loading...">
-      <Sidebar direction="column">
-        <SideMenuButton icon={<Book />} label={t('menu.products')} href="/products" />
-        <SideMenuButton icon={<Folder />} label={t('menu.collections')} href="/collections" />
-        <SideMenuButton icon={<CartShoppingFast />} label={t('menu.orders')} href="/orders" />
+      <Sidebar>
+        <SideMenuButton icon={<BookmarkIcon />} label={t('menu.products')} href="/products" />
+        <SideMenuButton icon={<FileIcon />} label={t('menu.collections')} href="/collections" />
+        <SideMenuButton icon={<BarChartIcon />} label={t('menu.orders')} href="/orders" />
         <MenuButton
-          align="center"
-          gap="0.5rem"
           onClick={() => {
             logOut();
             setIsLoggedIn('no');
           }}
         >
-          <BagShopping />
-          <Typography variant="Body 2 R">{t('menu.logOut')}</Typography>
+          <BackpackIcon />
+          <p>{t('menu.logOut')}</p>
         </MenuButton>
       </Sidebar>
     </React.Suspense>
@@ -37,32 +34,21 @@ const SideMenuButton: React.FC<{
 }> = ({ href, icon, label }) => {
   return (
     <NavLink to={href}>
-      <MenuButton align="center" gap="0.5rem">
+      <MenuButton>
         {icon}
-        <Typography color="inherit" variant="Body 2 SB">
-          {label}
-        </Typography>
+        <p>{label}</p>
       </MenuButton>
     </NavLink>
   );
 };
-const MenuButton = styled(Stack)`
+const MenuButton = styled.div`
   padding: 0.5rem 1.25rem;
-  border-bottom: ${(p) => p.theme.neutrals.L6} 1px solid;
   svg {
-    color: ${(p) => p.theme.text.active};
     width: 1rem;
   }
 `;
-const Sidebar = styled(Stack)`
+const Sidebar = styled.div`
   width: 24rem;
   height: 100%;
   padding: 1rem;
-  background-color: ${(p) => p.theme.neutrals.L8};
-  a {
-    color: ${(p) => p.theme.text.default};
-    &.active {
-      color: ${(p) => p.theme.text.active};
-    }
-  }
 `;

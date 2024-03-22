@@ -1,12 +1,10 @@
 import { adminApiQuery } from '@/common/client';
-import { TH, TableAvatar, TableRow } from '@/common/components/table/table';
 import { ProductTileSelector } from '@/graphql/products';
 import { useList } from '@/lists/useList';
 import { ResolverInputTypes, SortOrder } from '@/zeus';
-import { Stack, Typography } from '@aexol-studio/styling-system';
-import styled from '@emotion/styled';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 const getProducts = async (paginate: ResolverInputTypes['ProductListOptions']) => {
   const response = await adminApiQuery()({
@@ -33,31 +31,40 @@ export const ProductListPage = () => {
     cacheKey: 'products',
   });
   const { t } = useTranslation('products');
+
   return (
-    <Stack direction="column">
-      <ProductRow>
-        <div />
-        <TH onClick={() => sort('name')}>{t('name')}</TH>
-        <TH>{t('slug')}</TH>
-        <TH>{t('variants')}</TH>
-      </ProductRow>
-      {products?.map((p) => {
-        return (
-          <ProductRow gap="1rem" key={p.id}>
-            <TableAvatar src={p.featuredAsset?.preview + '?preset=tiny'} />
-            <Link to={`/products/${p.slug}/`}>
-              <Typography>{p.name}</Typography>
-            </Link>
-            <Typography>{p.slug}</Typography>
-            <Typography>{p.variantList.totalItems}</Typography>
-          </ProductRow>
-        );
-      })}
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <div />
+          <TableHead onClick={() => sort('name')}>{t('name')}</TableHead>
+          <TableHead>{t('slug')}</TableHead>
+          <TableHead>{t('variants')}</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {products?.map((p) => {
+          return (
+            <TableRow key={p.id}>
+              <TableCell>
+                <img src={p.featuredAsset?.preview + '?preset=tiny'} />
+              </TableCell>
+              <TableCell>
+                <Link to={`/products/${p.slug}/`}>
+                  <p>{p.name}</p>
+                </Link>
+              </TableCell>
+              <TableCell>
+                <p>{p.slug}</p>
+              </TableCell>
+              <TableCell>
+                <p>{p.variantList.totalItems}</p>
+              </TableCell>
+            </TableRow>
+          );
+        })}
+      </TableBody>
       {Paginate}
-    </Stack>
+    </Table>
   );
 };
-const ProductRow = styled(TableRow)`
-  display: grid;
-  grid-template-columns: 2rem 3fr 3fr 1fr;
-`;

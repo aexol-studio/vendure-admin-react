@@ -1,10 +1,8 @@
 import { adminApiQuery } from '@/common/client';
-import { TH, TableRow } from '@/common/components/table/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { OrderListSelector } from '@/graphql/orders';
 import { useList } from '@/lists/useList';
 import { ResolverInputTypes } from '@/zeus';
-import { Stack, Typography } from '@aexol-studio/styling-system';
-import styled from '@emotion/styled';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
@@ -31,29 +29,34 @@ export const OrderListPage = () => {
   });
   const { t } = useTranslation('orders');
   return (
-    <Stack direction="column">
-      <OrderRow>
-        <TH>{t('name')}</TH>
-        <TH>{t('slug')}</TH>
-        <TH>{t('variants')}</TH>
-      </OrderRow>
-      {orders?.map((p) => {
-        return (
-          <OrderRow gap="1rem" key={p.id}>
-            <Link to={`/orders/${p.id}/`}>
-              <Typography>{p.id}</Typography>
-            </Link>
-            <Typography>{p.customer?.emailAddress || p.shippingAddress?.fullName}</Typography>
-            <Typography>{p.totalWithTax}</Typography>
-            <Typography>{p.state}</Typography>
-          </OrderRow>
-        );
-      })}
+    <>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>{t('name')}</TableHead>
+            <TableHead>{t('name')}</TableHead>
+            <TableHead>{t('slug')}</TableHead>
+            <TableHead>{t('variants')}</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {orders?.map((p) => {
+            return (
+              <TableRow key={p.id}>
+                <TableCell>
+                  <Link to={`/orders/${p.id}/`}>
+                    <p>{p.id}</p>
+                  </Link>
+                </TableCell>
+                <TableCell>{p.customer?.emailAddress || p.shippingAddress?.fullName}</TableCell>
+                <TableCell>{p.totalWithTax}</TableCell>
+                <TableCell>{p.state}</TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
       {Paginate}
-    </Stack>
+    </>
   );
 };
-const OrderRow = styled(TableRow)`
-  display: grid;
-  grid-template-columns: 2rem 3fr 3fr 1fr;
-`;

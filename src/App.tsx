@@ -3,12 +3,14 @@ import { Root } from '@/pages/Root';
 import { Layout } from '@/common/Layout';
 import { useEffect, useState } from 'react';
 import { adminApiMutation, loginAtom, token } from '@/common/client';
-import { Button, Stack, TextField } from '@aexol-studio/styling-system';
 import { ProductListPage } from '@/pages/products/List';
 import { CollectionsListPage } from '@/pages/collections/List';
 import { useAtom } from 'jotai';
 import { ProductDetailPage } from '@/pages/products/Detail';
 import { OrderListPage } from '@/pages/orders/List';
+import { Button } from '@/components/ui/button';
+import { Stack } from '@/components/ui/Stack';
+import { Input } from '@/components/ui/input';
 const router = createBrowserRouter([
   {
     path: '/',
@@ -57,8 +59,8 @@ function App() {
       {isLoggedIn === 'yes' && <RouterProvider router={router} />}
       {isLoggedIn === 'no' && (
         <Layout>
-          <Stack direction="column" gap="1rem">
-            <TextField
+          <Stack column gap="1rem">
+            <Input
               value={formState.username}
               onChange={(e) =>
                 setFormState({
@@ -68,7 +70,7 @@ function App() {
               }
               placeholder="username"
             />
-            <TextField
+            <Input
               onChange={(e) =>
                 setFormState({
                   ...formState,
