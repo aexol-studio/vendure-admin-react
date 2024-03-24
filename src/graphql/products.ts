@@ -117,6 +117,15 @@ export const ProductDetailSelector = Selector('Product')({
     priceWithTax: true,
     stockLevel: true,
     sku: true,
+    price: true,
+    taxCategory: {
+      name: true,
+      id: true,
+    },
+    taxRateApplied: {
+      name: true,
+      id: true,
+    },
     options: {
       id: true,
       groupId: true,

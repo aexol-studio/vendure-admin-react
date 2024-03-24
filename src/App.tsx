@@ -6,7 +6,7 @@ import { adminApiMutation, loginAtom, token } from '@/common/client';
 import { ProductListPage } from '@/pages/products/List';
 import { CollectionsListPage } from '@/pages/collections/List';
 import { useAtom } from 'jotai';
-import { ProductDetailPage } from '@/pages/products/Detail';
+import { ProductDetailPage } from '@/pages/products/Detail/Detail';
 import { OrderListPage } from '@/pages/orders/List';
 import { Button } from '@/components/ui/button';
 import { Stack } from '@/components/ui/Stack';

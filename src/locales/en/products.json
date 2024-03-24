@@ -3,8 +3,14 @@
     "image":"image",
     "name":"name",
     "slug":"slug",
-    "variants":"variants",
+    "variants":"Product variants",
     "enabled":"enabled",
+    "facets":"Facets",
+    "options":"Options",
+    "sku":"sku",
+    "price":"price",
+    "tax_category":"tax category",
+    "taxes":"taxes",
     "forms":{
         "create":"Create Product",
         "update":"Update Product"

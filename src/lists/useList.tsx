@@ -70,23 +70,18 @@ export const useList = <T extends PromisePaginated>({
     return nPage;
   };
   const currentPagesStart = pageNumber - 5 < 1 ? 1 : pageNumber - 5;
-  const currentPagesEnd = currentPagesStart + 5 > totalPages ? totalPages : pageNumber + 5;
-  const currentPagesDelta = currentPagesEnd - currentPagesStart + 1;
-  const currentPagesArray = new Array(currentPagesDelta).fill(0).map((_, i) => currentPagesStart + i);
-  console.log(currentPagesArray);
+  const currentPagesArray = new Array(Math.min(totalPages, 9)).fill(0).map((_, i) => currentPagesStart + i);
   return {
     Paginate: (
       <Pagination>
         <PaginationContent>
-          <PaginationItem>
-            <PaginationPrevious
-              onClick={() => {
-                setSearchParams({
-                  page: prevPage().toString(),
-                });
-              }}
-            />
-          </PaginationItem>
+          <PaginationPrevious
+            onClick={() => {
+              setSearchParams({
+                page: prevPage().toString(),
+              });
+            }}
+          />
           {currentPagesArray.map((i) => (
             <PaginationItem key={i}>
               <PaginationLink
@@ -104,15 +99,13 @@ export const useList = <T extends PromisePaginated>({
           {/* <PaginationItem>
             <PaginationEllipsis />
           </PaginationItem> */}
-          <PaginationItem>
-            <PaginationNext
-              onClick={() => {
-                setSearchParams({
-                  page: nextPage().toString(),
-                });
-              }}
-            />
-          </PaginationItem>
+          <PaginationNext
+            onClick={() => {
+              setSearchParams({
+                page: nextPage().toString(),
+              });
+            }}
+          />
         </PaginationContent>
       </Pagination>
     ),

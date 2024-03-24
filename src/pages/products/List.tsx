@@ -43,10 +43,10 @@ export const ProductListPage = () => {
 
   return (
     <Table>
-      <TableCaption>A list of your recent invoices.</TableCaption>
+      <TableCaption>{t('name')}</TableCaption>
       <TableHeader>
         <TableRow>
-          <div />
+          <TableHead>{t('variants')}</TableHead>
           <TableHead onClick={() => sort('name')}>{t('name')}</TableHead>
           <TableHead>{t('slug')}</TableHead>
           <TableHead>{t('variants')}</TableHead>
@@ -57,7 +57,7 @@ export const ProductListPage = () => {
           return (
             <TableRow key={p.slug}>
               <TableCell>
-                <img src={p.featuredAsset?.preview + '?preset=tiny'} />
+                <img className="w-8" src={p.featuredAsset?.preview + '?preset=tiny'} />
               </TableCell>
               <TableCell>
                 <Link to={`/products/${p.slug}/`}>{p.name}</Link>

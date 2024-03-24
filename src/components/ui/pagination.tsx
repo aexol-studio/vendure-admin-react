@@ -22,7 +22,7 @@ const PaginationContent = React.forwardRef<HTMLUListElement, React.ComponentProp
 PaginationContent.displayName = 'PaginationContent';
 
 const PaginationItem = React.forwardRef<HTMLLIElement, React.ComponentProps<'li'>>(({ className, ...props }, ref) => (
-  <li ref={ref} className={cn('', className)} {...props} />
+  <li ref={ref} className={cn('w-8', className)} {...props} />
 ));
 PaginationItem.displayName = 'PaginationItem';
 
@@ -34,7 +34,7 @@ type PaginationLinkProps = {
 const PaginationLink = ({ className, isActive, size = 'icon', ...props }: PaginationLinkProps) => (
   <a
     aria-current={isActive ? 'page' : undefined}
-    className={cn('p-2 block', isActive ? 'text-primary' : 'text-muted-foreground cursor-pointer', className)}
+    className={cn(isActive ? 'text-primary' : 'text-muted-foreground cursor-pointer', className)}
     {...props}
   />
 );
