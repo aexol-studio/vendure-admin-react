@@ -2,7 +2,9 @@ import { adminApiMutation, adminApiQuery } from '@/common/client';
 import { Stack } from '@/components/ui/Stack';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { ProductDetailSelector } from '@/graphql/products';
 import { resetCache } from '@/lists/cache';
@@ -11,6 +13,7 @@ import { setInArrayBy, useGFFLP } from '@/lists/useGflp';
 import { LanguageCode, ModelTypes } from '@/zeus';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 
 const getProduct = async ({ slug }: { slug: string }) => {
   const response = await adminApiQuery()({
@@ -49,6 +52,16 @@ export const ProductDetailPage = () => {
       <Stack className="gap-x-8">
         <img className="w-96" src={object?.featuredAsset?.source} />
         <Stack column className="gap-y-4 flex-1">
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="product-enabled"
+              checked={object?.enabled}
+              onCheckedChange={(e) => {
+                setField('enabled', e);
+              }}
+            />
+            <Label htmlFor="product-enabled">{t('enabled')}</Label>
+          </div>
           <Select
             defaultValue={LanguageCode.en}
             onValueChange={(e) => {
@@ -117,6 +130,10 @@ export const ProductDetailPage = () => {
           updateProduct({
             id: object.id,
             translations: state.translations.validatedValue,
+          }).then(() => {
+            toast(t('forms.update'), {
+              description: new Date().toLocaleString(),
+            });
           });
           console.log(object.slug);
           reset();
@@ -126,6 +143,27 @@ export const ProductDetailPage = () => {
       >
         {t('forms.update')}
       </Button>
+      <Stack column>
+        <h2>{t('variants')}</h2>
+        {object?.variants.map((v) => (
+          <Stack column key={v.id}>
+            <Input
+              label={t('name')}
+              placeholder={t('name')}
+              key={currentTranslationLng}
+              value={v?.sku}
+              onChange={(e) => {}}
+            />
+            <Input
+              label={t('name')}
+              placeholder={t('name')}
+              key={currentTranslationLng}
+              value={v?.name}
+              onChange={(e) => {}}
+            />
+          </Stack>
+        ))}
+      </Stack>
     </Stack>
   );
 };

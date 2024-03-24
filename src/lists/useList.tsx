@@ -59,8 +59,6 @@ export const useList = <T extends PromisePaginated>({
   }, [pageNumber, sortMethod]);
 
   const totalPages = useMemo(() => Math.ceil(total / limit), [total, limit]);
-  const pagesArray = new Array(totalPages).fill(0);
-
   const nextPage = () => {
     const nPage = (pageNumber + 1) % totalPages;
     if (nPage === 0) return 1;
@@ -71,6 +69,11 @@ export const useList = <T extends PromisePaginated>({
     if (nPage === 0) return totalPages - 1;
     return nPage;
   };
+  const currentPagesStart = pageNumber - 5 < 1 ? 1 : pageNumber - 5;
+  const currentPagesEnd = currentPagesStart + 5 > totalPages ? totalPages : pageNumber + 5;
+  const currentPagesDelta = currentPagesEnd - currentPagesStart + 1;
+  const currentPagesArray = new Array(currentPagesDelta).fill(0).map((_, i) => currentPagesStart + i);
+  console.log(currentPagesArray);
   return {
     Paginate: (
       <Pagination>
@@ -84,7 +87,7 @@ export const useList = <T extends PromisePaginated>({
               }}
             />
           </PaginationItem>
-          {pagesArray.map((_, i) => (
+          {currentPagesArray.map((i) => (
             <PaginationItem key={i}>
               <PaginationLink
                 onClick={() => {
@@ -92,7 +95,7 @@ export const useList = <T extends PromisePaginated>({
                     page: i.toString(),
                   });
                 }}
-                isActive={i + 1 === pageNumber}
+                isActive={i === pageNumber}
               >
                 {i}
               </PaginationLink>

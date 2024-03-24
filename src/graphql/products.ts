@@ -88,6 +88,7 @@ export const ProductDetailSelector = Selector('Product')({
   description: true,
   id: true,
   slug: true,
+  enabled: true,
   optionGroups: {
     name: true,
     id: true,

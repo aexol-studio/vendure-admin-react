@@ -22,7 +22,7 @@ const getOrders = async (paginate: ResolverInputTypes['OrderListOptions']) => {
 export const OrderListPage = () => {
   const { objects: orders, Paginate } = useList({
     route: async (p) => {
-      return getOrders({ take: 10, skip: p.page });
+      return getOrders({ take: 10, skip: (p.page - 1) * 10 });
     },
     limit: 10,
     cacheKey: 'orders',
