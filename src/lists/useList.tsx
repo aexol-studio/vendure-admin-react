@@ -1,7 +1,6 @@
 import {
   Pagination,
   PaginationContent,
-  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
@@ -59,6 +58,19 @@ export const useList = <T extends PromisePaginated>({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageNumber, sortMethod]);
 
+  const totalPages = useMemo(() => Math.ceil(total / limit), [total, limit]);
+  const pagesArray = new Array(totalPages).fill(0);
+
+  const nextPage = () => {
+    const nPage = (pageNumber + 1) % totalPages;
+    if (nPage === 0) return 1;
+    return nPage;
+  };
+  const prevPage = () => {
+    const nPage = (pageNumber + -1) % totalPages;
+    if (nPage === 0) return totalPages - 1;
+    return nPage;
+  };
   return {
     Paginate: (
       <Pagination>
@@ -67,22 +79,33 @@ export const useList = <T extends PromisePaginated>({
             <PaginationPrevious
               onClick={() => {
                 setSearchParams({
-                  page: (pageNumber - 1).toString(),
+                  page: prevPage().toString(),
                 });
               }}
             />
           </PaginationItem>
-          <PaginationItem>
-            <PaginationLink>{pageNumber}</PaginationLink>
-          </PaginationItem>
-          <PaginationItem>
+          {pagesArray.map((_, i) => (
+            <PaginationItem key={i}>
+              <PaginationLink
+                onClick={() => {
+                  setSearchParams({
+                    page: i.toString(),
+                  });
+                }}
+                isActive={i + 1 === pageNumber}
+              >
+                {i}
+              </PaginationLink>
+            </PaginationItem>
+          ))}
+          {/* <PaginationItem>
             <PaginationEllipsis />
-          </PaginationItem>
+          </PaginationItem> */}
           <PaginationItem>
             <PaginationNext
               onClick={() => {
                 setSearchParams({
-                  page: (pageNumber + 1).toString(),
+                  page: nextPage().toString(),
                 });
               }}
             />

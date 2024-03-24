@@ -2,7 +2,7 @@ import { adminApiMutation, adminApiQuery } from '@/common/client';
 import { Stack } from '@/components/ui/Stack';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { ProductDetailSelector } from '@/graphql/products';
 import { resetCache } from '@/lists/cache';
@@ -44,63 +44,73 @@ export const ProductDetailPage = () => {
 
   console.log({ currentTranslationValue, currentTranslationLng, translations });
   return (
-    <Stack column gap="0rem">
-      <Select
-        defaultValue={LanguageCode.en}
-        onValueChange={(e) => {
-          setCurrentTranslationLng(e as LanguageCode);
-        }}
-      >
-        <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="Theme" />
-        </SelectTrigger>
-        <SelectItem value={LanguageCode.en}>{LanguageCode.en}</SelectItem>
-        <SelectItem value={LanguageCode.pl}>{LanguageCode.pl}</SelectItem>
-      </Select>
-      <Input
-        placeholder={t('name')}
-        key={currentTranslationLng}
-        value={currentTranslationValue?.name}
-        onChange={(e) =>
-          setField(
-            'translations',
-            setInArrayBy(translations, (t) => t.languageCode !== currentTranslationLng, {
-              name: e.target.value,
-              languageCode: currentTranslationLng,
-            }),
-          )
-        }
-      />
-      <Input
-        key={currentTranslationLng + 'slug'}
-        value={currentTranslationValue?.slug}
-        placeholder={t('slug')}
-        onChange={(e) =>
-          setField(
-            'translations',
-            setInArrayBy(translations, (t) => t.languageCode !== currentTranslationLng, {
-              slug: e.target.value,
-              languageCode: currentTranslationLng,
-            }),
-          )
-        }
-      />
-      <Textarea
-        rows={6}
-        placeholder={t('name')}
-        key={currentTranslationLng + 'area'}
-        value={currentTranslationValue?.description}
-        style={{ margin: 0 }}
-        onChange={(e) =>
-          setField(
-            'translations',
-            setInArrayBy(translations, (t) => t.languageCode !== currentTranslationLng, {
-              description: e.target.value,
-              languageCode: currentTranslationLng,
-            }),
-          )
-        }
-      />
+    <Stack column className="gap-y-4">
+      <h2>{t('forms.update')}</h2>
+      <Stack className="gap-x-8">
+        <img className="w-96" src={object?.featuredAsset?.source} />
+        <Stack column className="gap-y-4 flex-1">
+          <Select
+            defaultValue={LanguageCode.en}
+            onValueChange={(e) => {
+              setCurrentTranslationLng(e as LanguageCode);
+            }}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Theme" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={LanguageCode.en}>{LanguageCode.en}</SelectItem>
+              <SelectItem value={LanguageCode.pl}>{LanguageCode.pl}</SelectItem>
+            </SelectContent>
+          </Select>
+          <Input
+            label={t('name')}
+            placeholder={t('name')}
+            key={currentTranslationLng}
+            value={currentTranslationValue?.name}
+            onChange={(e) =>
+              setField(
+                'translations',
+                setInArrayBy(translations, (t) => t.languageCode !== currentTranslationLng, {
+                  name: e.target.value,
+                  languageCode: currentTranslationLng,
+                }),
+              )
+            }
+          />
+          <Input
+            key={currentTranslationLng + 'slug'}
+            value={currentTranslationValue?.slug}
+            label={t('slug')}
+            placeholder={t('slug')}
+            onChange={(e) =>
+              setField(
+                'translations',
+                setInArrayBy(translations, (t) => t.languageCode !== currentTranslationLng, {
+                  slug: e.target.value,
+                  languageCode: currentTranslationLng,
+                }),
+              )
+            }
+          />
+          <Textarea
+            rows={6}
+            placeholder={t('name')}
+            key={currentTranslationLng + 'area'}
+            value={currentTranslationValue?.description}
+            style={{ margin: 0 }}
+            onChange={(e) =>
+              setField(
+                'translations',
+                setInArrayBy(translations, (t) => t.languageCode !== currentTranslationLng, {
+                  description: e.target.value,
+                  languageCode: currentTranslationLng,
+                }),
+              )
+            }
+          />
+        </Stack>
+      </Stack>
       <Button
         onClick={() => {
           if (!object || !state.translations?.validatedValue) return;

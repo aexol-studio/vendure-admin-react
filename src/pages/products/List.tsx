@@ -4,7 +4,16 @@ import { useList } from '@/lists/useList';
 import { ResolverInputTypes, SortOrder } from '@/zeus';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
 const getProducts = async (paginate: ResolverInputTypes['ProductListOptions']) => {
   const response = await adminApiQuery()({
@@ -25,7 +34,7 @@ export const ProductListPage = () => {
             [p.sort]: SortOrder.DESC,
           }
         : undefined;
-      return getProducts({ take: 10, skip: p.page, sort });
+      return getProducts({ take: 10, skip: (p.page - 1) * 10, sort });
     },
     limit: 10,
     cacheKey: 'products',
@@ -34,6 +43,7 @@ export const ProductListPage = () => {
 
   return (
     <Table>
+      <TableCaption>A list of your recent invoices.</TableCaption>
       <TableHeader>
         <TableRow>
           <div />
@@ -45,26 +55,20 @@ export const ProductListPage = () => {
       <TableBody>
         {products?.map((p) => {
           return (
-            <TableRow key={p.id}>
+            <TableRow key={p.slug}>
               <TableCell>
                 <img src={p.featuredAsset?.preview + '?preset=tiny'} />
               </TableCell>
               <TableCell>
-                <Link to={`/products/${p.slug}/`}>
-                  <p>{p.name}</p>
-                </Link>
+                <Link to={`/products/${p.slug}/`}>{p.name}</Link>
               </TableCell>
-              <TableCell>
-                <p>{p.slug}</p>
-              </TableCell>
-              <TableCell>
-                <p>{p.variantList.totalItems}</p>
-              </TableCell>
+              <TableCell>{p.slug}</TableCell>
+              <TableCell>{p.variantList.totalItems}</TableCell>
             </TableRow>
           );
         })}
       </TableBody>
-      {Paginate}
+      <TableFooter>{Paginate}</TableFooter>
     </Table>
   );
 };

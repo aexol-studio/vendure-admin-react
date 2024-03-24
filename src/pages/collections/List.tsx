@@ -1,5 +1,5 @@
 import { adminApiQuery } from '@/common/client';
-import { Table, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Table, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { CollectionSelector } from '@/graphql/base';
 import { useList } from '@/lists/useList';
 import { ResolverInputTypes } from '@/zeus';
@@ -31,6 +31,7 @@ export const CollectionsListPage = () => {
   const { t } = useTranslation('products');
   return (
     <Table>
+      <TableCaption>Collections</TableCaption>
       <TableHeader>
         <TableRow>
           <TableHead>
