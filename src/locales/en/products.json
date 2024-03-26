@@ -7,10 +7,14 @@
     "enabled":"enabled",
     "facets":"Facets",
     "options":"Options",
+    "editOptions":"Edit Options",
     "sku":"sku",
     "price":"price",
     "tax_category":"tax category",
     "taxes":"taxes",
+    "editProduct":"Edit product",
+    "deleteProduct":"Delete Product",
+    "addPrice":"Add price",
     "forms":{
         "create":"Create Product",
         "update":"Update Product"

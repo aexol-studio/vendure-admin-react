@@ -2,6 +2,7 @@ import { adminApiMutation, adminApiQuery } from '@/common/client';
 import { Stack } from '@/components/ui/Stack';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -12,7 +13,7 @@ import { ProductDetailSelector } from '@/graphql/products';
 import { resetCache } from '@/lists/cache';
 import { useDetail } from '@/lists/useDetail';
 import { setInArrayBy, useGFFLP } from '@/lists/useGflp';
-import { LanguageCode, ModelTypes } from '@/zeus';
+import { CurrencyCode, LanguageCode, ModelTypes } from '@/zeus';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -29,16 +30,28 @@ const updateProduct = async (props: ModelTypes['UpdateProductInput']) => {
   });
   return response.updateProduct.id;
 };
+const updateProductVariant = async (props: ModelTypes['UpdateProductVariantInput']) => {
+  const response = await adminApiMutation()({
+    updateProduct: [{ input: props }, { id: true }],
+  });
+  return response.updateProduct.id;
+};
 
 export const ProductDetailPage = () => {
   const { t } = useTranslation('products');
 
   const { object, reset } = useDetail({
-    cacheKey: 'productDetail',
+    cacheKey: 'productDetail-v2',
     route: getProduct,
   });
 
   const { state, setField } = useGFFLP('UpdateProductInput', 'translations', 'featuredAssetId', 'enabled')({});
+  const { state: variantState, setField: setCurrentVariantField } = useGFFLP(
+    'UpdateProductVariantInput',
+    'translations',
+    'price',
+    'sku',
+  )({});
   const [currentTranslationLng, setCurrentTranslationLng] = useState(LanguageCode.en);
   const translations = state?.translations?.value || [];
   const currentTranslationValue = translations.find((v) => v.languageCode === currentTranslationLng);
@@ -51,16 +64,16 @@ export const ProductDetailPage = () => {
   return (
     <Stack column className="gap-y-4">
       <h2>{t('forms.update')}</h2>
+
       <Tabs defaultValue="product" className="w-full">
         <TabsList>
           <TabsTrigger value="product">{t('forms.update')}</TabsTrigger>
           <TabsTrigger value="variants">{t('variants')}</TabsTrigger>
-          <TabsTrigger value="options">{t('options')}</TabsTrigger>
         </TabsList>
         <TabsContent className="w-full" value="product">
-          <Stack className="gap-x-16">
-            <Stack className="gap-x-8 flex-2">
-              <img className="w-96" src={object?.featuredAsset?.source} />
+          <Stack className="gap-x-8">
+            <Stack className="gap-x-8 flex-1">
+              <img className="w-72" src={object?.featuredAsset?.source} />
               <Stack column className="gap-y-4 flex-1">
                 <div className="flex items-center space-x-2">
                   <Switch
@@ -132,47 +145,64 @@ export const ProductDetailPage = () => {
                     )
                   }
                 />
+                <Button
+                  onClick={() => {
+                    if (!object || !state.translations?.validatedValue) return;
+                    updateProduct({
+                      id: object.id,
+                      translations: state.translations.validatedValue,
+                    }).then(() => {
+                      toast(t('forms.update'), {
+                        description: new Date().toLocaleString(),
+                      });
+                    });
+                    console.log(object.slug);
+                    reset();
+                    resetCache('products');
+                    return;
+                  }}
+                >
+                  {t('forms.update')}
+                </Button>
               </Stack>
             </Stack>
-            <Stack column className="flex-1 gap-y-8">
-              <Stack column className="gap-y-2">
-                <h3>{t('options')}</h3>
-                <Stack className="gap-x-2">
-                  {object?.optionGroups.map((fv) => <Badge key={fv.id}>{fv.name}</Badge>)}
-                </Stack>
-              </Stack>
-              <Stack column className="gap-y-2">
-                <h3>{t('facets')}</h3>
-                <Stack className="gap-x-2">
-                  {object?.facetValues.map((fv) => <Badge key={fv.id}>{fv.name}</Badge>)}
-                </Stack>
-              </Stack>
+            <Stack column className="flex-0.5 gap-y-8">
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t('options')}</CardTitle>
+                  <CardDescription>{t('options')}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Stack className="gap-x-2">
+                    {object?.optionGroups.map((fv) => <Badge key={fv.id}>{fv.name}</Badge>)}
+                  </Stack>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t('facets')}</CardTitle>
+                  <CardDescription>{t('facets')}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Stack className="gap-x-2">
+                    {object?.facetValues.map((fv) => <Badge key={fv.id}>{fv.name}</Badge>)}
+                  </Stack>
+                </CardContent>
+              </Card>
             </Stack>
           </Stack>
-          <Button
-            onClick={() => {
-              if (!object || !state.translations?.validatedValue) return;
-              updateProduct({
-                id: object.id,
-                translations: state.translations.validatedValue,
-              }).then(() => {
-                toast(t('forms.update'), {
-                  description: new Date().toLocaleString(),
-                });
-              });
-              console.log(object.slug);
-              reset();
-              resetCache('products');
-              return;
-            }}
-          >
-            {t('forms.update')}
-          </Button>
         </TabsContent>
         <TabsContent value="variants">
           <Stack column>
             <h2>{t('variants')}</h2>
-            <Tabs defaultValue={object?.variants?.[0].id}>
+            <Tabs
+              onValueChange={(e) => {
+                const variant = object?.variants.find((v) => v.id === e);
+                if (variant) {
+                }
+              }}
+              defaultValue={object?.variants?.[0].id}
+            >
               <TabsList className="flex-wrap h-auto justify-start">
                 {object?.variants.map((v) => (
                   <TabsTrigger key={v.id} value={v.id}>
@@ -182,12 +212,12 @@ export const ProductDetailPage = () => {
               </TabsList>
               {object?.variants.map((v) => (
                 <TabsContent value={v.id} key={v.id}>
-                  <Stack column key={v.id}>
+                  <Stack column key={v.id} className="gap-y-4">
                     <Input
                       label={t('sku')}
                       placeholder={t('sku')}
                       key={currentTranslationLng}
-                      value={v?.sku}
+                      value={variantState?.sku?.value}
                       onChange={(e) => {}}
                     />
                     <Input
@@ -197,14 +227,42 @@ export const ProductDetailPage = () => {
                       value={v?.name}
                       onChange={(e) => {}}
                     />
-                    <Input
-                      type="number"
-                      label={t('price')}
-                      placeholder={t('price')}
-                      key={currentTranslationLng}
-                      value={v?.price}
-                      onChange={(e) => {}}
-                    />
+                    {v.prices.map((p) => (
+                      <Stack key={p.currencyCode} className="items-center gap-x-4">
+                        <Input
+                          type="number"
+                          placeholder={t('price')}
+                          key={currentTranslationLng}
+                          value={p.price}
+                          onChange={(e) => {}}
+                        />
+                        <Badge>{p.currencyCode}</Badge>
+                      </Stack>
+                    ))}
+                    <Stack className="gap-x-4">
+                      <Select defaultValue={CurrencyCode.USD} onValueChange={(e) => {}}>
+                        <SelectTrigger className="w-[180px]">
+                          <SelectValue placeholder="Theme" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value={CurrencyCode.EUR}>{CurrencyCode.EUR}</SelectItem>
+                          <SelectItem value={CurrencyCode.PLN}>{CurrencyCode.PLN}</SelectItem>
+                          <SelectItem value={CurrencyCode.USD}>{CurrencyCode.USD}</SelectItem>
+                          <SelectItem value={CurrencyCode.AUD}>{CurrencyCode.AUD}</SelectItem>
+                          <SelectItem value={CurrencyCode.CZK}>{CurrencyCode.CZK}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Button variant={'outline'}>{t('addPrice')}</Button>
+                    </Stack>
+                    <Button
+                      onClick={() => {
+                        updateProductVariant({
+                          id: v.id,
+                        });
+                      }}
+                    >
+                      {t('forms.update')}
+                    </Button>
                   </Stack>
                 </TabsContent>
               ))}

@@ -17,7 +17,6 @@ export const useDetail = <T extends PromiseDetail>({ route, cacheKey }: { route:
     }
     route({ slug }).then((r) => {
       setObject(r);
-
       c.set(slug, r);
       return;
     });

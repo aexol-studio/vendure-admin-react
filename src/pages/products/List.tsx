@@ -14,6 +14,14 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { EllipsisVertical } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const getProducts = async (paginate: ResolverInputTypes['ProductListOptions']) => {
   const response = await adminApiQuery()({
@@ -43,13 +51,21 @@ export const ProductListPage = () => {
 
   return (
     <Table>
+      <colgroup>
+        <col span={1} style={{ width: '10%' }} />
+        <col span={1} style={{ width: '35%' }} />
+        <col span={1} style={{ width: '35%' }} />
+        <col span={1} style={{ width: '10%' }} />
+        <col span={1} style={{ width: '10%' }} />
+      </colgroup>
       <TableCaption>{t('name')}</TableCaption>
       <TableHeader>
         <TableRow>
-          <TableHead>{t('variants')}</TableHead>
+          <TableHead>{t('image')}</TableHead>
           <TableHead onClick={() => sort('name')}>{t('name')}</TableHead>
           <TableHead>{t('slug')}</TableHead>
           <TableHead>{t('variants')}</TableHead>
+          <TableHead />
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -57,18 +73,42 @@ export const ProductListPage = () => {
           return (
             <TableRow key={p.slug}>
               <TableCell>
-                <img className="w-8" src={p.featuredAsset?.preview + '?preset=tiny'} />
+                <img className="h-8" src={p.featuredAsset?.preview + '?preset=tiny'} />
               </TableCell>
               <TableCell>
-                <Link to={`/products/${p.slug}/`}>{p.name}</Link>
+                <Link to={`/products/${p.slug}/`}>
+                  <b>{p.name}</b>
+                </Link>
               </TableCell>
               <TableCell>{p.slug}</TableCell>
               <TableCell>{p.variantList.totalItems}</TableCell>
+              <TableCell>
+                <ProductMenu editHref={`/products/${p.slug}/`} onDelete={() => {}} />
+              </TableCell>
             </TableRow>
           );
         })}
       </TableBody>
       <TableFooter>{Paginate}</TableFooter>
     </Table>
+  );
+};
+
+const ProductMenu = ({ onDelete, editHref }: { editHref: string; onDelete: () => void }) => {
+  const { t } = useTranslation('products');
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger>
+        <Button variant="outline" size="icon">
+          <EllipsisVertical />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuItem>
+          <Link to={editHref}>{t('editProduct')}</Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={onDelete}>{t('deleteProduct')}</DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };

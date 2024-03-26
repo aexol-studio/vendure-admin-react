@@ -6,8 +6,6 @@ export const Stack = ({
   className,
 }: {
   children?: React.ReactNode;
-  gap?: string;
-  justify?: 'end' | 'between' | 'start';
   column?: boolean;
   className?: string;
 }) => {

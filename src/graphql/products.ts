@@ -118,6 +118,10 @@ export const ProductDetailSelector = Selector('Product')({
     stockLevel: true,
     sku: true,
     price: true,
+    translations: {
+      name: true,
+      languageCode: true,
+    },
     taxCategory: {
       name: true,
       id: true,
@@ -125,6 +129,10 @@ export const ProductDetailSelector = Selector('Product')({
     taxRateApplied: {
       name: true,
       id: true,
+    },
+    prices: {
+      currencyCode: true,
+      price: true,
     },
     options: {
       id: true,
