@@ -22,6 +22,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Search } from '@/components/ui/search';
 
 const getProducts = async (paginate: ResolverInputTypes['ProductListOptions']) => {
   const response = await adminApiQuery()({
@@ -50,47 +51,51 @@ export const ProductListPage = () => {
   const { t } = useTranslation('products');
 
   return (
-    <Table>
-      <colgroup>
-        <col span={1} style={{ width: '10%' }} />
-        <col span={1} style={{ width: '35%' }} />
-        <col span={1} style={{ width: '35%' }} />
-        <col span={1} style={{ width: '10%' }} />
-        <col span={1} style={{ width: '10%' }} />
-      </colgroup>
-      <TableCaption>{t('name')}</TableCaption>
-      <TableHeader>
-        <TableRow>
-          <TableHead>{t('image')}</TableHead>
-          <TableHead onClick={() => sort('name')}>{t('name')}</TableHead>
-          <TableHead>{t('slug')}</TableHead>
-          <TableHead>{t('variants')}</TableHead>
-          <TableHead />
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {products?.map((p) => {
-          return (
-            <TableRow key={p.slug}>
-              <TableCell>
-                <img className="h-8" src={p.featuredAsset?.preview + '?preset=tiny'} />
-              </TableCell>
-              <TableCell>
-                <Link to={`/products/${p.slug}/`}>
-                  <b>{p.name}</b>
-                </Link>
-              </TableCell>
-              <TableCell>{p.slug}</TableCell>
-              <TableCell>{p.variantList.totalItems}</TableCell>
-              <TableCell>
-                <ProductMenu editHref={`/products/${p.slug}/`} onDelete={() => {}} />
-              </TableCell>
-            </TableRow>
-          );
-        })}
-      </TableBody>
-      <TableFooter>{Paginate}</TableFooter>
-    </Table>
+    <>
+      <Search />
+
+      <Table>
+        <colgroup>
+          <col span={1} style={{ width: '10%' }} />
+          <col span={1} style={{ width: '35%' }} />
+          <col span={1} style={{ width: '35%' }} />
+          <col span={1} style={{ width: '10%' }} />
+          <col span={1} style={{ width: '10%' }} />
+        </colgroup>
+        <TableCaption>{t('name')}</TableCaption>
+        <TableHeader>
+          <TableRow>
+            <TableHead>{t('image')}</TableHead>
+            <TableHead onClick={() => sort('name')}>{t('name')}</TableHead>
+            <TableHead>{t('slug')}</TableHead>
+            <TableHead>{t('variants')}</TableHead>
+            <TableHead />
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {products?.map((p) => {
+            return (
+              <TableRow key={p.slug}>
+                <TableCell>
+                  <img className="h-8" src={p.featuredAsset?.preview + '?preset=tiny'} />
+                </TableCell>
+                <TableCell>
+                  <Link to={`/products/${p.slug}/`}>
+                    <b>{p.name}</b>
+                  </Link>
+                </TableCell>
+                <TableCell>{p.slug}</TableCell>
+                <TableCell>{p.variantList.totalItems}</TableCell>
+                <TableCell>
+                  <ProductMenu editHref={`/products/${p.slug}/`} onDelete={() => {}} />
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+        <TableFooter>{Paginate}</TableFooter>
+      </Table>
+    </>
   );
 };
 

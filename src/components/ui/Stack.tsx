@@ -1,3 +1,4 @@
+import { cn } from '@/lib/utils';
 import React from 'react';
 
 export const Stack = ({
@@ -9,5 +10,5 @@ export const Stack = ({
   column?: boolean;
   className?: string;
 }) => {
-  return <div className={`flex${column ? ' flex-col' : ''}${className ? ` ${className}` : ''}`}>{children}</div>;
+  return <div className={cn('flex', column && 'flex-col', className)}>{children}</div>;
 };
