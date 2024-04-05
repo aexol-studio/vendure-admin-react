@@ -1,8 +1,9 @@
 import { adminApiQuery } from '@/common/client';
+import { Stack } from '@/components/ui/Stack';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { OrderListSelector } from '@/graphql/orders';
 import { useList } from '@/lists/useList';
-import { ResolverInputTypes } from '@/zeus';
+import { ResolverInputTypes, SortOrder } from '@/zeus';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
@@ -20,16 +21,24 @@ const getOrders = async (paginate: ResolverInputTypes['OrderListOptions']) => {
 };
 
 export const OrderListPage = () => {
-  const { objects: orders, Paginate } = useList({
-    route: async (p) => {
-      return getOrders({ take: 10, skip: (p.page - 1) * 10 });
-    },
-    limit: 10,
+  const { t } = useTranslation('orders');
+
+  const {
+    objects: orders,
+    Paginate,
+    sort,
+  } = useList({
+    route: async ({ page, perPage, sort }) =>
+      getOrders({
+        take: perPage,
+        skip: (page - 1) * perPage,
+        ...(!!sort && { sort: { [sort.key]: sort.sortDir } }),
+      }),
     cacheKey: 'orders',
   });
-  const { t } = useTranslation('orders');
+
   return (
-    <>
+    <Stack column className="gap-6">
       <Table>
         <TableHeader>
           <TableRow>
@@ -57,6 +66,6 @@ export const OrderListPage = () => {
         </TableBody>
       </Table>
       {Paginate}
-    </>
+    </Stack>
   );
 };

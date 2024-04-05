@@ -1,5 +1,5 @@
-import { scalars } from '@/common/client';
-import { Selector, FromSelector } from '@/zeus';
+import { FromSelectorWithScalars } from '@/graphql/scalars';
+import { Selector } from '@/zeus';
 
 export const paymentSelector = Selector('Payment')({
   id: true,
@@ -9,7 +9,7 @@ export const paymentSelector = Selector('Payment')({
   errorMessage: true,
 });
 
-export type PaymentType = FromSelector<typeof paymentSelector, 'Payment', typeof scalars>;
+export type PaymentType = FromSelectorWithScalars<typeof paymentSelector, 'Payment'>;
 
 export const discountsSelector = Selector('Discount')({
   type: true,
@@ -18,7 +18,7 @@ export const discountsSelector = Selector('Discount')({
   adjustmentSource: true,
 });
 
-export type DiscountsType = FromSelector<typeof discountsSelector, 'Discount', typeof scalars>;
+export type DiscountsType = FromSelectorWithScalars<typeof discountsSelector, 'Discount'>;
 
 export const shippingLineSelector = Selector('ShippingLine')({
   shippingMethod: {
@@ -28,7 +28,7 @@ export const shippingLineSelector = Selector('ShippingLine')({
   },
   priceWithTax: true,
 });
-export type ShippingLineType = FromSelector<typeof shippingLineSelector, 'ShippingLine', typeof scalars>;
+export type ShippingLineType = FromSelectorWithScalars<typeof shippingLineSelector, 'ShippingLine'>;
 
 export const ShippingMethodsSelector = Selector('ShippingMethodQuote')({
   id: true,
@@ -37,7 +37,7 @@ export const ShippingMethodsSelector = Selector('ShippingMethodQuote')({
   description: true,
 });
 
-export type ShippingMethodType = FromSelector<typeof ShippingMethodsSelector, 'ShippingMethodQuote', typeof scalars>;
+export type ShippingMethodType = FromSelectorWithScalars<typeof ShippingMethodsSelector, 'ShippingMethodQuote'>;
 
 export const AvailablePaymentMethodsSelector = Selector('PaymentMethodQuote')({
   id: true,
@@ -47,10 +47,9 @@ export const AvailablePaymentMethodsSelector = Selector('PaymentMethodQuote')({
   isEligible: true,
 });
 
-export type AvailablePaymentMethodsType = FromSelector<
+export type AvailablePaymentMethodsType = FromSelectorWithScalars<
   typeof AvailablePaymentMethodsSelector,
-  'PaymentMethodQuote',
-  typeof scalars
+  'PaymentMethodQuote'
 >;
 
 export const ActiveOrderSelector = Selector('Order')({
@@ -100,7 +99,7 @@ export const ActiveOrderSelector = Selector('Order')({
   },
 });
 
-export type ActiveOrderType = FromSelector<typeof ActiveOrderSelector, 'Order', typeof scalars>;
+export type ActiveOrderType = FromSelectorWithScalars<typeof ActiveOrderSelector, 'Order'>;
 export const OrderListSelector = Selector('Order')({
   type: true,
   totalWithTax: true,
@@ -156,4 +155,4 @@ export const OrderSelector = Selector('Order')({
     },
   },
 });
-export type OrderType = FromSelector<typeof OrderSelector, 'Order', typeof scalars>;
+export type OrderType = FromSelectorWithScalars<typeof OrderSelector, 'Order'>;

@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type PaginatedCacheables = 'products' | 'collections' | 'orders' | 'facets';
 export type DetailCacheables = 'productDetail' | 'orderDetail' | 'collectionDetail' | 'facetDetail';
+type CacheKey = `${PaginatedCacheables | DetailCacheables}`;
 
-export const cache = <T>(cacheKey: PaginatedCacheables | DetailCacheables) => {
+export const cache = <T>(cacheKey: CacheKey) => {
   const getCacheable = (): Record<string, T> => {
     const v = window.localStorage.getItem(cacheKey);
     if (v) return JSON.parse(v);

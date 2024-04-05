@@ -1,5 +1,13 @@
+import { SortOrder } from '@/zeus';
+
+export type PaginationInput = {
+  page: number;
+  perPage: number;
+  sort?: { key: string; sortDir: SortOrder };
+};
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export type PromisePaginated = ({ page, sort }: { page: number; sort?: string }) => Promise<{
+export type PromisePaginated = (props: PaginationInput) => Promise<{
   totalItems: number;
   items: any;
 }>;

@@ -1,5 +1,5 @@
-import { scalars } from '@/common/client';
-import { Selector, FromSelector } from '@/zeus';
+import { FromSelectorWithScalars } from '@/graphql/scalars';
+import { Selector } from '@/zeus';
 
 export type FiltersFacetType = FacetType & { values: (FacetType & { count: number })[] };
 
@@ -9,7 +9,7 @@ export const FacetSelector = Selector('Facet')({
   code: true,
 });
 
-export type FacetType = FromSelector<typeof FacetSelector, 'Facet', typeof scalars>;
+export type FacetType = FromSelectorWithScalars<typeof FacetSelector, 'Facet'>;
 
 export const ProductTileSelector = Selector('Product')({
   id: true,
@@ -50,8 +50,8 @@ export const ProductSearchSelector = Selector('SearchResult')({
   },
   description: true,
 });
-export type ProductSearchType = FromSelector<typeof ProductSearchSelector, 'SearchResult', typeof scalars>;
-export type ProductDetailsFacetType = FromSelector<typeof ProductDetailsFacetSelector, 'FacetValue', typeof scalars>;
+export type ProductSearchType = FromSelectorWithScalars<typeof ProductSearchSelector, 'SearchResult'>;
+export type ProductDetailsFacetType = FromSelectorWithScalars<typeof ProductDetailsFacetSelector, 'FacetValue'>;
 export const SearchSelector = Selector('SearchResponse')({
   items: ProductSearchSelector,
   totalItems: true,
@@ -64,7 +64,7 @@ export const SearchSelector = Selector('SearchResponse')({
   },
 });
 
-export type SearchType = FromSelector<typeof SearchSelector, 'SearchResponse', typeof scalars>;
+export type SearchType = FromSelectorWithScalars<typeof SearchSelector, 'SearchResponse'>;
 
 export const ProductSlugSelector = Selector('Product')({
   name: true,
@@ -150,7 +150,7 @@ export const ProductDetailSelector = Selector('Product')({
   facetValues: ProductDetailsFacetSelector,
 });
 
-export type ProductDetailType = FromSelector<typeof ProductDetailSelector, 'Product', typeof scalars>;
+export type ProductDetailType = FromSelectorWithScalars<typeof ProductDetailSelector, 'Product'>;
 
 export const YAMLProductsSelector = Selector('Product')({
   id: true,
@@ -181,7 +181,7 @@ export const YAMLProductsSelector = Selector('Product')({
   },
 });
 
-export type YAMLProductsType = FromSelector<typeof YAMLProductsSelector, 'Product', typeof scalars>;
+export type YAMLProductsType = FromSelectorWithScalars<typeof YAMLProductsSelector, 'Product'>;
 
 export const productVariantTileSelector = Selector('ProductVariant')({
   id: true,
@@ -196,7 +196,7 @@ export const productVariantTileSelector = Selector('ProductVariant')({
   },
 });
 
-export type ProductVariantTileType = FromSelector<typeof productVariantTileSelector, 'ProductVariant', typeof scalars>;
+export type ProductVariantTileType = FromSelectorWithScalars<typeof productVariantTileSelector, 'ProductVariant'>;
 export const NewestProductSelector = Selector('Product')({
   name: true,
   slug: true,
@@ -206,9 +206,9 @@ export const NewestProductSelector = Selector('Product')({
   },
 });
 
-export type NewestProductType = FromSelector<typeof NewestProductSelector, 'Product', typeof scalars>;
+export type NewestProductType = FromSelectorWithScalars<typeof NewestProductSelector, 'Product'>;
 
-export type ProductTileType = FromSelector<typeof ProductTileSelector, 'Product', typeof scalars>;
+export type ProductTileType = FromSelectorWithScalars<typeof ProductTileSelector, 'Product'>;
 
 export const ProductVariantSelector = Selector('ProductVariant')({
   id: true,
