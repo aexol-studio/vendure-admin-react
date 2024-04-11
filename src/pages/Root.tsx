@@ -1,6 +1,6 @@
 import { Layout } from '@/common/Layout';
 import { Menu } from '@/common/Menu';
-import { Stack } from '@/components/ui/Stack';
+import { Stack } from '@/components/Stack';
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import styled from '@emotion/styled';
 import { Slash } from 'lucide-react';

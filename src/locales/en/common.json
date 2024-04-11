@@ -1,6 +1,7 @@
 {
     "next": "next",
     "previous": "previous",
+    "perPagePlaceholder": "Items per page",
     "perPage": {
         "10perPage": "10 per page",
         "25perPage": "25 per page",
@@ -13,5 +14,6 @@
         "orders": "orders",
         "facets": "facets",
         "logOut": "log out"
-    }
+    },
+    "noFilterField": "None"
 }

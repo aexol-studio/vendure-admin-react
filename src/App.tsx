@@ -9,7 +9,7 @@ import { useAtom } from 'jotai';
 import { ProductDetailPage } from '@/pages/products/Detail/Detail';
 import { OrderListPage } from '@/pages/orders/List';
 import { Button } from '@/components/ui/button';
-import { Stack } from '@/components/ui/Stack';
+import { Stack } from '@/components/Stack';
 import { Input } from '@/components/ui/input';
 const router = createBrowserRouter([
   {

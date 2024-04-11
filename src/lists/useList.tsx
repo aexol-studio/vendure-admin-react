@@ -1,4 +1,4 @@
-import { Stack } from '@/components/ui/Stack';
+import { Stack } from '@/components/Stack';
 import {
   Pagination,
   PaginationContent,
@@ -9,7 +9,7 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { cn } from '@/lib/utils';
+import { cn, useFilters } from '@/lib/utils';
 import { PaginatedCacheables, cache } from '@/lists/cache';
 import { GenericReturn, PaginationInput, PromisePaginated } from '@/lists/models';
 import { SortOrder } from '@/zeus';
@@ -31,6 +31,8 @@ const enum SearchParamKey {
   PER_PAGE = 'perPage',
   SORT = 'sort',
   SORT_DIR = 'sortDir',
+  FILTER_PROMPT = 'filterPrompt',
+  FILTER_FIELD = 'filterField',
 }
 
 const arrayRange = (start: number, stop: number) =>
@@ -47,29 +49,49 @@ export const useList = <T extends PromisePaginated>({
   const [searchParams, setSearchParams] = useSearchParams();
   const [total, setTotal] = useState(0);
   const [objects, setObjects] = useState<GenericReturn<T>>();
+  const { filters } = useFilters();
+
+  // const [search, setSearch] = useState('');
+  // const debouncedSearch = useDebounce(search);
 
   const searchParamValues: PaginationInput = useMemo(() => {
     const page = searchParams.get(SearchParamKey.PAGE);
     const perPage = searchParams.get(SearchParamKey.PER_PAGE);
     const sort = searchParams.get(SearchParamKey.SORT);
     const sortDir = searchParams.get(SearchParamKey.SORT_DIR);
-    console.log('aaaaaa', perPage);
+    // const filterField = searchParams.get(SearchParamKey.FILTER_FIELD);
+    // const filterPrompt = searchParams.get(SearchParamKey.FILTER_PROMPT);
 
     return {
       page: page ? parseInt(page) : 1,
       perPage: perPage ? parseInt(perPage) : 10,
-      sort: sort ? { key: sort, sortDir: (sortDir as SortOrder) || SortOrder.ASC } : undefined,
+      sort: sort && sortDir ? { key: sort, sortDir: sortDir as SortOrder } : undefined,
+      filters: filters,
+      // filter: filterField ? { field: filterField, prompt: filterPrompt ? filterPrompt : '' } : undefined,
     };
-  }, [searchParams]);
+  }, [searchParams, filters]);
+
+  // useEffect(() => {
+  //   const filterPrompt = searchParams.get(SearchParamKey.FILTER_PROMPT);
+  //   if (filterPrompt !== debouncedSearch) {
+  //     if (debouncedSearch === '') {
+  //       searchParams.delete(SearchParamKey.FILTER_PROMPT);
+  //       setSearchParams(searchParams);
+  //     } else {
+  //       searchParams.set(SearchParamKey.FILTER_PROMPT, debouncedSearch);
+  //       setSearchParams(searchParams);
+  //     }
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [debouncedSearch]);
 
   useEffect(() => {
     const c = cache<{
       items: GenericReturn<T>;
       totalItems: number;
     }>(cacheKey);
-    console.log('ssss', searchParamValues);
 
-    const key = `${Object.values(searchParamValues).map((i) => (i ? '-' + i : ''))}`;
+    const key = `${searchParamValues.page}-${searchParamValues.perPage}-${searchParamValues.sort?.key || ''}-${searchParamValues.sort?.sortDir || ''}-${searchParamValues.filter?.field || ''}-${searchParamValues.filter?.prompt || ''}`;
     const valueFromCache = c.get(key);
     if (valueFromCache) {
       setObjects(valueFromCache.items);
@@ -103,30 +125,72 @@ export const useList = <T extends PromisePaginated>({
               ],
     [totalPages, searchParamValues],
   );
+  const setSort = (sort: string) => {
+    const currSort = searchParams.get(SearchParamKey.SORT);
+    const currSortDir = searchParams.get(SearchParamKey.SORT_DIR);
+    if (!currSort || !currSortDir) {
+      searchParams.set(SearchParamKey.SORT, sort);
+      searchParams.set(SearchParamKey.SORT_DIR, SortOrder.ASC);
+    } else {
+      if (sort === currSort) {
+        if (currSortDir === SortOrder.ASC) {
+          searchParams.set(SearchParamKey.SORT_DIR, SortOrder.DESC);
+        } else if (currSortDir === SortOrder.DESC) {
+          searchParams.delete(SearchParamKey.SORT);
+          searchParams.delete(SearchParamKey.SORT_DIR);
+        } else {
+          searchParams.set(SearchParamKey.SORT, sort);
+          searchParams.set(SearchParamKey.SORT_DIR, SortOrder.ASC);
+        }
+      } else {
+        searchParams.set(SearchParamKey.SORT, sort);
+        searchParams.set(SearchParamKey.SORT_DIR, SortOrder.ASC);
+      }
+    }
+    setSearchParams(searchParams);
+  };
+  // const setFilterField = (newField: string) => {
+  //   const currField = searchParams.get(SearchParamKey.FILTER_FIELD);
+  //   if (currField !== newField) {
+  //     searchParams.set(SearchParamKey.FILTER_FIELD, newField);
+  //     setSearchParams(searchParams);
+  //   }
+  // };
+  // const clearFilterPrompt = () => {
+  //   searchParams.delete(SearchParamKey.FILTER_FIELD);
+  //   searchParams.delete(SearchParamKey.FILTER_PROMPT);
+  //   setSearchParams(searchParams);
+  //   setSearch('');
+  // };
 
   return {
     Paginate: (
-      <Stack>
-        <Select
-          value={ITEMS_PER_PAGE.find((i) => i.value === searchParamValues.perPage)?.value.toString()}
-          onValueChange={(e) => {
-            console.log('dpa', e);
-
-            searchParams.set(SearchParamKey.PER_PAGE, e);
-            setSearchParams(searchParams);
-          }}
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue color="red" placeholder="Theme" />
-          </SelectTrigger>
-          <SelectContent>
-            {ITEMS_PER_PAGE.map((i) => (
-              <SelectItem key={i.name} value={i.value.toString()}>
-                {t(`perPage.${i.name}`)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      <Stack className="gap-4">
+        <div className="whitespace-nowrap text-center m-auto">
+          {(searchParamValues.page - 1) * searchParamValues.perPage + 1} -{' '}
+          {searchParamValues.page * searchParamValues.perPage} of {total}
+        </div>
+        <div className="mx-auto">
+          <Select
+            value={ITEMS_PER_PAGE.find((i) => i.value === searchParamValues.perPage)?.value.toString()}
+            onValueChange={(e) => {
+              searchParams.set(SearchParamKey.PER_PAGE, e);
+              searchParams.set(SearchParamKey.PAGE, '1');
+              setSearchParams(searchParams);
+            }}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder={t('perPagePlaceholder')} />
+            </SelectTrigger>
+            <SelectContent>
+              {ITEMS_PER_PAGE.map((i) => (
+                <SelectItem key={i.name} value={i.value.toString()}>
+                  {t(`perPage.${i.name}`)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
         <Pagination>
           <PaginationContent>
             <PaginationPrevious
@@ -169,10 +233,11 @@ export const useList = <T extends PromisePaginated>({
     ),
     total,
     objects,
-    sort: (sort: string, sortDir: SortOrder) => {
-      searchParams.set(SearchParamKey.SORT, sort);
-      searchParams.set(SearchParamKey.SORT_DIR, sortDir);
-      setSearchParams(searchParams);
-    },
+    setSort,
+    // setFilterField,
+    // setFilterPrompt: setSearch,
+    optionInfo: searchParamValues,
+    // filterPrompt: search,
+    // clearFilterPrompt,
   };
 };

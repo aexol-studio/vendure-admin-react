@@ -1,12 +1,20 @@
 {
-    "add":"Add order",
-    "image":"image",
-    "name":"name",
-    "slug":"slug",
-    "variants":"variants",
-    "enabled":"enabled",
-    "forms":{
-        "create":"Create Order",
-        "update":"Update Order"
-    }
+    "add": "Add order",
+    "image": "image",
+    "name": "name",
+    "slug": "slug",
+    "variants": "variants",
+    "enabled": "enabled",
+    "forms": {
+        "create": "Create Order",
+        "update": "Update Order"
+    },
+    "noFilterField": "None",
+    "filterField": {
+        "customerLastName": "Customer last name",
+        "transactionId": "Transaction ID",
+        "id": "Order ID",
+        "code": "Order code"
+    },
+    "filterPlaceholder": "Field for filter"
 }

@@ -1,9 +1,11 @@
+import { FilterType } from '@/lib/utils';
 import { SortOrder } from '@/zeus';
 
 export type PaginationInput = {
   page: number;
   perPage: number;
   sort?: { key: string; sortDir: SortOrder };
+  filter?: FilterType;
 };
 
 /* eslint-disable @typescript-eslint/no-explicit-any */

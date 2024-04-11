@@ -1,5 +1,5 @@
 import { adminApiMutation, adminApiQuery } from '@/common/client';
-import { Stack } from '@/components/ui/Stack';
+import { Stack } from '@/components/Stack';
 import { Button } from '@/components/ui/button';
 import { OrderSelector } from '@/graphql/orders';
 import { resetCache } from '@/lists/cache';

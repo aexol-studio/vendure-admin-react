@@ -117,8 +117,12 @@ export const OrderListSelector = Selector('Order')({
   },
   customer: {
     emailAddress: true,
+    firstName: true,
+    lastName: true,
+    phoneNumber: true,
   },
 });
+export type OrderListType = FromSelectorWithScalars<typeof OrderListSelector, 'Order'>;
 export const OrderSelector = Selector('Order')({
   type: true,
   shippingWithTax: true,

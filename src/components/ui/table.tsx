@@ -2,13 +2,14 @@ import * as React from 'react';
 
 import { cn } from '@/lib/utils';
 
-const Table = React.forwardRef<HTMLTableElement, React.HTMLAttributes<HTMLTableElement>>(
-  ({ className, ...props }, ref) => (
-    <div className="relative w-full overflow-auto">
-      <table ref={ref} className={cn('w-full caption-bottom text-sm table-fixed', className)} {...props} />
-    </div>
-  ),
-);
+const Table = React.forwardRef<
+  HTMLTableElement,
+  React.HTMLAttributes<HTMLTableElement> & { containerClassName?: string }
+>(({ className, containerClassName, ...props }, ref) => (
+  <div className={cn('relative w-full overflow-auto', containerClassName)}>
+    <table ref={ref} className={cn('w-full caption-bottom text-sm', className)} {...props} />
+  </div>
+));
 Table.displayName = 'Table';
 
 const TableHeader = React.forwardRef<HTMLTableSectionElement, React.HTMLAttributes<HTMLTableSectionElement>>(
@@ -53,7 +54,7 @@ const TableHead = React.forwardRef<HTMLTableCellElement, React.ThHTMLAttributes<
     <th
       ref={ref}
       className={cn(
-        'h-12 px-4 text-left align-middle font-medium text-stone-500 [&:has([role=checkbox])]:pr-0 dark:text-stone-400',
+        'h-12 px-2 text-left align-middle font-medium text-stone-500 [&:has([role=checkbox])]:pr-0 dark:text-stone-400',
         className,
       )}
       {...props}
