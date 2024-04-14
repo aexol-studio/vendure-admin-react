@@ -7,11 +7,11 @@ import { CalendarIcon } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 
-export const DefaultTimeSelect = (props: DefaultProps<string>) => {
+export function DefaultTimeSelect<T>(props: DefaultProps<T>) {
   const { value, onChange } = props;
-  const date = value ? new Date(value) : undefined;
+  const date = value ? new Date(value as string) : undefined;
   const setDate = (date: Date | undefined) => {
-    if (date) onChange(date.toISOString());
+    if (date) onChange(date.toISOString() as T);
   };
 
   return (
@@ -30,4 +30,4 @@ export const DefaultTimeSelect = (props: DefaultProps<string>) => {
       </PopoverContent>
     </Popover>
   );
-};
+}

@@ -33,7 +33,7 @@ const getAssets = async (options: ResolverInputTypes['AssetListOptions']) => {
   return response.assets;
 };
 
-export const AssetsRelationInput = (props: DefaultProps<string>) => {
+export function AssetsRelationInput<T>(props: DefaultProps<T>) {
   const { value, onChange } = props;
   const [selectedAsset, setSelectedAsset] = useState<AssetType | null>(null);
   const [assets, setAssets] = useState<AssetType[]>([]);
@@ -44,7 +44,7 @@ export const AssetsRelationInput = (props: DefaultProps<string>) => {
   }, []);
   useEffect(() => {
     if (value) {
-      getAssets({ take: 1, filter: { id: { eq: value } } }).then((assets) => {
+      getAssets({ take: 1, filter: { id: { eq: value as string } } }).then((assets) => {
         setSelectedAsset(assets.items[0] || null);
       });
     }
@@ -65,7 +65,7 @@ export const AssetsRelationInput = (props: DefaultProps<string>) => {
                 size="sm"
                 onClick={() => {
                   setSelectedAsset(null);
-                  onChange('');
+                  onChange('' as T);
                 }}
               >
                 Remove
@@ -94,7 +94,7 @@ export const AssetsRelationInput = (props: DefaultProps<string>) => {
                       size="sm"
                       onClick={() => {
                         setSelectedAsset(asset);
-                        onChange(asset.id);
+                        onChange(asset.id as T);
                       }}
                     >
                       Select
@@ -142,4 +142,4 @@ export const AssetsRelationInput = (props: DefaultProps<string>) => {
       </DialogContent>
     </Dialog>
   );
-};
+}

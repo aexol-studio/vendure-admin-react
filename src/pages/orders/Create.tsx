@@ -6,7 +6,7 @@ import React from 'react';
 import { useEffect, useMemo, useState } from 'react';
 // import { useTranslation } from 'react-i18next';
 
-import { registerCustomCustomFieldComponent, generateCustomFields } from './logic';
+import { registerCustomFieldComponent, generateCustomFields } from './logic';
 import { DefaultProps } from './DefaultInputs/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components';
 
@@ -22,7 +22,8 @@ const CustomComponent = (props: DefaultProps<boolean>) => {
 
 const registerComponents: {
   name: string;
-  component: React.ReactElement;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  component: React.ComponentType<DefaultProps<any>>;
   where: string;
 }[] = [];
 
@@ -61,7 +62,7 @@ export const OrderCreatePage = () => {
         }
         setField('customFields', { ...state.customFields?.value, [value.name]: init });
       });
-      registerCustomCustomFieldComponent({
+      registerCustomFieldComponent({
         registerComponents,
         where: 'order-create',
         // WE SHOULD TAKE A CARE OF PLACE WHERE WE ARE AND WHERE WE ARE IMPLEMENTING THIS

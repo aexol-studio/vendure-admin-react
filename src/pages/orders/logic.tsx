@@ -12,34 +12,43 @@ import {
   DefaultListLineWrapper,
 } from './DefaultInputs';
 
-type RegisterComponentsType = {
+type RegisterComponentsType<P> = {
   name: string;
-  component: React.ReactElement;
+  component: React.ComponentType<P>;
   where: string;
 };
 
-export function registerCustomCustomFieldComponent({
+export function registerCustomFieldComponent<P>({
   registerComponents,
   where,
   name,
   component,
 }: {
-  registerComponents: RegisterComponentsType[];
+  registerComponents: RegisterComponentsType<P>[];
   where: string;
   name: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  component: any;
+  component: React.ComponentType<P>;
 }) {
+  if (registerComponents.find((c) => c.name === name)) {
+    console.error(`Component ${name} already registered`);
+    return;
+  }
+  if (typeof component !== 'function' || !(component.prototype instanceof React.Component)) {
+    console.error(`Component ${name} is not a valid React component`);
+    return;
+  }
+
+  console.log(`Registering component ${name} in ${where}`);
   registerComponents.push({ name, component, where });
 }
 
-export function generateCustomFields<T>({
+export function generateCustomFields<T, P>({
   registerComponents,
   customFields,
   fieldsValue,
   setField,
 }: {
-  registerComponents: RegisterComponentsType[];
+  registerComponents: RegisterComponentsType<P>[];
   customFields: CustomFieldConfigType[];
   fieldsValue: Record<string, T>;
   setField: (name: string, value: T) => void;
@@ -54,23 +63,23 @@ export function generateCustomFields<T>({
       field.ui && 'component' in field.ui && registerComponents.find((c) => c.name === field.ui.component);
     const value = fieldsValue[field.name];
     const tab = field.ui?.tab || 'General';
-    const onChange = (e: boolean | string | number) => {
+    const onChange = (e: T) => {
       switch (field.__typename) {
         case 'BooleanCustomFieldConfig':
-          setField(field.name, e as unknown as T);
+          setField(field.name, e as T);
           break;
         case 'DateTimeCustomFieldConfig':
         case 'LocaleStringCustomFieldConfig':
         case 'TextCustomFieldConfig':
         case 'LocaleTextCustomFieldConfig':
         case 'StringCustomFieldConfig':
-          setField(field.name, e as unknown as T);
+          setField(field.name, e as T);
           break;
         case 'FloatCustomFieldConfig':
-          setField(field.name, (isNaN(parseFloat(e as string)) ? 0 : parseFloat(e as string)) as unknown as T);
+          setField(field.name, (isNaN(parseFloat(e as string)) ? 0 : parseFloat(e as string)) as T);
           break;
         case 'IntCustomFieldConfig':
-          setField(field.name, (isNaN(parseInt(e as string)) ? 0 : parseInt(e as string)) as unknown as T);
+          setField(field.name, (isNaN(parseInt(e as string)) ? 0 : parseInt(e as string)) as T);
           break;
       }
     };
@@ -86,13 +95,13 @@ export function generateCustomFields<T>({
       };
       const removeEntry = (i: number) => {
         const newEntries = (fieldsValue[field.name] as Record<string, T>[]).filter((_, j) => j !== i);
-        setField(field.name, newEntries as unknown as T);
+        setField(field.name, newEntries as T);
       };
-      const onEntryChange = (i: number, e: boolean | string | number) => {
+      const onEntryChange = (i: number, e: T) => {
         const newEntries = (fieldsValue[field.name] as Record<string, T>[]).map((entry, j) =>
           j === i ? { ...entry, [field.name]: e } : entry,
         );
-        setField(field.name, newEntries as unknown as T);
+        setField(field.name, newEntries as T);
       };
       fields.push({
         ...field,
@@ -104,8 +113,7 @@ export function generateCustomFields<T>({
                 const SingleField = generateSingleFields({
                   field,
                   value: entry[field.name],
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  onChange: (e: any) => onEntryChange(i, e),
+                  onChange: (e: T) => onEntryChange(i, e),
                 });
                 if (!SingleField) {
                   console.log('Unknown field type while rendering list', field);
@@ -126,16 +134,14 @@ export function generateCustomFields<T>({
   return fields;
 }
 
-function generateSingleFields({
+function generateSingleFields<T>({
   field,
   value,
   onChange,
 }: {
   field: CustomFieldConfigType;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  value: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onChange: any;
+  value: T;
+  onChange: (e: T) => void;
 }) {
   const props = { field, value, onChange };
   switch (field.__typename) {

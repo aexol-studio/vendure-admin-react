@@ -2,7 +2,7 @@ import React from 'react';
 import { DefaultProps } from './types';
 import { Input } from '@/components';
 
-export const DefaultTextInput = (props: DefaultProps<string>) => {
+export function DefaultTextInput<T>(props: DefaultProps<T>) {
   const { field, value, onChange } = props;
   return (
     <div>
@@ -15,11 +15,11 @@ export const DefaultTextInput = (props: DefaultProps<string>) => {
       <Input
         id={field.name}
         type="text"
-        value={value}
+        value={value as string}
         onChange={(e) => {
-          if (typeof e.target.value === 'string') onChange(e.target.value);
+          if (typeof e.target.value === 'string') onChange(e.target.value as T);
         }}
       />
     </div>
   );
-};
+}

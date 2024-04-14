@@ -2,7 +2,7 @@ import React from 'react';
 import { DefaultProps } from '../types';
 import { AssetsRelationInput } from './AssetsRelationInput';
 
-export const DefaultRelationInput = (props: DefaultProps<string>) => {
+export function DefaultRelationInput<T>(props: DefaultProps<T>) {
   const { field } = props;
   if ('entity' in field) {
     switch (field.entity) {
@@ -24,4 +24,4 @@ export const DefaultRelationInput = (props: DefaultProps<string>) => {
     }
   }
   return null;
-};
+}

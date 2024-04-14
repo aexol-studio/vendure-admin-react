@@ -2,7 +2,7 @@ import React from 'react';
 import { DefaultProps } from './types';
 import { Textarea } from '@/components';
 
-export const DefaultTextarea = (props: DefaultProps<string>) => {
+export function DefaultTextarea<T>(props: DefaultProps<T>) {
   const { value, onChange, field } = props;
   return (
     <div>
@@ -14,11 +14,11 @@ export const DefaultTextarea = (props: DefaultProps<string>) => {
       </label>
       <Textarea
         id={field.name}
-        value={value}
+        value={value as string}
         onChange={(e) => {
-          if (typeof e.target.value === 'string') onChange(e.target.value);
+          if (typeof e.target.value === 'string') onChange(e.target.value as T);
         }}
       />
     </div>
   );
-};
+}
