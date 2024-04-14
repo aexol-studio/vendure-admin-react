@@ -1,0 +1,1 @@
+export { DefaultRelationInput } from './DefaultRelationInput';

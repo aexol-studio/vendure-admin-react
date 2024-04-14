@@ -34,6 +34,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { PaginationInput } from '@/lists/models';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, ordersSearchProps } from '@/components';
+import { Link } from 'react-router-dom';
 
 const SortButton: React.FC<
   PropsWithChildren<{ key: string; currSort: PaginationInput['sort']; onClick: () => void }>
@@ -323,6 +324,9 @@ export const OrderListPage = () => {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
+        <Link to="/orders/create">
+          <Button>{t('createOrder')}</Button>
+        </Link>
         <Search {...ordersSearchProps} />
         <div className="rounded-md border border-white  ">
           <Table>
