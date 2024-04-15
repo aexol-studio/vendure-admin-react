@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { useSearchParams } from 'react-router-dom';
-import { manageSearchParam, useFilters } from '@/lib/utils';
+import { manageSearchParam } from '@/lib/utils';
 import {
   Accordion,
   Button,
@@ -18,11 +18,11 @@ import {
 } from '@/components';
 import { SearchAccordion } from './searchAccordion';
 
-export const Search: React.FC<SearchPropsI> = ({ advancedSearch, defaultSearch }) => {
+export const Search: React.FC<SearchPropsI & { searchFilterField: () => void }> = ({
+  advancedSearch,
+  defaultSearch,
+}) => {
   const [searchParams, setSearchParams] = useSearchParams();
-
-  const { filters } = useFilters();
-  console.log('filters', filters);
 
   const groupedAdvancedParams = advancedSearch?.paramsArray.map((p) => {
     const array = p.array.reduce((acc, cur) => {
@@ -36,7 +36,6 @@ export const Search: React.FC<SearchPropsI> = ({ advancedSearch, defaultSearch }
     return { ...p, array };
   });
 
-  console.log('res', groupedAdvancedParams);
   return (
     <Stack className="gap-4 justify-end">
       {defaultSearch.param && (

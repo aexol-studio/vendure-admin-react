@@ -3,8 +3,7 @@ import { Stack } from '@/components/Stack';
 import { Button } from '@/components/ui/button';
 import { OrderListSelector, OrderListType } from '@/graphql/orders';
 import { useList } from '@/lists/useList';
-import { ResolverInputTypes, SortOrder, ValueTypes } from '@/zeus';
-import { useTranslation } from 'react-i18next';
+import { ResolverInputTypes, SortOrder } from '@/zeus';
 import { format } from 'date-fns';
 import {
   ColumnDef,
@@ -28,12 +27,10 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { ArrowDown, ArrowUp, ArrowUpDown, ChevronDown, MoreHorizontal } from 'lucide-react';
 import React, { PropsWithChildren, useState } from 'react';
-import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { PaginationInput } from '@/lists/models';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, ordersSearchProps } from '@/components';
+import { Input, Search, ordersSearchProps } from '@/components';
 
 const SortButton: React.FC<
   PropsWithChildren<{ key: string; currSort: PaginationInput['sort']; onClick: () => void }>
@@ -67,53 +64,57 @@ const getOrders = async (options: ResolverInputTypes['OrderListOptions']) => {
   return response.orders;
 };
 
-const filterOrdersParameterOptions: {
-  key: keyof Pick<ValueTypes['OrderFilterParameter'], 'customerLastName' | 'transactionId' | 'id' | 'code'>;
-  type: 'StringOperators' | 'IDOperators';
-}[] = [
-  { key: 'customerLastName', type: 'StringOperators' },
-  { key: 'transactionId', type: 'StringOperators' },
-  { key: 'id', type: 'IDOperators' },
-  { key: 'code', type: 'StringOperators' },
-] as const;
+// const filterOrdersParameterOptions: {
+//   key: keyof Pick<ValueTypes['OrderFilterParameter'], 'customerLastName' | 'transactionId' | 'id' | 'code'>;
+//   type: 'StringOperators' | 'IDOperators';
+// }[] = [
+//   { key: 'customerLastName', type: 'StringOperators' },
+//   { key: 'transactionId', type: 'StringOperators' },
+//   { key: 'id', type: 'IDOperators' },
+//   { key: 'code', type: 'StringOperators' },
+// ] as const;
 
 export const OrderListPage = () => {
-  const { t } = useTranslation('orders');
+  // const { t } = useTranslation('orders');
 
   const {
     objects: orders,
     Paginate,
     setSort,
     optionInfo,
-    setFilterPrompt,
+    // setFilterPrompt,
+    // setFilterField,
+    // filterPrompt,
+    // clearFilterPrompt,
+    removeFilterField,
+    resetFilter,
     setFilterField,
-    filterPrompt,
-    clearFilterPrompt,
   } = useList({
     route: async ({ page, perPage, sort, filter }) => {
-      const filterObject =
-        filter &&
-        filter.field &&
-        filter.prompt &&
-        filter.prompt !== '' &&
-        filterOrdersParameterOptions.some((i) => i.key === filter.field)
-          ? filterOrdersParameterOptions.find((i) => i.key === filter.field)?.key === 'id'
-            ? ({ eq: filter.prompt } as ValueTypes['IDOperators'])
-            : ({ contains: filter.prompt } as ValueTypes['StringOperators'])
-          : undefined;
+      // const filterObject =
+      // filter &&
+      // filter.field &&
+      // filter.prompt &&
+      // filter.prompt !== '' &&
+      // filterOrdersParameterOptions.some((i) => i.key === filter.field)
+      //   ? filterOrdersParameterOptions.find((i) => i.key === filter.field)?.key === 'id'
+      //     ? ({ eq: filter.prompt } as ValueTypes['IDOperators'])
+      //     : ({ contains: filter.prompt } as ValueTypes['StringOperators'])
+      //   : undefined;
 
       return getOrders({
         take: perPage,
         skip: (page - 1) * perPage,
         ...(sort && { sort: { [sort.key]: sort.sortDir } }),
-        ...(filter &&
-          filter.field &&
-          filter.prompt &&
-          filter.prompt !== '' &&
-          filterObject && { filter: { [filter.field]: filterObject } }),
+        ...(filter && { filter }),
+        // ...(filter &&
+        //   filter.field &&
+        //   filter.prompt &&
+        //   filter.prompt !== '' &&
+        //   filterObject && { filter: { [filter.field]: filterObject } }),
       });
     },
-    cacheKey: 'orders',
+    listType: 'orders',
   });
 
   const columns: ColumnDef<OrderListType>[] = [
@@ -324,6 +325,11 @@ export const OrderListPage = () => {
           </DropdownMenu>
         </div>
         <Search {...ordersSearchProps} />
+        <Input onChange={(e) => setFilterField('customerLastName', { contains: e.target.value })} />
+        <Button onClick={() => removeFilterField('customerLastName')}>Reset Field</Button>
+        <Button onClick={() => resetFilter()}>reset filter</Button>
+        <Button onClick={() => setFilterField('code', { contains: 'dddddupa' })}>set filter</Button>
+
         <div className="rounded-md border border-white  ">
           <Table>
             <TableHeader>

@@ -1,11 +1,14 @@
-import { FilterType } from '@/lib/utils';
-import { SortOrder } from '@/zeus';
+import { ModelTypes, SortOrder } from '@/zeus';
 
 export type PaginationInput = {
   page: number;
   perPage: number;
   sort?: { key: string; sortDir: SortOrder };
-  filter?: FilterType;
+  filter?:
+    | ModelTypes['OrderFilterParameter']
+    | ModelTypes['CollectionFilterParameter']
+    | ModelTypes['FacetFilterParameter']
+    | ModelTypes['ProductFilterParameter'];
 };
 
 /* eslint-disable @typescript-eslint/no-explicit-any */

@@ -1,24 +1,10 @@
 // import { ModelTypes } from '@/zeus';
 
-import { ModelTypes } from '@/zeus';
-
 export type ParamObjectT = {
   param?: string;
   paramKey: string;
   placeholder: string;
   label?: string;
-};
-
-type dupa = keyof ModelTypes['CollectionFilterParameter'];
-type dupa2 = keyof ModelTypes['CollectionFilterParameter'][];
-type FilterParameterKeys = keyof ModelTypes['CollectionFilterParameter'];
-//   | keyof ModelTypes['OrderFilterParameter']
-//   | keyof ModelTypes['ProductFilterParameter'];
-
-type ParamKeyMapping = {
-  [K in keyof ModelTypes['CollectionFilterParameter']]: K extends keyof ModelTypes['CollectionFilterParameter']
-    ? keyof ModelTypes['CollectionFilterParameter'][K]
-    : never;
 };
 
 // // Define ParamObjectT with param and paramKey constrained based on the mapping

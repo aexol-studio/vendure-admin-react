@@ -54,24 +54,35 @@ export const manageSearchParam = ({
   [`${paramKeyValue},${paramKey}`, ...filteredParamValues].forEach((newParam) => searchParams.append(param, newParam));
   setSearchParams(searchParams);
 };
+
 type FilterMode =
   | 'OrderFilterParameter'
   | 'CollectionFilterParameter'
   | 'FacetFilterParameter'
   | 'ProductFilterParameter';
 
-type A = ModelTypes['OrderFilterParameter'];
+const URL_FILTER_KEY = 'filter';
 
-export const useFilters = <T extends FilterMode>() => {
-  const [filter, _setFilter] = useState<ModelTypes[T]>();
+export const useFilters = <T extends FilterMode>(
+  defaultValue?: ModelTypes[T],
+): {
+  filter: ModelTypes[T] | undefined;
+  setFilterField: (filterField: keyof ModelTypes[T], fieldValue: ModelTypes[T][typeof filterField]) => void;
+  resetFilter: () => void;
+} => {
+  const [filter, _setFilter] = useState<ModelTypes[T] | undefined>(defaultValue);
   const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
-    const filterFromParams = searchParams.get('filter');
+    const filterFromParams = searchParams.get(URL_FILTER_KEY);
     if (filterFromParams) {
       try {
         const filterFromParamsJSON = JSON.parse(filterFromParams) as ModelTypes[T];
-        _setFilter(filterFromParamsJSON);
+        if (Object.keys(filterFromParamsJSON).length > 0) {
+          _setFilter(filterFromParamsJSON);
+        } else {
+          _setFilter(undefined);
+        }
       } catch (err) {
         throw new Error(`Parsing filter searchParams Key to JSON failed: ${err}`);
       }
@@ -80,6 +91,14 @@ export const useFilters = <T extends FilterMode>() => {
     }
   }, [searchParams]);
 
-  const setFilter = (filterField: keyof ModelTypes[T], filterSubfield: keyof ModelTypes[T][]) => {};
-  return { filter, setFilter };
+  const setFilterField = (filterField: keyof ModelTypes[T], fieldValue: ModelTypes[T][typeof filterField]) => {
+    const filterURL = searchParams.get(URL_FILTER_KEY);
+    searchParams.set(URL_FILTER_KEY, JSON.stringify({ ...(filterURL && { filterURL }), [filterField]: fieldValue }));
+    setSearchParams(searchParams);
+  };
+  const resetFilter = () => {
+    searchParams.delete(URL_FILTER_KEY);
+    setSearchParams(searchParams);
+  };
+  return { filter, setFilterField, resetFilter };
 };

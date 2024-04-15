@@ -9,10 +9,10 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { cn, useFilters } from '@/lib/utils';
-import { PaginatedCacheables, cache } from '@/lists/cache';
+import { cn } from '@/lib/utils';
+import { cache } from '@/lists/cache';
 import { GenericReturn, PaginationInput, PromisePaginated } from '@/lists/models';
-import { SortOrder } from '@/zeus';
+import { ModelTypes, SortOrder } from '@/zeus';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
@@ -31,67 +31,111 @@ const enum SearchParamKey {
   PER_PAGE = 'perPage',
   SORT = 'sort',
   SORT_DIR = 'sortDir',
-  FILTER_PROMPT = 'filterPrompt',
-  FILTER_FIELD = 'filterField',
+  // FILTER_PROMPT = 'filterPrompt',
+  // FILTER_FIELD = 'filterField',
+  FILTER = 'filter',
 }
 
 const arrayRange = (start: number, stop: number) =>
   Array.from({ length: stop - start + 1 }, (_, index) => start + index);
 
-export const useList = <T extends PromisePaginated>({
+export type ListType = {
+  products: 'ProductFilterParameter';
+  collections: 'CollectionFilterParameter';
+  orders: 'OrderFilterParameter';
+  facets: 'FacetFilterParameter';
+};
+
+export const useList = <T extends PromisePaginated, K extends keyof ListType>({
   route,
-  cacheKey,
+  listType,
 }: {
   route: T;
-  cacheKey: PaginatedCacheables;
-}) => {
+  listType: K;
+}): {
+  Paginate: JSX.Element;
+  objects: GenericReturn<T> | undefined;
+  total: number;
+  setSort: (sort: string) => void;
+  optionInfo: PaginationInput;
+  resetFilter: () => void;
+  setFilterField: (
+    filterField: keyof ModelTypes[ListType[K]],
+    fieldValue: ModelTypes[ListType[K]][keyof ModelTypes[ListType[K]]],
+  ) => void;
+  removeFilterField: (filterField: keyof ModelTypes[ListType[K]]) => void;
+} => {
   const { t } = useTranslation('common');
   const [searchParams, setSearchParams] = useSearchParams();
   const [total, setTotal] = useState(0);
   const [objects, setObjects] = useState<GenericReturn<T>>();
-  const { filters } = useFilters();
 
-  // const [search, setSearch] = useState('');
-  // const debouncedSearch = useDebounce(search);
+  const setFilterField = (
+    filterField: keyof ModelTypes[ListType[typeof listType]],
+    fieldValue: ModelTypes[ListType[typeof listType]][typeof filterField],
+  ) => {
+    try {
+      const filterURL = searchParams.get(SearchParamKey.FILTER);
+      if (filterURL) {
+        const filterFromParamsJSON = JSON.parse(filterURL) as ModelTypes[ListType[typeof listType]];
+        searchParams.set(SearchParamKey.FILTER, JSON.stringify({ ...filterFromParamsJSON, [filterField]: fieldValue }));
+        setSearchParams(searchParams);
+      } else {
+        searchParams.set(SearchParamKey.FILTER, JSON.stringify({ [filterField]: fieldValue }));
+        setSearchParams(searchParams);
+      }
+    } catch (err) {
+      throw new Error(`Parsing filter searchParams Key to JSON failed: ${err}`);
+    }
+  };
+
+  const removeFilterField = (filterField: keyof ModelTypes[ListType[typeof listType]]) => {
+    try {
+      const filterURL = searchParams.get(SearchParamKey.FILTER);
+      const filterFromParamsJSON = JSON.parse(filterURL || '') as ModelTypes[ListType[typeof listType]];
+      delete filterFromParamsJSON[filterField];
+      if (Object.keys(filterFromParamsJSON).length === 0) {
+        searchParams.delete(SearchParamKey.FILTER);
+      } else {
+        searchParams.set(SearchParamKey.FILTER, JSON.stringify(filterFromParamsJSON));
+      }
+      setSearchParams(searchParams);
+    } catch (err) {
+      throw new Error(`Parsing filter searchParams Key to JSON failed: ${err}`);
+    }
+  };
+
+  const resetFilter = () => {
+    searchParams.delete(SearchParamKey.FILTER);
+    setSearchParams(searchParams);
+  };
 
   const searchParamValues: PaginationInput = useMemo(() => {
     const page = searchParams.get(SearchParamKey.PAGE);
     const perPage = searchParams.get(SearchParamKey.PER_PAGE);
     const sort = searchParams.get(SearchParamKey.SORT);
     const sortDir = searchParams.get(SearchParamKey.SORT_DIR);
-    // const filterField = searchParams.get(SearchParamKey.FILTER_FIELD);
-    // const filterPrompt = searchParams.get(SearchParamKey.FILTER_PROMPT);
+    const filter = searchParams.get(SearchParamKey.FILTER);
 
-    return {
-      page: page ? parseInt(page) : 1,
-      perPage: perPage ? parseInt(perPage) : 10,
-      sort: sort && sortDir ? { key: sort, sortDir: sortDir as SortOrder } : undefined,
-      filters: filters,
-      // filter: filterField ? { field: filterField, prompt: filterPrompt ? filterPrompt : '' } : undefined,
-    };
-  }, [searchParams, filters]);
-
-  // useEffect(() => {
-  //   const filterPrompt = searchParams.get(SearchParamKey.FILTER_PROMPT);
-  //   if (filterPrompt !== debouncedSearch) {
-  //     if (debouncedSearch === '') {
-  //       searchParams.delete(SearchParamKey.FILTER_PROMPT);
-  //       setSearchParams(searchParams);
-  //     } else {
-  //       searchParams.set(SearchParamKey.FILTER_PROMPT, debouncedSearch);
-  //       setSearchParams(searchParams);
-  //     }
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [debouncedSearch]);
+    try {
+      return {
+        page: page ? parseInt(page) : 1,
+        perPage: perPage ? parseInt(perPage) : 10,
+        sort: sort && sortDir ? { key: sort, sortDir: sortDir as SortOrder } : undefined,
+        filter: filter ? (JSON.parse(filter) as ModelTypes[ListType[typeof listType]]) : undefined,
+      };
+    } catch (err) {
+      throw new Error(`Parsing filter searchParams Key to JSON failed: ${err}`);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     const c = cache<{
       items: GenericReturn<T>;
       totalItems: number;
-    }>(cacheKey);
+    }>(listType);
 
-    const key = `${searchParamValues.page}-${searchParamValues.perPage}-${searchParamValues.sort?.key || ''}-${searchParamValues.sort?.sortDir || ''}-${searchParamValues.filter?.field || ''}-${searchParamValues.filter?.prompt || ''}`;
+    const key = searchParams.toString();
     const valueFromCache = c.get(key);
     if (valueFromCache) {
       setObjects(valueFromCache.items);
@@ -149,19 +193,6 @@ export const useList = <T extends PromisePaginated>({
     }
     setSearchParams(searchParams);
   };
-  // const setFilterField = (newField: string) => {
-  //   const currField = searchParams.get(SearchParamKey.FILTER_FIELD);
-  //   if (currField !== newField) {
-  //     searchParams.set(SearchParamKey.FILTER_FIELD, newField);
-  //     setSearchParams(searchParams);
-  //   }
-  // };
-  // const clearFilterPrompt = () => {
-  //   searchParams.delete(SearchParamKey.FILTER_FIELD);
-  //   searchParams.delete(SearchParamKey.FILTER_PROMPT);
-  //   setSearchParams(searchParams);
-  //   setSearch('');
-  // };
 
   return {
     Paginate: (
@@ -234,10 +265,9 @@ export const useList = <T extends PromisePaginated>({
     total,
     objects,
     setSort,
-    // setFilterField,
-    // setFilterPrompt: setSearch,
+    resetFilter,
+    setFilterField,
+    removeFilterField,
     optionInfo: searchParamValues,
-    // filterPrompt: search,
-    // clearFilterPrompt,
   };
 };
