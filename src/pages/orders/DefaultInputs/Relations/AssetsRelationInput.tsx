@@ -10,21 +10,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { AspectRatio } from '@/components/ui/aspect-ratio';
-import {
-  Button,
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-  ScrollArea,
-} from '@/components';
+import { Button, ScrollArea } from '@/components';
 import { adminApiQuery } from '@/common/client';
 import { ResolverInputTypes } from '@/zeus';
 import { AssetType, assetsSelector } from '@/graphql/base';
+import { useList } from '@/lists/useList';
+import { cn } from '@/lib/utils';
+import { ImageUp } from 'lucide-react';
 
 const getAssets = async (options: ResolverInputTypes['AssetListOptions']) => {
   const response = await adminApiQuery()({
@@ -36,12 +28,14 @@ const getAssets = async (options: ResolverInputTypes['AssetListOptions']) => {
 export function AssetsRelationInput<T>(props: DefaultProps<T>) {
   const { value, onChange } = props;
   const [selectedAsset, setSelectedAsset] = useState<AssetType | null>(null);
-  const [assets, setAssets] = useState<AssetType[]>([]);
-  useEffect(() => {
-    getAssets({ take: 10 }).then((assets) => {
-      setAssets(assets.items);
-    });
-  }, []);
+  const { objects: assets, Paginate } = useList({
+    route: async ({ page, perPage }) => {
+      const assets = await getAssets({ skip: (page - 1) * perPage, take: perPage });
+      return { items: assets.items, totalItems: assets.totalItems };
+    },
+    cacheKey: `modal-assets-list`,
+  });
+
   useEffect(() => {
     if (value) {
       getAssets({ take: 1, filter: { id: { eq: value as string } } }).then((assets) => {
@@ -74,7 +68,7 @@ export function AssetsRelationInput<T>(props: DefaultProps<T>) {
           )}
         </div>
       </div>
-      <DialogContent className="max-w-[800px]">
+      <DialogContent className="max-w-[800px] ">
         <DialogHeader>
           <DialogTitle>Assets</DialogTitle>
           <DialogDescription>Upload and manage assets that can be used in your content.</DialogDescription>
@@ -82,59 +76,44 @@ export function AssetsRelationInput<T>(props: DefaultProps<T>) {
         <ScrollArea className="h-[700px] p-2">
           <div className="flex flex-wrap">
             {assets?.map((asset) => (
-              <div key={asset.id} className="p-2 w-1/2">
-                <AspectRatio ratio={asset.height && asset.width ? asset.width / asset.height : 1} className="bg-muted">
-                  <img src={asset.preview} alt={asset.name} className="object-fill" />
-                </AspectRatio>
-                <div className="flex items-center justify-between">
-                  <span>{asset.name}</span>
-                  <DialogClose asChild>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => {
-                        setSelectedAsset(asset);
-                        onChange(asset.id as T);
-                      }}
-                    >
-                      Select
-                    </Button>
-                  </DialogClose>
-                </div>
+              <div
+                key={asset.id}
+                className={cn('w-1/4 p-2 border-2 cursor-pointer', selectedAsset?.id === asset.id && 'border-blue-500')}
+                onClick={() => {
+                  setSelectedAsset(asset);
+                  onChange(asset.id as T);
+                }}
+              >
+                <img src={asset.preview} alt={asset.name} className="object-contain w-full h-32" />
+                <span>{asset.name}</span>
               </div>
             ))}
           </div>
         </ScrollArea>
         <DialogFooter>
-          <div className="flex flex-col w-full">
-            <Pagination>
-              <PaginationContent>
-                <PaginationItem className="w-full">
-                  <PaginationPrevious className="pl-0" href="#" />
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationLink href="#">1</PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationLink href="#" isActive>
-                    2
-                  </PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationLink href="#">3</PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationEllipsis />
-                </PaginationItem>
-                <PaginationItem className="w-full">
-                  <PaginationNext className="pr-0" href="#" />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
+          <div className="flex flex-col w-full gap-2">
+            {Paginate}
             <div className="flex justify-end gap-2">
-              <Button size="sm">Upload</Button>
-              <Button variant="secondary" size="sm">
-                <DialogClose>Close</DialogClose>
+              <Button
+                size="lg"
+                variant="secondary"
+                className="flex items-center gap-2"
+                onClick={() => {
+                  const input = document.createElement('input');
+                  input.type = 'file';
+                  input.accept = 'image/*';
+                  input.onchange = async (e) => {
+                    const file = (e.target as HTMLInputElement).files?.[0];
+                    if (!file) return;
+                  };
+                  input.click();
+                }}
+              >
+                <ImageUp className="w-4 h-4" />
+                <span>Upload</span>
+              </Button>
+              <Button variant="secondary" size="lg">
+                <DialogClose>{selectedAsset ? 'Save' : 'Cancel'}</DialogClose>
               </Button>
             </div>
           </div>
