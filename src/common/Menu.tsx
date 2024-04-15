@@ -3,9 +3,23 @@ import { useAtom } from 'jotai';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, ScrollArea } from '@/components';
+import {
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  ScrollArea,
+} from '@/components';
 
-import { Bell, GripVertical, LogOut, Package2 } from 'lucide-react';
+import { Bell, GripVertical, MenuIcon, Package2 } from 'lucide-react';
 import * as ResizablePrimitive from 'react-resizable-panels';
 
 import { cn } from '@/lib/utils';
@@ -14,6 +28,7 @@ import { Separator } from '@radix-ui/react-dropdown-menu';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { ShoppingCart, Folder, Barcode } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
+import { ChannelSwitcher } from './AwesomeMenu/ChannelSwitcher';
 
 const ResizablePanelGroup = ({ className, ...props }: React.ComponentProps<typeof ResizablePrimitive.PanelGroup>) => (
   <ResizablePrimitive.PanelGroup
@@ -64,11 +79,31 @@ export const Menu: React.FC<{ children?: React.ReactNode }> = ({ children }) => 
             </NavLink>
           </div>
           <div className="flex-1" />
-          <div className="flex gap-8 items-center">
-            <Button variant="outline" size="icon" className="h-8 w-8">
+          <div className="flex gap-2 items-center">
+            <Button variant="outline" size="icon" className="h-10 w-10">
               <Bell className="h-4 w-4" />
               <span className="sr-only">Toggle notifications</span>
             </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon">
+                  <MenuIcon className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56 mr-4">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onSelect={() => {
+                    setIsLoggedIn('no');
+                    logOut();
+                  }}
+                >
+                  Log out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>{' '}
           </div>
         </div>
         <div className="flex-1">
@@ -81,8 +116,8 @@ export const Menu: React.FC<{ children?: React.ReactNode }> = ({ children }) => 
               className="h-full w-full"
             >
               <ResizablePanel
-                defaultSize={15}
-                collapsedSize={5}
+                defaultSize={18}
+                collapsedSize={4}
                 collapsible
                 minSize={10}
                 maxSize={20}
@@ -96,21 +131,8 @@ export const Menu: React.FC<{ children?: React.ReactNode }> = ({ children }) => 
                 }}
                 className={cn(isCollapsed && 'min-w-[50px] transition-all duration-300 ease-in-out')}
               >
-                <div
-                  className={cn('flex items-center px-2', isCollapsed ? 'justify-center' : 'h-[52px] justify-start')}
-                >
-                  <Button
-                    className="flex items-center gap-2"
-                    size="sm"
-                    variant={isCollapsed ? 'ghost' : 'secondary'}
-                    onClick={() => {
-                      setIsLoggedIn('no');
-                      logOut();
-                    }}
-                  >
-                    <LogOut size={'20'} />
-                    {isCollapsed ? null : 'Logout'}
-                  </Button>
+                <div className={cn('flex h-[52px] items-center justify-center', isCollapsed ? 'h-[52px]' : 'px-2')}>
+                  <ChannelSwitcher isCollapsed={isCollapsed} channels={[{ code: 'test', icon: <></>, label: '' }]} />
                 </div>
                 <Separator />
                 <Nav
