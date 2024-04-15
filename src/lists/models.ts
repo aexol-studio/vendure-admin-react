@@ -14,6 +14,14 @@ export type PromisePaginated = (props: PaginationInput) => Promise<{
   items: any;
 }>;
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export type PromiseSearch = (props: PaginationInput) => Promise<
+  {
+    value: string;
+    label: string;
+  }[]
+>;
+
 export type GenericReturn<T extends PromisePaginated> =
   ReturnType<T> extends Promise<infer R>
     ? R extends {

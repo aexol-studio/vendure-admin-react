@@ -1,6 +1,8 @@
 import React from 'react';
 import { DefaultProps } from '../types';
 import { AssetsRelationInput } from './AssetsRelationInput';
+import { ProductRelationInput } from './ProductRelationInput';
+import { ProductVariantRelationInput } from './ProductVariantRelationInput';
 
 export function DefaultRelationInput<T>(props: DefaultProps<T>) {
   const { field } = props;
@@ -8,12 +10,10 @@ export function DefaultRelationInput<T>(props: DefaultProps<T>) {
     switch (field.entity) {
       case 'Asset':
         return <AssetsRelationInput {...props} />;
-      case 'Order':
-        return <div>Order</div>;
       case 'Product':
-        return <div>Product</div>;
-      case 'User':
-        return <div>User</div>;
+        return <ProductRelationInput {...props} />;
+      case 'ProductVariant':
+        return <ProductVariantRelationInput {...props} />;
       default:
         console.log(`Entity ${field.entity} in list is not supported yet`);
         return (
