@@ -29,7 +29,13 @@ export const useFFLP = <T>(config: {
     Partial<{
       [P in keyof T]: FormField<T[P]>;
     }>
-  >({});
+  >({
+    ...(Object.fromEntries(
+      Object.entries(config).map(([k, v]) => [k, { value: 'initialValue' in v ? v.initialValue : '', errors: [] }]),
+    ) as Partial<{
+      [P in keyof T]: FormField<T[P]>;
+    }>),
+  });
   const setField = useCallback(
     <F extends keyof T>(field: F, value: T[F]) => {
       const invalid = config[field]?.validate(value);

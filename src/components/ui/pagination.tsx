@@ -52,7 +52,7 @@ const PaginationPrevious = ({
     <PaginationLink
       aria-label="Go to previous page"
       size="default"
-      className={cn('gap-1 pl-2.5', !isActive && 'cursor-not-allowed', className)}
+      className={cn('flex items-center gap-1 pl-2.5', !isActive && 'cursor-not-allowed', className)}
       onClick={(e) => isActive && onClick && onClick(e)}
       {...props}
     >
@@ -69,7 +69,7 @@ const PaginationNext = ({ className, isActive, onClick, ...props }: React.Compon
     <PaginationLink
       aria-label="Go to next page"
       size="default"
-      className={cn('gap-1 pr-2.5', !isActive && 'cursor-not-allowed', className)}
+      className={cn('flex items-center gap-1 pr-2.5', !isActive && 'cursor-not-allowed', className)}
       onClick={(e) => isActive && onClick && onClick(e)}
       {...props}
     >

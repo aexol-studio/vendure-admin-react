@@ -927,7 +927,7 @@ export const AllTypesProps: Record<string,any> = {
 		adjustment:"Money"
 	},
 	OrderLineInput:{
-
+		customFields:"OrderLineCustomFieldsInput"
 	},
 	SettleRefundInput:{
 
@@ -960,7 +960,7 @@ export const AllTypesProps: Record<string,any> = {
 		options:"ModifyOrderOptions"
 	},
 	AddItemInput:{
-
+		customFields:"OrderLineCustomFieldsInput"
 	},
 	SurchargeInput:{
 		price:"Money"
@@ -969,10 +969,10 @@ export const AllTypesProps: Record<string,any> = {
 		metadata:"JSON"
 	},
 	AddItemToDraftOrderInput:{
-
+		customFields:"OrderLineCustomFieldsInput"
 	},
 	AdjustDraftOrderLineInput:{
-
+		customFields:"OrderLineCustomFieldsInput"
 	},
 	PaymentMethodListOptions:{
 		sort:"PaymentMethodSortParameter",
@@ -1804,6 +1804,10 @@ export const AllTypesProps: Record<string,any> = {
 		id:"SortOrder",
 		createdAt:"SortOrder",
 		updatedAt:"SortOrder"
+	},
+	OrderLineCustomFieldsInput:{
+		datetimeExample:"DateTime",
+		datetimeExampleList:"DateTime"
 	},
 	NativeAuthInput:{
 
@@ -3369,7 +3373,7 @@ export const ReturnTypes: Record<string,any> = {
 		taxLines:"TaxLine",
 		order:"Order",
 		fulfillmentLines:"FulfillmentLine",
-		customFields:"JSON"
+		customFields:"OrderLineCustomFields"
 	},
 	RefundLine:{
 		orderLine:"OrderLine",
@@ -3728,6 +3732,23 @@ export const ReturnTypes: Record<string,any> = {
 	MetricSummaryEntry:{
 		label:"String",
 		value:"Float"
+	},
+	OrderLineCustomFields:{
+		booleanExample:"Boolean",
+		booleanExampleCustom:"Boolean",
+		datetimeExample:"DateTime",
+		floatExample:"Float",
+		intExample:"Int",
+		stringExample:"String",
+		textExample:"String",
+		relationExample:"Asset",
+		booleanExampleList:"Boolean",
+		datetimeExampleList:"DateTime",
+		floatExampleList:"Float",
+		intExampleList:"Int",
+		stringExampleList:"String",
+		textExampleList:"String",
+		relationExampleList:"Asset"
 	},
 	CustomFields:{
 		Address:"CustomFieldConfig",

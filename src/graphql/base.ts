@@ -24,6 +24,72 @@ export type NavigationType = CollectionTileType & {
   };
 };
 
+export const assetsSelector = Selector('Asset')({
+  id: true,
+  createdAt: true,
+  fileSize: true,
+  focalPoint: { x: true, y: true },
+  width: true,
+  height: true,
+  mimeType: true,
+  preview: true,
+  source: true,
+  name: true,
+});
+
+export type AssetType = FromSelectorWithScalars<typeof assetsSelector, 'Asset'>;
+
+const samePartOfCustomFieldConfig = {
+  name: true,
+  type: true,
+  ui: true,
+  label: { languageCode: true, value: true },
+  description: { languageCode: true, value: true },
+  internal: true,
+  list: true,
+  nullable: true,
+  readonly: true,
+};
+
+export const CustomFieldConfigSelector = Selector('CustomFieldConfig')({
+  __typename: true,
+  '...on BooleanCustomFieldConfig': samePartOfCustomFieldConfig,
+  '...on DateTimeCustomFieldConfig': samePartOfCustomFieldConfig,
+  '...on FloatCustomFieldConfig': samePartOfCustomFieldConfig,
+  '...on TextCustomFieldConfig': samePartOfCustomFieldConfig,
+  '...on LocaleTextCustomFieldConfig': samePartOfCustomFieldConfig,
+  '...on IntCustomFieldConfig': {
+    ...samePartOfCustomFieldConfig,
+    max: true,
+    min: true,
+    step: true,
+  },
+  '...on LocaleStringCustomFieldConfig': {
+    ...samePartOfCustomFieldConfig,
+    length: true,
+    pattern: true,
+  },
+  '...on RelationCustomFieldConfig': {
+    ...samePartOfCustomFieldConfig,
+    entity: true,
+    scalarFields: true,
+  },
+  '...on StringCustomFieldConfig': {
+    ...samePartOfCustomFieldConfig,
+    length: true,
+    options: {
+      value: true,
+      label: {
+        languageCode: true,
+        value: true,
+      },
+    },
+    pattern: true,
+  },
+});
+
+export type CustomFieldConfigType = FromSelectorWithScalars<typeof CustomFieldConfigSelector, 'CustomFieldConfig'>;
+
 export const CollectionSelector = Selector('Collection')({
   name: true,
   slug: true,

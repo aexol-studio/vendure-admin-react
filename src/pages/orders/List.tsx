@@ -30,7 +30,9 @@ import React, { PropsWithChildren, useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { PaginationInput } from '@/lists/models';
-import { Input, Search, ordersSearchProps } from '@/components';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Search, ordersSearchProps } from '@/components';
+import { Link } from 'react-router-dom';
 
 const SortButton: React.FC<
   PropsWithChildren<{ key: string; currSort: PaginationInput['sort']; onClick: () => void }>
@@ -324,6 +326,9 @@ export const OrderListPage = () => {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
+        <Link to="/orders/create">
+          <Button>{t('createOrder')}</Button>
+        </Link>
         <Search {...ordersSearchProps} />
         <Input onChange={(e) => setFilterField('customerLastName', { contains: e.target.value })} />
         <Button onClick={() => removeFilterField('customerLastName')}>Reset Field</Button>

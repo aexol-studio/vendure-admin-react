@@ -11,6 +11,7 @@ import { OrderListPage } from '@/pages/orders/List';
 import { Button } from '@/components/ui/button';
 import { Stack } from '@/components/Stack';
 import { Input } from '@/components/ui/input';
+import { OrderCreatePage } from './pages/orders/Create';
 const router = createBrowserRouter([
   {
     path: '/',
@@ -36,6 +37,10 @@ const router = createBrowserRouter([
         // this is not slug but for easier usage with useDetail hook I marked this as slug even its id
         path: 'orders/:slug',
         element: <OrderListPage />,
+      },
+      {
+        path: 'orders/create',
+        element: <OrderCreatePage />,
       },
     ],
   },
