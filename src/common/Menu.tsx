@@ -2,49 +2,154 @@ import { logOut, loginAtom } from '@/common/client';
 import { useAtom } from 'jotai';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { NavLink, useLocation } from 'react-router-dom';
-import { ShoppingCart, LogOut, Folder, Barcode } from 'lucide-react';
+
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, ScrollArea } from '@/components';
+
+import { Bell, GripVertical, LogOut, Package2 } from 'lucide-react';
+import * as ResizablePrimitive from 'react-resizable-panels';
+
 import { cn } from '@/lib/utils';
-export const Menu: React.FC<{ children?: React.ReactNode }> = () => {
+import { Nav } from './AwesomeMenu/Nav';
+import { Separator } from '@radix-ui/react-dropdown-menu';
+import { TooltipProvider } from '@/components/ui/tooltip';
+import { ShoppingCart, Folder, Barcode } from 'lucide-react';
+import { NavLink } from 'react-router-dom';
+
+const ResizablePanelGroup = ({ className, ...props }: React.ComponentProps<typeof ResizablePrimitive.PanelGroup>) => (
+  <ResizablePrimitive.PanelGroup
+    className={cn('flex h-full w-full data-[panel-group-direction=vertical]:flex-col', className)}
+    {...props}
+  />
+);
+
+const ResizablePanel = ResizablePrimitive.Panel;
+
+const ResizableHandle = ({
+  withHandle,
+  className,
+  ...props
+}: React.ComponentProps<typeof ResizablePrimitive.PanelResizeHandle> & {
+  withHandle?: boolean;
+}) => (
+  <ResizablePrimitive.PanelResizeHandle
+    className={cn(
+      'relative flex w-px items-center justify-center bg-border after:absolute after:inset-y-0 after:left-1/2 after:w-1 after:-translate-x-1/2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 data-[panel-group-direction=vertical]:h-px data-[panel-group-direction=vertical]:w-full data-[panel-group-direction=vertical]:after:left-0 data-[panel-group-direction=vertical]:after:h-1 data-[panel-group-direction=vertical]:after:w-full data-[panel-group-direction=vertical]:after:-translate-y-1/2 data-[panel-group-direction=vertical]:after:translate-x-0 [&[data-panel-group-direction=vertical]>div]:rotate-90',
+      className,
+    )}
+    {...props}
+  >
+    {withHandle && (
+      <div className="z-10 flex h-4 w-3 items-center justify-center rounded-sm border bg-border">
+        <GripVertical className="h-2.5 w-2.5" />
+      </div>
+    )}
+  </ResizablePrimitive.PanelResizeHandle>
+);
+
+export const Menu: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   const { t } = useTranslation(['common']);
+  const [isCollapsed, setIsCollapsed] = React.useState<boolean>(false);
   const [, setIsLoggedIn] = useAtom(loginAtom);
+
   return (
-    <React.Suspense fallback="loading...">
-      <div className={cn(`relative hidden h-screen border-r lg:block w-72 space-y-8 p-4`)}>
-        <SideMenuButton icon={<Barcode />} label={t('menu.products')} href="/products" />
-        <SideMenuButton icon={<Folder />} label={t('menu.collections')} href="/collections" />
-        <SideMenuButton icon={<ShoppingCart />} label={t('menu.orders')} href="/orders" />
-        <div
-          onClick={() => {
-            logOut();
-            setIsLoggedIn('no');
-          }}
-          className={MenuButton()}
-        >
-          <LogOut />
-          <p>{t('menu.logOut')}</p>
+    <div className="w-full border-r bg-muted/40">
+      <div className="flex h-full max-h-screen flex-col gap-2">
+        <div className="flex h-[50px] items-center border-b px-4 lg:h-[60px] lg:px-6">
+          <div className="flex gap-4 items-center">
+            <NavLink to="/" className="font-semibold">
+              <div className="flex items-center gap-2">
+                <Package2 className="h-6 w-6" />
+                <span className="">Aexol Shop</span>
+              </div>
+            </NavLink>
+          </div>
+          <div className="flex-1" />
+          <div className="flex gap-8 items-center">
+            <Button variant="outline" size="icon" className="h-8 w-8">
+              <Bell className="h-4 w-4" />
+              <span className="sr-only">Toggle notifications</span>
+            </Button>
+          </div>
+        </div>
+        <div className="flex-1">
+          <TooltipProvider delayDuration={100}>
+            <ResizablePanelGroup
+              onLayout={(sizes: number[]) => {
+                document.cookie = `react-resizable-panels:layout=${JSON.stringify(sizes)}`;
+              }}
+              direction="horizontal"
+              className="h-full w-full"
+            >
+              <ResizablePanel
+                defaultSize={15}
+                collapsedSize={5}
+                collapsible
+                minSize={10}
+                maxSize={20}
+                onExpand={() => {
+                  setIsCollapsed(false);
+                  document.cookie = `react-resizable-panels:collapsed=${JSON.stringify(false)}`;
+                }}
+                onCollapse={() => {
+                  setIsCollapsed(true);
+                  document.cookie = `react-resizable-panels:collapsed=${JSON.stringify(true)}`;
+                }}
+                className={cn(isCollapsed && 'min-w-[50px] transition-all duration-300 ease-in-out')}
+              >
+                <div
+                  className={cn('flex items-center px-2', isCollapsed ? 'justify-center' : 'h-[52px] justify-start')}
+                >
+                  <Button
+                    className="flex items-center gap-2"
+                    size="sm"
+                    variant={isCollapsed ? 'ghost' : 'secondary'}
+                    onClick={() => {
+                      setIsLoggedIn('no');
+                      logOut();
+                    }}
+                  >
+                    <LogOut size={'20'} />
+                    {isCollapsed ? null : 'Logout'}
+                  </Button>
+                </div>
+                <Separator />
+                <Nav
+                  isCollapsed={isCollapsed}
+                  links={[
+                    { title: t('menu.products'), href: '/products', icon: Barcode },
+                    { title: t('menu.collections'), href: '/collections', icon: Folder },
+                    { title: t('menu.orders'), href: '/orders', icon: ShoppingCart },
+                  ]}
+                />
+                <Separator />
+                {!isCollapsed && (
+                  <div className="mt-auto p-4">
+                    <Card>
+                      <CardHeader className="p-2 pt-0 md:p-4">
+                        <CardTitle>Upgrade to Pro</CardTitle>
+                        <CardDescription>
+                          Unlock all features and get unlimited access to our support team.
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="p-2 pt-0 md:p-4 md:pt-0">
+                        <Button size="sm" className="w-full">
+                          Upgrade
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </div>
+                )}
+              </ResizablePanel>
+              <ResizableHandle withHandle />
+              <ResizablePanel>
+                <ScrollArea className="relative h-[calc(100vh-50px)] lg:h-[calc(100vh-60px)] overflow-y-auto">
+                  {children}
+                </ScrollArea>
+              </ResizablePanel>
+            </ResizablePanelGroup>
+          </TooltipProvider>
         </div>
       </div>
-    </React.Suspense>
+    </div>
   );
 };
-const SideMenuButton: React.FC<{
-  label: string;
-  href: string;
-  icon: React.ReactNode;
-}> = ({ href, icon, label }) => {
-  const location = useLocation();
-  return (
-    <NavLink to={href}>
-      <div className={MenuButton(location.pathname === href)}>
-        {icon}
-        <p>{label}</p>
-      </div>
-    </NavLink>
-  );
-};
-const MenuButton = (current?: boolean) =>
-  cn(
-    'group flex items-center space-x-2 rounded-md px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground',
-    current ? 'bg-accent' : 'transparent',
-  );
