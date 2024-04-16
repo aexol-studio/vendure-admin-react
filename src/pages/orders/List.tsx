@@ -30,9 +30,9 @@ import React, { PropsWithChildren, useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { PaginationInput } from '@/lists/models';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, ordersSearchProps } from '@/components';
+import { Input, Search, ordersSearchProps } from '@/components';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const SortButton: React.FC<
   PropsWithChildren<{ key: string; currSort: PaginationInput['sort']; onClick: () => void }>
@@ -66,28 +66,15 @@ const getOrders = async (options: ResolverInputTypes['OrderListOptions']) => {
   return response.orders;
 };
 
-// const filterOrdersParameterOptions: {
-//   key: keyof Pick<ValueTypes['OrderFilterParameter'], 'customerLastName' | 'transactionId' | 'id' | 'code'>;
-//   type: 'StringOperators' | 'IDOperators';
-// }[] = [
-//   { key: 'customerLastName', type: 'StringOperators' },
-//   { key: 'transactionId', type: 'StringOperators' },
-//   { key: 'id', type: 'IDOperators' },
-//   { key: 'code', type: 'StringOperators' },
-// ] as const;
-
 export const OrderListPage = () => {
-  // const { t } = useTranslation('orders');
+  const { t } = useTranslation('orders');
 
   const {
     objects: orders,
     Paginate,
     setSort,
     optionInfo,
-    // setFilterPrompt,
-    // setFilterField,
-    // filterPrompt,
-    // clearFilterPrompt,
+
     removeFilterField,
     resetFilter,
     setFilterField,
@@ -329,12 +316,12 @@ export const OrderListPage = () => {
         <Link to="/orders/create">
           <Button>{t('createOrder')}</Button>
         </Link>
+
         <Search {...ordersSearchProps} />
         <Input onChange={(e) => setFilterField('customerLastName', { contains: e.target.value })} />
         <Button onClick={() => removeFilterField('customerLastName')}>Reset Field</Button>
         <Button onClick={() => resetFilter()}>reset filter</Button>
         <Button onClick={() => setFilterField('code', { contains: 'dddddupa' })}>set filter</Button>
-
         <div className="rounded-md border border-white  ">
           <Table>
             <TableHeader>

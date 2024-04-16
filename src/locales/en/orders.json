@@ -16,5 +16,6 @@
         "id": "Order ID",
         "code": "Order code"
     },
-    "filterPlaceholder": "Field for filter"
+    "filterPlaceholder": "Field for filter",
+    "createOrder": "Create order"
 }
