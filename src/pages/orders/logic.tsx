@@ -33,10 +33,6 @@ export function registerCustomFieldComponent<P>({
     console.error(`Component ${name} already registered`);
     return;
   }
-  if (typeof component !== 'function' || !(component.prototype instanceof React.Component)) {
-    console.error(`Component ${name} is not a valid React component`);
-    return;
-  }
 
   console.log(`Registering component ${name} in ${where}`);
   registerComponents.push({ name, component, where });

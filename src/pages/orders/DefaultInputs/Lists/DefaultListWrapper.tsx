@@ -13,9 +13,11 @@ export const DefaultListWrapper: React.FC<
     <Dialog>
       <div className="flex justify-between items-center p-4">
         <span>{field.name}</span>
-        <Button variant="secondary" size="sm">
-          <DialogTrigger>Open</DialogTrigger>
-        </Button>
+        <DialogTrigger asChild>
+          <Button variant="secondary" size="sm">
+            Open
+          </Button>
+        </DialogTrigger>
       </div>
       <DialogContent>
         <div className="p-4 flex flex-col gap-2">

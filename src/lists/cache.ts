@@ -1,5 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export type PaginatedCacheables = 'products' | 'collections' | 'orders' | 'facets' | 'modal-assets-list';
+export type PaginatedCacheables =
+  | 'products'
+  | 'collections'
+  | 'orders'
+  | 'facets'
+  | 'modal-assets-list'
+  | 'modal-products-list'
+  | 'modal-product-variants-list';
 export type DetailCacheables = 'productDetail' | 'orderDetail' | 'collectionDetail' | 'facetDetail';
 type CacheKey = `${PaginatedCacheables | DetailCacheables}`;
 
