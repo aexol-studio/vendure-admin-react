@@ -6,7 +6,6 @@ import { PromiseSearch, SearchResult } from '@/lists/models';
 
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Input, Search } from '@/components';
-import { CommandInput } from '@/components/ui/command';
 
 export function AutoCompleteInput<T extends PromiseSearch>({ route }: { route: T }) {
   const [data, setData] = useState<SearchResult[] | undefined>(undefined);

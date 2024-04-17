@@ -33,6 +33,7 @@ import { PaginationInput } from '@/lists/models';
 import { Input, Search, ordersSearchProps } from '@/components';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const SortButton: React.FC<
   PropsWithChildren<{ key: string; currSort: PaginationInput['sort']; onClick: () => void }>
@@ -87,27 +88,11 @@ export const OrderListPage = () => {
     setFilterField,
   } = useList({
     route: async ({ page, perPage, sort, filter }) => {
-      // const filterObject =
-      // filter &&
-      // filter.field &&
-      // filter.prompt &&
-      // filter.prompt !== '' &&
-      // filterOrdersParameterOptions.some((i) => i.key === filter.field)
-      //   ? filterOrdersParameterOptions.find((i) => i.key === filter.field)?.key === 'id'
-      //     ? ({ eq: filter.prompt } as ValueTypes['IDOperators'])
-      //     : ({ contains: filter.prompt } as ValueTypes['StringOperators'])
-      //   : undefined;
-
       return getOrders({
         take: perPage,
         skip: (page - 1) * perPage,
         ...(sort && { sort: { [sort.key]: sort.sortDir } }),
         ...(filter && { filter }),
-        // ...(filter &&
-        //   filter.field &&
-        //   filter.prompt &&
-        //   filter.prompt !== '' &&
-        //   filterObject && { filter: { [filter.field]: filterObject } }),
       });
     },
     listType: 'orders',
@@ -132,7 +117,11 @@ export const OrderListPage = () => {
 
     {
       accessorKey: 'id',
-      header: 'id',
+      header: () => (
+        <SortButton currSort={optionInfo.sort} key="code" onClick={() => setSort('id')}>
+          ID
+        </SortButton>
+      ),
     },
     {
       accessorKey: 'firstName',
@@ -143,7 +132,7 @@ export const OrderListPage = () => {
       accessorKey: 'lastName',
       header: () => (
         <SortButton currSort={optionInfo.sort} key="code" onClick={() => setSort('customerLastName')}>
-          Last name
+          Customer Last name
         </SortButton>
       ),
       cell: ({ row }) => <div className="capitalize">{row.original.customer?.lastName}</div>,
@@ -163,7 +152,6 @@ export const OrderListPage = () => {
       header: 'fullName',
       cell: ({ row }) => <div className="capitalize">{row.original.shippingAddress?.fullName}</div>,
     },
-
     {
       accessorKey: 'code',
       header: () => (
@@ -172,17 +160,24 @@ export const OrderListPage = () => {
         </SortButton>
       ),
     },
-
     {
       accessorKey: 'createdAt',
-      header: 'created at',
+      header: () => (
+        <SortButton currSort={optionInfo.sort} key="createdAt" onClick={() => setSort('createdAt')}>
+          Created at
+        </SortButton>
+      ),
       cell: ({ row }) => (
         <div className="text-nowrap">{format(new Date(row.original.createdAt), 'dd.MM.yyyy hh:mm')}</div>
       ),
     },
     {
       accessorKey: 'orderPlacedAt',
-      header: 'orderPlacedAt',
+      header: () => (
+        <SortButton currSort={optionInfo.sort} key="orderPlacedAt" onClick={() => setSort('orderPlacedAt')}>
+          Order Placed At
+        </SortButton>
+      ),
       cell: ({ row }) => (
         <div className="text-nowrap">
           {row.original.orderPlacedAt ? format(new Date(row.original.orderPlacedAt), 'dd.MM.yyyy hh:mm') : ''}
@@ -191,11 +186,19 @@ export const OrderListPage = () => {
     },
     {
       accessorKey: 'shipping',
-      header: 'shipping',
+      header: () => (
+        <SortButton currSort={optionInfo.sort} key="shipping" onClick={() => setSort('shipping')}>
+          Shipping
+        </SortButton>
+      ),
     },
     {
       accessorKey: 'state',
-      header: 'state',
+      header: () => (
+        <SortButton currSort={optionInfo.sort} key="state" onClick={() => setSort('state')}>
+          State
+        </SortButton>
+      ),
     },
 
     {
@@ -204,9 +207,13 @@ export const OrderListPage = () => {
     },
     {
       accessorKey: 'updatedAt',
-      header: 'updatedAt',
       cell: ({ row }) => (
         <div className="text-nowrap">{format(new Date(row.original.updatedAt), 'dd.MM.yyyy hh:mm')}</div>
+      ),
+      header: () => (
+        <SortButton currSort={optionInfo.sort} key="updatedAt" onClick={() => setSort('updatedAt')}>
+          Updated at
+        </SortButton>
       ),
     },
     {
@@ -266,35 +273,9 @@ export const OrderListPage = () => {
   });
 
   return (
-    <Stack column className="gap-6">
-      <div className="w-full">
+    <Stack column className="gap-6 max-w-[70vw]">
+      <div className="max-w-fit">
         <div className="flex items-center py-4 gap-4">
-          {/* <Input
-            disabled={!optionInfo.filter?.field}
-            placeholder="Filter codes..."
-            value={filterPrompt}
-            onChange={(event) => setFilterPrompt(event.target.value)}
-            className="max-w-sm"
-          />
-          <Select
-            value={optionInfo.filter?.field}
-            onValueChange={(e) => {
-              e === 'none' ? clearFilterPrompt() : setFilterField(e);
-            }}
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder={t('filterPlaceholder')} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="none">{t(`noFilterField`)}</SelectItem>
-              {filterOrdersParameterOptions.map((i) => (
-                <SelectItem key={i.key} value={i.key}>
-                  {t(`filterField.${i.key}`)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select> */}
-
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="ml-auto">
@@ -334,7 +315,7 @@ export const OrderListPage = () => {
         <Button onClick={() => removeFilterField('customerLastName')}>Reset Field</Button>
         <Button onClick={() => resetFilter()}>reset filter</Button>
         <Button onClick={() => setFilterField('code', { contains: 'dddddupa' })}>set filter</Button>
-        <div className="rounded-md border border-white  ">
+        <div className="rounded-md border max-w-fit">
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
