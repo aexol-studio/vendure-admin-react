@@ -14,16 +14,10 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
   Input,
   Label,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
   Table,
   TableBody,
   TableCell,
@@ -34,14 +28,16 @@ import {
   TabsContent,
   TabsList,
   TabsTrigger,
-  Textarea,
 } from '@/components';
-import { ChevronLeft, PlusCircle, Upload } from 'lucide-react';
 
 import { CustomerSelectCard } from './_components/CustomerSelectCard';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { AddressCard } from './_components/AddressCard';
 import { AutoCompleteInput } from '@/components/AutoCompleteInput';
+import { LogicalOperator } from '@/zeus';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
+import { CalendarDays } from 'lucide-react';
 
 const CustomComponent = (props: DefaultProps<boolean>) => {
   const { value, onChange } = props;
@@ -148,17 +144,38 @@ export const OrderCreatePage = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="grid gap-6">
-                    <div className="grid gap-3">
-                      <Label htmlFor="product">Product</Label>
-                      <AutoCompleteInput
-                        route={async ({ filter }) => {
-                          const data = await adminApiQuery()({
-                            products: [{ options: { take: 10, filter } }, { items: { id: true }, totalItems: true }],
-                          });
-                          return data.products.items.map((product) => ({ value: product.id, label: product.id }));
-                        }}
-                      />
-                    </div>
+                    <Label htmlFor="product">Product</Label>
+                    <AutoCompleteInput
+                      route={async ({ filter }) => {
+                        const data = await adminApiQuery()({
+                          products: [
+                            { options: { take: 10, filter, filterOperator: LogicalOperator.OR } },
+                            { items: { id: true, name: true, assets: { preview: true } }, totalItems: true },
+                          ],
+                        });
+                        return data.products.items.map((product) => ({
+                          children: (
+                            <div className="flex flex-1 flex-row justify-between w-full gap-4 items-center">
+                              <div>{product.id}</div>
+                              <div>{product.name}</div>
+                              <HoverCard>
+                                <HoverCardTrigger asChild>
+                                  <img src={product.assets[0].preview} alt={product.name} className="h-20 w-20" />
+                                </HoverCardTrigger>
+                                <HoverCardContent className="w-80">
+                                  <img
+                                    src={product.assets[0].preview}
+                                    alt={product.name}
+                                    className="h-80 w-80 object-contain"
+                                  />
+                                </HoverCardContent>
+                              </HoverCard>
+                            </div>
+                          ),
+                        }));
+                      }}
+                    />
+
                     <Card>
                       <CardContent className="p-4">
                         <Table>

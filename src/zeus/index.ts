@@ -1,7 +1,7 @@
 /* eslint-disable */
 
 import { AllTypesProps, ReturnTypes, Ops } from './const';
-export const HOST = "http://localhost:3000/admin-api"
+export const HOST = "https://vendure-dev.aexol.com/admin-api"
 
 
 export const HEADERS = {}
@@ -1865,8 +1865,7 @@ history?: [{	options?: ValueTypes["HistoryEntryListOptions"] | undefined | null 
 };
 	["OrderLineInput"]: {
 	orderLineId: string | Variable<any, string>,
-	quantity: number | Variable<any, string>,
-	customFields?: ValueTypes["OrderLineCustomFieldsInput"] | undefined | null | Variable<any, string>
+	quantity: number | Variable<any, string>
 };
 	["SettleRefundInput"]: {
 	id: string | Variable<any, string>,
@@ -1920,8 +1919,7 @@ history?: [{	options?: ValueTypes["HistoryEntryListOptions"] | undefined | null 
 };
 	["AddItemInput"]: {
 	productVariantId: string | Variable<any, string>,
-	quantity: number | Variable<any, string>,
-	customFields?: ValueTypes["OrderLineCustomFieldsInput"] | undefined | null | Variable<any, string>
+	quantity: number | Variable<any, string>
 };
 	["SurchargeInput"]: {
 	description: string | Variable<any, string>,
@@ -1939,13 +1937,11 @@ history?: [{	options?: ValueTypes["HistoryEntryListOptions"] | undefined | null 
 };
 	["AddItemToDraftOrderInput"]: {
 	productVariantId: string | Variable<any, string>,
-	quantity: number | Variable<any, string>,
-	customFields?: ValueTypes["OrderLineCustomFieldsInput"] | undefined | null | Variable<any, string>
+	quantity: number | Variable<any, string>
 };
 	["AdjustDraftOrderLineInput"]: {
 	orderLineId: string | Variable<any, string>,
-	quantity: number | Variable<any, string>,
-	customFields?: ValueTypes["OrderLineCustomFieldsInput"] | undefined | null | Variable<any, string>
+	quantity: number | Variable<any, string>
 };
 	/** Returned if the Payment settlement fails */
 ["SettlePaymentError"]: AliasType<{
@@ -3965,7 +3961,7 @@ and refund calculations. */
 	taxLines?:ValueTypes["TaxLine"],
 	order?:ValueTypes["Order"],
 	fulfillmentLines?:ValueTypes["FulfillmentLine"],
-	customFields?:ValueTypes["OrderLineCustomFields"],
+	customFields?:boolean | `@${string}`,
 		__typename?: boolean | `@${string}`
 }>;
 	["RefundLine"]: AliasType<{
@@ -4776,41 +4772,6 @@ by the search, and in what quantity. */
 	id?: ValueTypes["SortOrder"] | undefined | null | Variable<any, string>,
 	createdAt?: ValueTypes["SortOrder"] | undefined | null | Variable<any, string>,
 	updatedAt?: ValueTypes["SortOrder"] | undefined | null | Variable<any, string>
-};
-	["OrderLineCustomFields"]: AliasType<{
-	booleanExample?:boolean | `@${string}`,
-	booleanExampleCustom?:boolean | `@${string}`,
-	datetimeExample?:boolean | `@${string}`,
-	floatExample?:boolean | `@${string}`,
-	intExample?:boolean | `@${string}`,
-	stringExample?:boolean | `@${string}`,
-	textExample?:boolean | `@${string}`,
-	relationExample?:ValueTypes["Asset"],
-	booleanExampleList?:boolean | `@${string}`,
-	datetimeExampleList?:boolean | `@${string}`,
-	floatExampleList?:boolean | `@${string}`,
-	intExampleList?:boolean | `@${string}`,
-	stringExampleList?:boolean | `@${string}`,
-	textExampleList?:boolean | `@${string}`,
-	relationExampleList?:ValueTypes["Asset"],
-		__typename?: boolean | `@${string}`
-}>;
-	["OrderLineCustomFieldsInput"]: {
-	booleanExample?: boolean | undefined | null | Variable<any, string>,
-	booleanExampleCustom?: boolean | undefined | null | Variable<any, string>,
-	datetimeExample?: ValueTypes["DateTime"] | undefined | null | Variable<any, string>,
-	floatExample?: number | undefined | null | Variable<any, string>,
-	intExample?: number | undefined | null | Variable<any, string>,
-	stringExample?: string | undefined | null | Variable<any, string>,
-	textExample?: string | undefined | null | Variable<any, string>,
-	relationExampleId?: string | undefined | null | Variable<any, string>,
-	booleanExampleList?: Array<boolean | undefined | null> | undefined | null | Variable<any, string>,
-	datetimeExampleList?: Array<ValueTypes["DateTime"] | undefined | null> | undefined | null | Variable<any, string>,
-	floatExampleList?: Array<number | undefined | null> | undefined | null | Variable<any, string>,
-	intExampleList?: Array<number | undefined | null> | undefined | null | Variable<any, string>,
-	stringExampleList?: Array<string | undefined | null> | undefined | null | Variable<any, string>,
-	textExampleList?: Array<string | undefined | null> | undefined | null | Variable<any, string>,
-	relationExampleListIds?: Array<string | undefined | null> | undefined | null | Variable<any, string>
 };
 	["NativeAuthInput"]: {
 	username: string | Variable<any, string>,
@@ -5876,8 +5837,7 @@ history?: [{	options?: ResolverInputTypes["HistoryEntryListOptions"] | undefined
 };
 	["OrderLineInput"]: {
 	orderLineId: string,
-	quantity: number,
-	customFields?: ResolverInputTypes["OrderLineCustomFieldsInput"] | undefined | null
+	quantity: number
 };
 	["SettleRefundInput"]: {
 	id: string,
@@ -5931,8 +5891,7 @@ history?: [{	options?: ResolverInputTypes["HistoryEntryListOptions"] | undefined
 };
 	["AddItemInput"]: {
 	productVariantId: string,
-	quantity: number,
-	customFields?: ResolverInputTypes["OrderLineCustomFieldsInput"] | undefined | null
+	quantity: number
 };
 	["SurchargeInput"]: {
 	description: string,
@@ -5950,13 +5909,11 @@ history?: [{	options?: ResolverInputTypes["HistoryEntryListOptions"] | undefined
 };
 	["AddItemToDraftOrderInput"]: {
 	productVariantId: string,
-	quantity: number,
-	customFields?: ResolverInputTypes["OrderLineCustomFieldsInput"] | undefined | null
+	quantity: number
 };
 	["AdjustDraftOrderLineInput"]: {
 	orderLineId: string,
-	quantity: number,
-	customFields?: ResolverInputTypes["OrderLineCustomFieldsInput"] | undefined | null
+	quantity: number
 };
 	/** Returned if the Payment settlement fails */
 ["SettlePaymentError"]: AliasType<{
@@ -7997,7 +7954,7 @@ and refund calculations. */
 	taxLines?:ResolverInputTypes["TaxLine"],
 	order?:ResolverInputTypes["Order"],
 	fulfillmentLines?:ResolverInputTypes["FulfillmentLine"],
-	customFields?:ResolverInputTypes["OrderLineCustomFields"],
+	customFields?:boolean | `@${string}`,
 		__typename?: boolean | `@${string}`
 }>;
 	["RefundLine"]: AliasType<{
@@ -8809,41 +8766,6 @@ by the search, and in what quantity. */
 	id?: ResolverInputTypes["SortOrder"] | undefined | null,
 	createdAt?: ResolverInputTypes["SortOrder"] | undefined | null,
 	updatedAt?: ResolverInputTypes["SortOrder"] | undefined | null
-};
-	["OrderLineCustomFields"]: AliasType<{
-	booleanExample?:boolean | `@${string}`,
-	booleanExampleCustom?:boolean | `@${string}`,
-	datetimeExample?:boolean | `@${string}`,
-	floatExample?:boolean | `@${string}`,
-	intExample?:boolean | `@${string}`,
-	stringExample?:boolean | `@${string}`,
-	textExample?:boolean | `@${string}`,
-	relationExample?:ResolverInputTypes["Asset"],
-	booleanExampleList?:boolean | `@${string}`,
-	datetimeExampleList?:boolean | `@${string}`,
-	floatExampleList?:boolean | `@${string}`,
-	intExampleList?:boolean | `@${string}`,
-	stringExampleList?:boolean | `@${string}`,
-	textExampleList?:boolean | `@${string}`,
-	relationExampleList?:ResolverInputTypes["Asset"],
-		__typename?: boolean | `@${string}`
-}>;
-	["OrderLineCustomFieldsInput"]: {
-	booleanExample?: boolean | undefined | null,
-	booleanExampleCustom?: boolean | undefined | null,
-	datetimeExample?: ResolverInputTypes["DateTime"] | undefined | null,
-	floatExample?: number | undefined | null,
-	intExample?: number | undefined | null,
-	stringExample?: string | undefined | null,
-	textExample?: string | undefined | null,
-	relationExampleId?: string | undefined | null,
-	booleanExampleList?: Array<boolean | undefined | null> | undefined | null,
-	datetimeExampleList?: Array<ResolverInputTypes["DateTime"] | undefined | null> | undefined | null,
-	floatExampleList?: Array<number | undefined | null> | undefined | null,
-	intExampleList?: Array<number | undefined | null> | undefined | null,
-	stringExampleList?: Array<string | undefined | null> | undefined | null,
-	textExampleList?: Array<string | undefined | null> | undefined | null,
-	relationExampleListIds?: Array<string | undefined | null> | undefined | null
 };
 	["NativeAuthInput"]: {
 	username: string,
@@ -9993,8 +9915,7 @@ sum of `OrderLine.discountedLinePrice` values. */
 };
 	["OrderLineInput"]: {
 	orderLineId: string,
-	quantity: number,
-	customFields?: ModelTypes["OrderLineCustomFieldsInput"] | undefined
+	quantity: number
 };
 	["SettleRefundInput"]: {
 	id: string,
@@ -10048,8 +9969,7 @@ sum of `OrderLine.discountedLinePrice` values. */
 };
 	["AddItemInput"]: {
 	productVariantId: string,
-	quantity: number,
-	customFields?: ModelTypes["OrderLineCustomFieldsInput"] | undefined
+	quantity: number
 };
 	["SurchargeInput"]: {
 	description: string,
@@ -10067,13 +9987,11 @@ sum of `OrderLine.discountedLinePrice` values. */
 };
 	["AddItemToDraftOrderInput"]: {
 	productVariantId: string,
-	quantity: number,
-	customFields?: ModelTypes["OrderLineCustomFieldsInput"] | undefined
+	quantity: number
 };
 	["AdjustDraftOrderLineInput"]: {
 	orderLineId: string,
-	quantity: number,
-	customFields?: ModelTypes["OrderLineCustomFieldsInput"] | undefined
+	quantity: number
 };
 	/** Returned if the Payment settlement fails */
 ["SettlePaymentError"]: {
@@ -11686,7 +11604,7 @@ and refund calculations. */
 	taxLines: Array<ModelTypes["TaxLine"]>,
 	order: ModelTypes["Order"],
 	fulfillmentLines?: Array<ModelTypes["FulfillmentLine"]> | undefined,
-	customFields?: ModelTypes["OrderLineCustomFields"] | undefined
+	customFields?: ModelTypes["JSON"] | undefined
 };
 	["RefundLine"]: {
 		orderLine: ModelTypes["OrderLine"],
@@ -12433,40 +12351,6 @@ by the search, and in what quantity. */
 	id?: ModelTypes["SortOrder"] | undefined,
 	createdAt?: ModelTypes["SortOrder"] | undefined,
 	updatedAt?: ModelTypes["SortOrder"] | undefined
-};
-	["OrderLineCustomFields"]: {
-		booleanExample?: boolean | undefined,
-	booleanExampleCustom?: boolean | undefined,
-	datetimeExample?: ModelTypes["DateTime"] | undefined,
-	floatExample?: number | undefined,
-	intExample?: number | undefined,
-	stringExample?: string | undefined,
-	textExample?: string | undefined,
-	relationExample?: ModelTypes["Asset"] | undefined,
-	booleanExampleList?: Array<boolean> | undefined,
-	datetimeExampleList?: Array<ModelTypes["DateTime"]> | undefined,
-	floatExampleList?: Array<number> | undefined,
-	intExampleList?: Array<number> | undefined,
-	stringExampleList?: Array<string> | undefined,
-	textExampleList?: Array<string> | undefined,
-	relationExampleList?: Array<ModelTypes["Asset"]> | undefined
-};
-	["OrderLineCustomFieldsInput"]: {
-	booleanExample?: boolean | undefined,
-	booleanExampleCustom?: boolean | undefined,
-	datetimeExample?: ModelTypes["DateTime"] | undefined,
-	floatExample?: number | undefined,
-	intExample?: number | undefined,
-	stringExample?: string | undefined,
-	textExample?: string | undefined,
-	relationExampleId?: string | undefined,
-	booleanExampleList?: Array<boolean | undefined> | undefined,
-	datetimeExampleList?: Array<ModelTypes["DateTime"] | undefined> | undefined,
-	floatExampleList?: Array<number | undefined> | undefined,
-	intExampleList?: Array<number | undefined> | undefined,
-	stringExampleList?: Array<string | undefined> | undefined,
-	textExampleList?: Array<string | undefined> | undefined,
-	relationExampleListIds?: Array<string | undefined> | undefined
 };
 	["NativeAuthInput"]: {
 	username: string,
@@ -13683,8 +13567,7 @@ sum of `OrderLine.discountedLinePrice` values. */
 };
 	["OrderLineInput"]: {
 		orderLineId: string,
-	quantity: number,
-	customFields?: GraphQLTypes["OrderLineCustomFieldsInput"] | undefined
+	quantity: number
 };
 	["SettleRefundInput"]: {
 		id: string,
@@ -13738,8 +13621,7 @@ sum of `OrderLine.discountedLinePrice` values. */
 };
 	["AddItemInput"]: {
 		productVariantId: string,
-	quantity: number,
-	customFields?: GraphQLTypes["OrderLineCustomFieldsInput"] | undefined
+	quantity: number
 };
 	["SurchargeInput"]: {
 		description: string,
@@ -13757,13 +13639,11 @@ sum of `OrderLine.discountedLinePrice` values. */
 };
 	["AddItemToDraftOrderInput"]: {
 		productVariantId: string,
-	quantity: number,
-	customFields?: GraphQLTypes["OrderLineCustomFieldsInput"] | undefined
+	quantity: number
 };
 	["AdjustDraftOrderLineInput"]: {
 		orderLineId: string,
-	quantity: number,
-	customFields?: GraphQLTypes["OrderLineCustomFieldsInput"] | undefined
+	quantity: number
 };
 	/** Returned if the Payment settlement fails */
 ["SettlePaymentError"]: {
@@ -15806,7 +15686,7 @@ and refund calculations. */
 	taxLines: Array<GraphQLTypes["TaxLine"]>,
 	order: GraphQLTypes["Order"],
 	fulfillmentLines?: Array<GraphQLTypes["FulfillmentLine"]> | undefined,
-	customFields?: GraphQLTypes["OrderLineCustomFields"] | undefined
+	customFields?: GraphQLTypes["JSON"] | undefined
 };
 	["RefundLine"]: {
 	__typename: "RefundLine",
@@ -16617,41 +16497,6 @@ by the search, and in what quantity. */
 		id?: GraphQLTypes["SortOrder"] | undefined,
 	createdAt?: GraphQLTypes["SortOrder"] | undefined,
 	updatedAt?: GraphQLTypes["SortOrder"] | undefined
-};
-	["OrderLineCustomFields"]: {
-	__typename: "OrderLineCustomFields",
-	booleanExample?: boolean | undefined,
-	booleanExampleCustom?: boolean | undefined,
-	datetimeExample?: GraphQLTypes["DateTime"] | undefined,
-	floatExample?: number | undefined,
-	intExample?: number | undefined,
-	stringExample?: string | undefined,
-	textExample?: string | undefined,
-	relationExample?: GraphQLTypes["Asset"] | undefined,
-	booleanExampleList?: Array<boolean> | undefined,
-	datetimeExampleList?: Array<GraphQLTypes["DateTime"]> | undefined,
-	floatExampleList?: Array<number> | undefined,
-	intExampleList?: Array<number> | undefined,
-	stringExampleList?: Array<string> | undefined,
-	textExampleList?: Array<string> | undefined,
-	relationExampleList?: Array<GraphQLTypes["Asset"]> | undefined
-};
-	["OrderLineCustomFieldsInput"]: {
-		booleanExample?: boolean | undefined,
-	booleanExampleCustom?: boolean | undefined,
-	datetimeExample?: GraphQLTypes["DateTime"] | undefined,
-	floatExample?: number | undefined,
-	intExample?: number | undefined,
-	stringExample?: string | undefined,
-	textExample?: string | undefined,
-	relationExampleId?: string | undefined,
-	booleanExampleList?: Array<boolean | undefined> | undefined,
-	datetimeExampleList?: Array<GraphQLTypes["DateTime"] | undefined> | undefined,
-	floatExampleList?: Array<number | undefined> | undefined,
-	intExampleList?: Array<number | undefined> | undefined,
-	stringExampleList?: Array<string | undefined> | undefined,
-	textExampleList?: Array<string | undefined> | undefined,
-	relationExampleListIds?: Array<string | undefined> | undefined
 };
 	["NativeAuthInput"]: {
 		username: string,
@@ -17506,6 +17351,5 @@ type ZEUS_VARIABLES = {
 	["ZoneSortParameter"]: ValueTypes["ZoneSortParameter"];
 	["HistoryEntryFilterParameter"]: ValueTypes["HistoryEntryFilterParameter"];
 	["HistoryEntrySortParameter"]: ValueTypes["HistoryEntrySortParameter"];
-	["OrderLineCustomFieldsInput"]: ValueTypes["OrderLineCustomFieldsInput"];
 	["NativeAuthInput"]: ValueTypes["NativeAuthInput"];
 }

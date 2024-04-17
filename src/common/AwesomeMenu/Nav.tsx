@@ -27,19 +27,21 @@ export function Nav({ links, isCollapsed }: NavProps) {
           isCollapsed ? (
             <Tooltip key={index} delayDuration={0}>
               <TooltipTrigger asChild>
-                <NavLink to={link.href}>
-                  <div
-                    className={cn(
-                      buttonVariants({ variant: 'ghost', size: 'icon' }),
-                      'h-9 w-9',
-                      location.pathname === link.href &&
-                        'dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted dark:hover:text-white',
-                    )}
-                  >
-                    <link.icon className="h-6 w-6" />
-                    <span className="sr-only">{link.title}</span>
-                  </div>
-                </NavLink>
+                <div>
+                  <NavLink to={link.href}>
+                    <div
+                      className={cn(
+                        buttonVariants({ variant: 'ghost', size: 'icon' }),
+                        'h-9 w-9',
+                        location.pathname === link.href &&
+                          'dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted dark:hover:text-white',
+                      )}
+                    >
+                      <link.icon className="h-6 w-6" />
+                      <span className="sr-only">{link.title}</span>
+                    </div>
+                  </NavLink>
+                </div>
               </TooltipTrigger>
               <TooltipContent side="right" className="flex items-center gap-4 capitalize">
                 {link.title}
