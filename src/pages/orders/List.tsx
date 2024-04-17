@@ -148,11 +148,6 @@ export const OrderListPage = () => {
       cell: ({ row }) => <div className="capitalize">{row.original.customer?.phoneNumber}</div>,
     },
     {
-      accessorKey: 'fullName',
-      header: 'fullName',
-      cell: ({ row }) => <div className="capitalize">{row.original.shippingAddress?.fullName}</div>,
-    },
-    {
       accessorKey: 'code',
       header: () => (
         <SortButton currSort={optionInfo.sort} key="code" onClick={() => setSort('code')}>
