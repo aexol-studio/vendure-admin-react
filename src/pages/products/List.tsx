@@ -31,21 +31,16 @@ const getProducts = async (paginate: ResolverInputTypes['ProductListOptions']) =
 };
 
 export const ProductListPage = () => {
-  const {
-    objects: products,
-    Paginate,
-    sort,
-  } = useList({
-    route: async (p) => {
-      const sort = p.sort
-        ? {
-            [p.sort]: SortOrder.DESC,
-          }
-        : undefined;
-      return getProducts({ take: 10, skip: (p.page - 1) * 10, sort });
+  const { objects: products, Paginate } = useList({
+    route: async ({ page, perPage, sort }) => {
+      return getProducts({
+        take: perPage,
+        skip: (page - 1) * perPage,
+        ...(sort && { sort: { [sort.key]: sort.sortDir } }),
+      });
     },
-    limit: 10,
-    cacheKey: 'products',
+
+    listType: 'products',
   });
   const { t } = useTranslation('products');
 

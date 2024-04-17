@@ -5,7 +5,7 @@ import products from '../locales/en/products.json';
 const resources = {
   common,
   orders,
-  products
+  products,
 } as const;
 
 export default resources;

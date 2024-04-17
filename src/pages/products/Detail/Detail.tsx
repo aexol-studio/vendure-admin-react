@@ -1,5 +1,5 @@
 import { adminApiMutation, adminApiQuery } from '@/common/client';
-import { Stack } from '@/components/ui/Stack';
+import { Stack } from '@/components/Stack';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';

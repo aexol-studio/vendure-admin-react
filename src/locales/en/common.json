@@ -1,9 +1,19 @@
 {
-    "menu":{
-        "products":"products",
-        "collections":"collections",
-        "orders":"orders",
-        "facets":"facets",
-        "logOut":"log out"
-    }
+    "next": "next",
+    "previous": "previous",
+    "perPagePlaceholder": "Items per page",
+    "perPage": {
+        "10perPage": "10 per page",
+        "25perPage": "25 per page",
+        "50perPage": "50 per page",
+        "100perPage": "100 per page"
+    },
+    "menu": {
+        "products": "products",
+        "collections": "collections",
+        "orders": "orders",
+        "facets": "facets",
+        "logOut": "log out"
+    },
+    "noFilterField": "None"
 }

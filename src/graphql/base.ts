@@ -1,18 +1,6 @@
 import { productVariantTileSelector } from '@/graphql/products';
-import { FromSelector, Selector, SortOrder, ZeusScalars } from '@/zeus';
-export const scalars = ZeusScalars({
-  Money: {
-    decode: (e) => e as number,
-  },
-  JSON: {
-    encode: (e: unknown) => JSON.stringify(JSON.stringify(e)),
-    decode: (e: unknown) => JSON.parse(e as string),
-  },
-  DateTime: {
-    decode: (e: unknown) => new Date(e as string).toISOString(),
-    encode: (e: unknown) => (e as Date).toISOString(),
-  },
-});
+import { FromSelectorWithScalars } from '@/graphql/scalars';
+import { Selector, SortOrder } from '@/zeus';
 
 export type OrderStateType =
   | 'Created'
@@ -36,6 +24,72 @@ export type NavigationType = CollectionTileType & {
   };
 };
 
+export const assetsSelector = Selector('Asset')({
+  id: true,
+  createdAt: true,
+  fileSize: true,
+  focalPoint: { x: true, y: true },
+  width: true,
+  height: true,
+  mimeType: true,
+  preview: true,
+  source: true,
+  name: true,
+});
+
+export type AssetType = FromSelectorWithScalars<typeof assetsSelector, 'Asset'>;
+
+const samePartOfCustomFieldConfig = {
+  name: true,
+  type: true,
+  ui: true,
+  label: { languageCode: true, value: true },
+  description: { languageCode: true, value: true },
+  internal: true,
+  list: true,
+  nullable: true,
+  readonly: true,
+};
+
+export const CustomFieldConfigSelector = Selector('CustomFieldConfig')({
+  __typename: true,
+  '...on BooleanCustomFieldConfig': samePartOfCustomFieldConfig,
+  '...on DateTimeCustomFieldConfig': samePartOfCustomFieldConfig,
+  '...on FloatCustomFieldConfig': samePartOfCustomFieldConfig,
+  '...on TextCustomFieldConfig': samePartOfCustomFieldConfig,
+  '...on LocaleTextCustomFieldConfig': samePartOfCustomFieldConfig,
+  '...on IntCustomFieldConfig': {
+    ...samePartOfCustomFieldConfig,
+    max: true,
+    min: true,
+    step: true,
+  },
+  '...on LocaleStringCustomFieldConfig': {
+    ...samePartOfCustomFieldConfig,
+    length: true,
+    pattern: true,
+  },
+  '...on RelationCustomFieldConfig': {
+    ...samePartOfCustomFieldConfig,
+    entity: true,
+    scalarFields: true,
+  },
+  '...on StringCustomFieldConfig': {
+    ...samePartOfCustomFieldConfig,
+    length: true,
+    options: {
+      value: true,
+      label: {
+        languageCode: true,
+        value: true,
+      },
+    },
+    pattern: true,
+  },
+});
+
+export type CustomFieldConfigType = FromSelectorWithScalars<typeof CustomFieldConfigSelector, 'CustomFieldConfig'>;
+
 export const CollectionSelector = Selector('Collection')({
   name: true,
   slug: true,
@@ -52,7 +106,7 @@ export const CollectionSelector = Selector('Collection')({
   },
 });
 
-export type CollectionType = FromSelector<typeof CollectionSelector, 'Collection', typeof scalars>;
+export type CollectionType = FromSelectorWithScalars<typeof CollectionSelector, 'Collection'>;
 
 export const CollectionTileProductVariantSelector = Selector('ProductVariant')({
   id: true,
@@ -63,10 +117,9 @@ export const CollectionTileProductVariantSelector = Selector('ProductVariant')({
   product: { name: true, slug: true, featuredAsset: { preview: true } },
 });
 
-export type CollectionTileProductVariantType = FromSelector<
+export type CollectionTileProductVariantType = FromSelectorWithScalars<
   typeof CollectionTileProductVariantSelector,
-  'ProductVariant',
-  typeof scalars
+  'ProductVariant'
 >;
 
 export const CollectionTileSelector = Selector('Collection')({
@@ -81,14 +134,14 @@ export const CollectionTileSelector = Selector('Collection')({
   },
 });
 
-export type CollectionTileType = FromSelector<typeof CollectionTileSelector, 'Collection', typeof scalars>;
+export type CollectionTileType = FromSelectorWithScalars<typeof CollectionTileSelector, 'Collection'>;
 
 export const AvailableCountriesSelector = Selector('Country')({
   code: true,
   name: true,
   languageCode: true,
 });
-export type AvailableCountriesType = FromSelector<typeof AvailableCountriesSelector, 'Country', typeof scalars>;
+export type AvailableCountriesType = FromSelectorWithScalars<typeof AvailableCountriesSelector, 'Country'>;
 
 export const OrderAddressSelector = Selector('OrderAddress')({
   fullName: true,
@@ -101,7 +154,7 @@ export const OrderAddressSelector = Selector('OrderAddress')({
   phoneNumber: true,
 });
 
-export type OrderAddressType = FromSelector<typeof OrderAddressSelector, 'OrderAddress', typeof scalars>;
+export type OrderAddressType = FromSelectorWithScalars<typeof OrderAddressSelector, 'OrderAddress'>;
 
 export const ActiveAddressSelector = Selector('Address')({
   ...OrderAddressSelector,
@@ -111,7 +164,7 @@ export const ActiveAddressSelector = Selector('Address')({
   defaultBillingAddress: true,
 });
 
-export type ActiveAddressType = FromSelector<typeof ActiveAddressSelector, 'Address', typeof scalars>;
+export type ActiveAddressType = FromSelectorWithScalars<typeof ActiveAddressSelector, 'Address'>;
 
 export const EditActiveAddressSelector = Selector('UpdateAddressInput')({
   id: true,
@@ -128,18 +181,14 @@ export const EditActiveAddressSelector = Selector('UpdateAddressInput')({
   defaultBillingAddress: true,
 });
 
-export type EditActiveAddressType = FromSelector<
-  typeof EditActiveAddressSelector,
-  'UpdateAddressInput',
-  typeof scalars
->;
+export type EditActiveAddressType = FromSelectorWithScalars<typeof EditActiveAddressSelector, 'UpdateAddressInput'>;
 
 export const CurrentUserSelector = Selector('CurrentUser')({
   id: true,
   identifier: true,
 });
 
-export type CurrentUserType = FromSelector<typeof CurrentUserSelector, 'CurrentUser', typeof scalars>;
+export type CurrentUserType = FromSelectorWithScalars<typeof CurrentUserSelector, 'CurrentUser'>;
 
 export const ActiveCustomerSelector = Selector('Customer')({
   id: true,
@@ -151,7 +200,7 @@ export const ActiveCustomerSelector = Selector('Customer')({
   user: CurrentUserSelector,
 });
 
-export type ActiveCustomerType = FromSelector<typeof ActiveCustomerSelector, 'Customer', typeof scalars>;
+export type ActiveCustomerType = FromSelectorWithScalars<typeof ActiveCustomerSelector, 'Customer'>;
 export const CreateCustomerSelector = Selector('CreateCustomerInput')({
   emailAddress: true,
   firstName: true,
@@ -159,7 +208,7 @@ export const CreateCustomerSelector = Selector('CreateCustomerInput')({
   phoneNumber: true,
 });
 
-export type CreateCustomerType = FromSelector<typeof CreateCustomerSelector, 'CreateCustomerInput', typeof scalars>;
+export type CreateCustomerType = FromSelectorWithScalars<typeof CreateCustomerSelector, 'CreateCustomerInput'>;
 
 export const CreateAddressSelector = Selector('CreateAddressInput')({
   fullName: true,
@@ -175,7 +224,7 @@ export const CreateAddressSelector = Selector('CreateAddressInput')({
   defaultBillingAddress: true,
 });
 
-export type CreateAddressType = FromSelector<typeof CreateAddressSelector, 'CreateAddressInput', typeof scalars>;
+export type CreateAddressType = FromSelectorWithScalars<typeof CreateAddressSelector, 'CreateAddressInput'>;
 
 export type LoginCustomerInputType = {
   emailAddress: string;
@@ -196,7 +245,7 @@ export const homePageSlidersSelector = Selector('Collection')({
   ],
 });
 
-export type HomePageSlidersType = FromSelector<typeof homePageSlidersSelector, 'Collection', typeof scalars>;
+export type HomePageSlidersType = FromSelectorWithScalars<typeof homePageSlidersSelector, 'Collection'>;
 
 export const AdminSettingsSelector = Selector('GlobalSettings')({
   availableLanguages: true,
