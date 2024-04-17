@@ -1,4 +1,4 @@
-import { adminApiQuery } from '@/common/client';
+import { adminApiMutation, adminApiQuery } from '@/common/client';
 import { Stack } from '@/components/Stack';
 import { Button } from '@/components/ui/button';
 import { OrderListSelector, OrderListType } from '@/graphql/orders';
@@ -35,6 +35,7 @@ import { PaginationInput } from '@/lists/models';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, ordersSearchProps } from '@/components';
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const SortButton: React.FC<
   PropsWithChildren<{ key: string; currSort: PaginationInput['sort']; onClick: () => void }>
@@ -53,6 +54,13 @@ const SortButton: React.FC<
       )}
     </Button>
   );
+};
+
+const createDraftOrder = async () => {
+  const response = await adminApiMutation()({
+    createDraftOrder: { id: true },
+  });
+  return response.createDraftOrder.id;
 };
 
 const getOrders = async (options: ResolverInputTypes['OrderListOptions']) => {
@@ -80,7 +88,7 @@ const filterOrdersParameterOptions: {
 
 export const OrderListPage = () => {
   const { t } = useTranslation('orders');
-
+  const navigate = useNavigate();
   const {
     objects: orders,
     Paginate,
@@ -324,9 +332,15 @@ export const OrderListPage = () => {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <Link to="/orders/create">
-          <Button>{t('createOrder')}</Button>
-        </Link>
+        <Button
+          onClick={async () => {
+            const id = await createDraftOrder();
+            if (id) navigate(`/orders/draft/${id}`);
+            else console.error('Failed to create order');
+          }}
+        >
+          {t('createOrder')}
+        </Button>
         <Search {...ordersSearchProps} />
         <div className="rounded-md border border-white  ">
           <Table>

@@ -1,8 +1,7 @@
-import { adminApiQuery } from '@/common/client';
-import { Stack } from '@/components/Stack';
+import { adminApiMutation, adminApiQuery } from '@/common/client';
 import { CustomFieldConfigSelector, CustomFieldConfigType } from '@/graphql/base';
 import { useGFFLP } from '@/lists/useGflp';
-import React from 'react';
+import React, { PropsWithChildren } from 'react';
 import { useEffect, useMemo, useState } from 'react';
 // import { useTranslation } from 'react-i18next';
 
@@ -14,16 +13,9 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
-  Input,
   Label,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
   Table,
   TableBody,
   TableCell,
@@ -34,14 +26,23 @@ import {
   TabsContent,
   TabsList,
   TabsTrigger,
-  Textarea,
 } from '@/components';
-import { ChevronLeft, PlusCircle, Upload } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 
 import { CustomerSelectCard } from './_components/CustomerSelectCard';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { AddressCard } from './_components/AddressCard';
 import { AutoCompleteInput } from '@/components/AutoCompleteInput';
+import { useNavigate, useParams } from 'react-router-dom';
+import {
+  DraftOrderType,
+  EligibleShippingMethodsType,
+  draftOrderSelector,
+  eligibleShippingMethodsSelector,
+} from '@/graphql/draft_order';
+import { ResolverInputTypes } from '@/zeus';
+import { ShippingMethod } from './_components/ShippingMethod';
+import { toast } from 'sonner';
 
 const CustomComponent = (props: DefaultProps<boolean>) => {
   const { value, onChange } = props;
@@ -60,10 +61,36 @@ const registerComponents: {
   where: string;
 }[] = [];
 
+type VariantWithQuantity = DraftOrderType['lines'][number]['productVariant'] & { quantity?: number };
+
+const OrderStateBadge: React.FC<{ state?: DraftOrderType['state'] }> = ({ state }) => {
+  switch (state) {
+    case 'AddingItems':
+      return <Badge>Adding items</Badge>;
+    case 'ArrangingPayment':
+      return <Badge>Arranging payment</Badge>;
+    case 'PaymentAuthorized':
+      return <Badge>Payment authorized</Badge>;
+    case 'PaymentSettled':
+      return <Badge>Payment settled</Badge>;
+    case 'Cancelled':
+      return <Badge variant="destructive">Cancelled</Badge>;
+    case 'Fulfilled':
+      return <Badge>Fulfilled</Badge>;
+    case 'PartiallyFulfilled':
+      return <Badge>Partially fulfilled</Badge>;
+    default:
+      return <Badge>{state}</Badge>;
+  }
+};
+
 export const OrderCreatePage = () => {
   // const { t } = useTranslation('orders');
+  const { id } = useParams();
+  const [selectedTab, setSelectedTab] = useState('General');
   const [customFields, setCustomFields] = useState<CustomFieldConfigType[]>([]);
   const { state, setField } = useGFFLP('AddItemToDraftOrderInput', 'customFields')({});
+  const [eligibleShippingMethodsType, setEligibleShippingMethodsType] = useState<EligibleShippingMethodsType[]>([]);
 
   useEffect(() => {
     const fetch = async () => {
@@ -90,6 +117,10 @@ export const OrderCreatePage = () => {
         }
         setField('customFields', { ...state.customFields?.value, [value.name]: init });
       });
+      const { eligibleShippingMethodsForDraftOrder } = await adminApiQuery()({
+        eligibleShippingMethodsForDraftOrder: [{ orderId: id! }, eligibleShippingMethodsSelector],
+      });
+      setEligibleShippingMethodsType(eligibleShippingMethodsForDraftOrder);
       registerCustomFieldComponent({
         registerComponents,
         where: 'order-create',
@@ -117,26 +148,193 @@ export const OrderCreatePage = () => {
     );
   }, [customFields, state]);
 
+  const [draftOrder, setDraftOrder] = useState<DraftOrderType | null>();
+  const [searchData, setSearchData] = useState<any[]>([]);
+  const [variantToAdd, setVariantToAdd] = useState<any | null>(null);
+
+  useEffect(() => {
+    const fetch = async () => {
+      if (!id) return;
+      const { order } = await adminApiQuery()({ order: [{ id }, draftOrderSelector] });
+      setDraftOrder(order);
+    };
+    fetch();
+  }, []);
+
+  const addToOrder = async (productVariantId: string, quantity: number, customFields: Record<string, unknown>) => {
+    const { addItemToDraftOrder } = await adminApiMutation()({
+      addItemToDraftOrder: [
+        { input: { productVariantId, quantity, customFields }, orderId: id! },
+        {
+          __typename: true,
+          '...on Order': draftOrderSelector,
+          '...on InsufficientStockError': {
+            errorCode: true,
+            message: true,
+            order: draftOrderSelector,
+            quantityAvailable: true,
+          },
+          '...on NegativeQuantityError': {
+            errorCode: true,
+            message: true,
+          },
+          '...on OrderLimitError': {
+            errorCode: true,
+            message: true,
+            maxItems: true,
+          },
+          '...on OrderModificationError': {
+            errorCode: true,
+            message: true,
+          },
+        },
+      ],
+    });
+    if (addItemToDraftOrder.__typename === 'Order' || addItemToDraftOrder.__typename === 'InsufficientStockError') {
+      if (addItemToDraftOrder.__typename === 'Order') setDraftOrder(addItemToDraftOrder);
+      else setDraftOrder(addItemToDraftOrder.order);
+      setVariantToAdd(null);
+    }
+  };
+
+  const removeLineItem = async (orderLineId: string) => {
+    const { removeDraftOrderLine } = await adminApiMutation()({
+      removeDraftOrderLine: [
+        { orderId: id!, orderLineId },
+        {
+          __typename: true,
+          '...on Order': draftOrderSelector,
+          '...on OrderModificationError': {
+            errorCode: true,
+            message: true,
+          },
+        },
+      ],
+    });
+    if (removeDraftOrderLine.__typename === 'Order') setDraftOrder(removeDraftOrderLine);
+  };
+
+  const adjustLineItem = async (orderLineId: string, quantity: number) => {
+    const { adjustDraftOrderLine } = await adminApiMutation()({
+      adjustDraftOrderLine: [
+        { orderId: id!, input: { orderLineId, quantity } },
+        {
+          __typename: true,
+          '...on Order': draftOrderSelector,
+          '...on InsufficientStockError': {
+            errorCode: true,
+            message: true,
+            order: draftOrderSelector,
+            quantityAvailable: true,
+          },
+          '...on NegativeQuantityError': {
+            errorCode: true,
+            message: true,
+          },
+          '...on OrderLimitError': {
+            errorCode: true,
+            message: true,
+            maxItems: true,
+          },
+          '...on OrderModificationError': {
+            errorCode: true,
+            message: true,
+          },
+        },
+      ],
+    });
+    if (adjustDraftOrderLine.__typename === 'Order' || adjustDraftOrderLine.__typename === 'InsufficientStockError') {
+      if (adjustDraftOrderLine.__typename === 'Order') setDraftOrder(adjustDraftOrderLine);
+      else setDraftOrder(adjustDraftOrderLine.order);
+    }
+  };
+
+  const handleCustomerEvent = async ({
+    customerId,
+    input,
+  }: {
+    customerId?: string;
+    input?: ResolverInputTypes['CreateCustomerInput'];
+  }) => {
+    const { setCustomerForDraftOrder } = await adminApiMutation()({
+      setCustomerForDraftOrder: [
+        { orderId: id!, customerId, input },
+        {
+          __typename: true,
+          '...on Order': draftOrderSelector,
+          '...on EmailAddressConflictError': { errorCode: true, message: true },
+        },
+      ],
+    });
+    if (setCustomerForDraftOrder.__typename === 'Order') setDraftOrder(setCustomerForDraftOrder);
+  };
+  const navigate = useNavigate();
+
+  const onSubmit = async () => {
+    const { transitionOrderToState } = await adminApiMutation()({
+      transitionOrderToState: [
+        { id: id!, state: 'ArrangingPayment' },
+        {
+          __typename: true,
+          '...on Order': draftOrderSelector,
+          '...on OrderStateTransitionError': {
+            errorCode: true,
+            message: true,
+            fromState: true,
+            toState: true,
+            transitionError: true,
+          },
+        },
+      ],
+    });
+    if (transitionOrderToState?.__typename === 'Order') setDraftOrder(transitionOrderToState);
+  };
+
   return (
     <main>
       <div className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
         <div className="max-w-[1200px] w-full mx-auto grid flex-1 auto-rows-max gap-4">
           <div className="flex items-center gap-4">
-            {/* <Button variant="outline" size="icon" className="h-7 w-7">
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-7 w-7"
+              onClick={() => {
+                toast('Are you sure you want to leave this page?', {
+                  position: 'top-center',
+                  action: {
+                    label: 'Leave',
+                    onClick: () => navigate('/orders'),
+                  },
+                });
+              }}
+            >
               <ChevronLeft className="h-4 w-4" />
               <span className="sr-only">Back</span>
-            </Button> */}
+            </Button>
             <h1 className="flex-1 shrink-0 whitespace-nowrap text-xl font-semibold tracking-tight sm:grow-0">
               Draft order
             </h1>
-            <Badge variant="destructive" className="ml-auto sm:ml-0">
-              Draft
-            </Badge>
+            <OrderStateBadge state={draftOrder?.state} />
             <div className="hidden items-center gap-2 md:ml-auto md:flex">
-              <Button variant="outline" size="sm">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  toast('Are you sure you want to leave this page?', {
+                    position: 'top-center',
+                    action: {
+                      label: 'Leave',
+                      onClick: () => navigate('/orders'),
+                    },
+                  });
+                }}
+              >
                 Discard
               </Button>
-              <Button size="sm">Complete draft order</Button>
+              <Button size="sm" onClick={onSubmit}>
+                Complete draft order
+              </Button>
             </div>
           </div>
           <div className="grid gap-4 md:grid-cols-[1fr_250px] lg:grid-cols-3 lg:gap-8">
@@ -151,11 +349,31 @@ export const OrderCreatePage = () => {
                     <div className="grid gap-3">
                       <Label htmlFor="product">Product</Label>
                       <AutoCompleteInput
+                        onSelect={(_variant) => {
+                          const variant = searchData.find((v) => v.id === _variant?.value);
+                          setVariantToAdd(variant);
+                        }}
                         route={async ({ filter }) => {
                           const data = await adminApiQuery()({
-                            products: [{ options: { take: 10, filter } }, { items: { id: true }, totalItems: true }],
+                            productVariants: [
+                              { options: { take: 10, filter } },
+                              {
+                                items: {
+                                  id: true,
+                                  sku: true,
+                                  name: true,
+                                  featuredAsset: { preview: true },
+                                  product: { name: true, featuredAsset: { preview: true } },
+                                },
+                                totalItems: true,
+                              },
+                            ],
                           });
-                          return data.products.items.map((product) => ({ value: product.id, label: product.id }));
+                          setSearchData(data.productVariants.items);
+                          return data.productVariants.items.map((variant) => ({
+                            value: variant.id,
+                            label: variant.product.name + ' ' + variant.sku,
+                          }));
                         }}
                       />
                     </div>
@@ -166,27 +384,12 @@ export const OrderCreatePage = () => {
                             <TableRow>
                               <TableHead>Product</TableHead>
                               <TableHead>SKU</TableHead>
-                              <TableHead>Quantity</TableHead>
                               <TableHead>Actions</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
-                            <TableRow>
-                              <TableCell>
-                                <div className="flex items-center gap-2">
-                                  <img
-                                    alt="Product image"
-                                    className="aspect-square w-10 rounded-md object-cover"
-                                    height="40"
-                                    src="https://shop.dev.minko.aexol.work/assets/mainafter__preview.webp?preset=small"
-                                    width="40"
-                                  />
-                                  <span className="font-semibold">T-Shirt</span>
-                                </div>
-                              </TableCell>
-                              <TableCell>GGPC-001</TableCell>
-                              <TableCell>2</TableCell>
-                              <TableCell>
+                            {variantToAdd ? (
+                              <LineItem variant={variantToAdd}>
                                 <Dialog>
                                   <DialogTrigger asChild>
                                     <Button size="sm" variant="ghost">
@@ -194,27 +397,33 @@ export const OrderCreatePage = () => {
                                     </Button>
                                   </DialogTrigger>
                                   <DialogContent className="max-w-[90vw] h-[90vh]">
-                                    <form>
-                                      <div className="flex">
-                                        {/* fake product */}
-                                        <img
-                                          alt="Product image"
-                                          className="aspect-square w-14 rounded-md object-cover"
-                                          height="56"
-                                          src="https://shop.dev.minko.aexol.work/assets/mainafter__preview.webp?preset=small"
-                                          width="56"
-                                        />
-                                        <div className="grid gap-1">
-                                          <span className="font-semibold">T-Shirt</span>
-                                          <span className="text-muted-foreground">SKU: GGPC-001</span>
+                                    <form
+                                      className="w-full"
+                                      onSubmit={async (e) => {
+                                        e.preventDefault();
+                                        await addToOrder(variantToAdd.id, 1, {});
+                                      }}
+                                    >
+                                      <div className="w-full flex flex-col items-center gap-2">
+                                        <div className="w-full flex">
+                                          <Table>
+                                            <TableHeader>
+                                              <TableRow>
+                                                <TableHead>Product</TableHead>
+                                                <TableHead>SKU</TableHead>
+                                                <TableHead>Quantity</TableHead>
+                                                <TableHead>Actions</TableHead>
+                                              </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                              <LineItem variant={{ ...variantToAdd, quantity: 1 }}>
+                                                <Button type="submit" size="sm" variant="outline">
+                                                  Add item
+                                                </Button>
+                                              </LineItem>
+                                            </TableBody>
+                                          </Table>
                                         </div>
-                                      </div>
-                                      <div className="flex items-end justify-between gap-2">
-                                        <div className="grid gap-3">
-                                          <Label htmlFor="quantity">Quantity</Label>
-                                          <Input id="quantity" type="number" />
-                                        </div>
-                                        <Button size="sm">Add item</Button>
                                       </div>
                                       <div className="w-full p-4 bg-primary-foreground text-primary-background rounded-lg flex flex-col gap-4">
                                         <span className="text-lg font-semibold">Custom fields</span>
@@ -242,8 +451,14 @@ export const OrderCreatePage = () => {
                                     </form>
                                   </DialogContent>
                                 </Dialog>
+                              </LineItem>
+                            ) : (
+                              <TableCell colSpan={3}>
+                                <div className="flex items-center justify-center mt-4">
+                                  <span>No product selected</span>
+                                </div>
                               </TableCell>
-                            </TableRow>
+                            )}
                           </TableBody>
                         </Table>
                       </CardContent>
@@ -258,48 +473,25 @@ export const OrderCreatePage = () => {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        <TableRow>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <img
-                                alt="Product image"
-                                className="aspect-square w-10 rounded-md object-cover"
-                                height="40"
-                                src="https://shop.dev.minko.aexol.work/assets/mainafter__preview.webp?preset=small"
-                                width="40"
-                              />
-                              <span className="font-semibold">T-Shirt</span>
+                        {draftOrder?.lines.length ? (
+                          draftOrder.lines.map((line) => (
+                            <LineItem
+                              adjustLineItem={(quantity) => adjustLineItem(line.id, quantity)}
+                              key={line.id}
+                              variant={{ ...line.productVariant, quantity: line.quantity }}
+                            >
+                              <Button size="sm" variant="ghost" onClick={() => removeLineItem(line.id)}>
+                                Remove
+                              </Button>
+                            </LineItem>
+                          ))
+                        ) : (
+                          <TableCell colSpan={4}>
+                            <div className="flex items-center justify-center mt-4">
+                              <span>No items in draft order</span>
                             </div>
                           </TableCell>
-                          <TableCell>GGPC-001</TableCell>
-                          <TableCell>2</TableCell>
-                          <TableCell>
-                            <Button size="sm" variant="ghost">
-                              Remove
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <img
-                                alt="Product image"
-                                className="aspect-square w-10 rounded-md object-cover"
-                                height="40"
-                                src="https://shop.dev.minko.aexol.work/assets/mainafter__preview.webp?preset=small"
-                                width="40"
-                              />
-                              <span className="font-semibold">Hoodie</span>
-                            </div>
-                          </TableCell>
-                          <TableCell>GGPC-002</TableCell>
-                          <TableCell>4</TableCell>
-                          <TableCell>
-                            <Button size="sm" variant="ghost">
-                              Remove
-                            </Button>
-                          </TableCell>
-                        </TableRow>
+                        )}
                       </TableBody>
                     </Table>
                   </div>
@@ -313,18 +505,38 @@ export const OrderCreatePage = () => {
               </Card>
             </div>
             <div className="grid auto-rows-max items-start gap-4 lg:gap-8">
-              <CustomerSelectCard />
-              <AddressCard type="billing" />
-              <AddressCard type="shipping" />
+              <CustomerSelectCard customer={draftOrder?.customer} handleCustomerEvent={handleCustomerEvent} />
+              <AddressCard
+                type="billing"
+                defaultValue={{
+                  streetLine1: '',
+                  ...draftOrder?.billingAddress,
+                }}
+                customerAddresses={draftOrder?.customer?.addresses}
+              />
+              <AddressCard
+                type="shipping"
+                defaultValue={{
+                  streetLine1: '',
+                  ...draftOrder?.shippingAddress,
+                }}
+                customerAddresses={draftOrder?.customer?.addresses}
+              >
+                <ShippingMethod
+                  shippingMethods={eligibleShippingMethodsType}
+                  selectedShippingMethod={draftOrder?.shippingLines[0]?.id || ''}
+                  onChange={(value) => console.log(value)}
+                />
+              </AddressCard>
               <Card>
                 <CardHeader>
                   <CardTitle>Information</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid gap-3">
-                    <Label>ID: 1</Label>
-                    <Label>Create date: 2021-09-01</Label>
-                    <Label>Update date: 2021-09-01</Label>
+                    <Label>{draftOrder?.id}</Label>
+                    <Label>Create date: {draftOrder?.createdAt}</Label>
+                    <Label>Update date: {draftOrder?.updatedAt}</Label>
                   </div>
                 </CardContent>
               </Card>
@@ -339,5 +551,53 @@ export const OrderCreatePage = () => {
         </div>
       </div>
     </main>
+  );
+};
+
+const LineItem: React.FC<
+  PropsWithChildren<{ variant: VariantWithQuantity; adjustLineItem?: (quantity: number) => void }>
+> = ({ children, variant, adjustLineItem }) => {
+  return (
+    <TableRow>
+      <TableCell>
+        <div className="flex items-center gap-2">
+          <img
+            alt="Product image"
+            className="aspect-square w-10 rounded-md object-cover"
+            height="40"
+            width="40"
+            src={variant?.featuredAsset?.preview || variant?.product?.featuredAsset?.preview}
+          />
+          <span className="font-semibold">{variant?.product.name}</span>
+        </div>
+      </TableCell>
+      <TableCell>{variant?.sku}</TableCell>
+      {variant?.quantity ? (
+        <TableCell>
+          {adjustLineItem ? (
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                type="button"
+                onClick={() => adjustLineItem(variant.quantity ? variant.quantity + 1 : 1)}
+              >
+                +
+              </Button>
+              <span>{variant?.quantity}</span>
+              <Button
+                variant="ghost"
+                type="button"
+                onClick={() => adjustLineItem(variant.quantity ? variant.quantity - 1 : 1)}
+              >
+                -
+              </Button>
+            </div>
+          ) : (
+            variant?.quantity
+          )}
+        </TableCell>
+      ) : null}
+      <TableCell>{children}</TableCell>
+    </TableRow>
   );
 };

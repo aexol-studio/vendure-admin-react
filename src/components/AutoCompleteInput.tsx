@@ -7,9 +7,11 @@ import { PromiseSearch } from '@/lists/models';
 
 export function AutoCompleteInput<T extends PromiseSearch>({
   selected: initialSelected,
+  onSelect,
   route,
 }: {
   selected?: { value: string; label: string };
+  onSelect: (value: Awaited<ReturnType<T>>[number] | null) => void;
   route: T;
 }) {
   const [data, setData] = useState<{ value: string; label: string }[] | null>(null);
@@ -43,9 +45,11 @@ export function AutoCompleteInput<T extends PromiseSearch>({
             key={framework.value}
             onSelect={() => {
               if (selected?.value === framework.value) {
+                onSelect(null);
                 setSelected(null);
                 setValue('');
               } else {
+                onSelect(framework);
                 setSelected(framework);
                 setValue(framework.label);
               }
