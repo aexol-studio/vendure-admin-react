@@ -1,4 +1,4 @@
-import { adminApiQuery } from '@/common/client';
+import { adminApiMutation, adminApiQuery } from '@/common/client';
 import { Stack } from '@/components/Stack';
 import { Button } from '@/components/ui/button';
 import { OrderListSelector, OrderListType } from '@/graphql/orders';
@@ -32,7 +32,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { PaginationInput } from '@/lists/models';
 import { Input, Search, ordersSearchProps } from '@/components';
 import { Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 
 const SortButton: React.FC<
   PropsWithChildren<{ key: string; currSort: PaginationInput['sort']; onClick: () => void }>
@@ -53,6 +53,13 @@ const SortButton: React.FC<
   );
 };
 
+const createDraftOrder = async () => {
+  const response = await adminApiMutation()({
+    createDraftOrder: { id: true },
+  });
+  return response.createDraftOrder.id;
+};
+
 const getOrders = async (options: ResolverInputTypes['OrderListOptions']) => {
   const response = await adminApiQuery()({
     orders: [
@@ -68,7 +75,7 @@ const getOrders = async (options: ResolverInputTypes['OrderListOptions']) => {
 
 export const OrderListPage = () => {
   const { t } = useTranslation('orders');
-
+  const navigate = useNavigate();
   const {
     objects: orders,
     Paginate,
@@ -313,10 +320,15 @@ export const OrderListPage = () => {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <Link to="/orders/create">
-          <Button>{t('createOrder')}</Button>
-        </Link>
-
+        <Button
+          onClick={async () => {
+            const id = await createDraftOrder();
+            if (id) navigate(`/orders/draft/${id}`);
+            else console.error('Failed to create order');
+          }}
+        >
+          {t('createOrder')}
+        </Button>
         <Search {...ordersSearchProps} />
         <Input onChange={(e) => setFilterField('customerLastName', { contains: e.target.value })} />
         <Button onClick={() => removeFilterField('customerLastName')}>Reset Field</Button>
