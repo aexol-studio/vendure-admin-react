@@ -27,6 +27,29 @@ export const addressBaseSelector = Selector('Address')({
 
 export type AddressBaseType = FromSelectorWithScalars<typeof addressBaseSelector, 'Address'>;
 
+export const searchProductVariantSelector = Selector('ProductVariant')({
+  id: true,
+  featuredAsset: { preview: true },
+  sku: true,
+  productId: true,
+  product: { name: true, id: true, slug: true, featuredAsset: { preview: true } },
+  currencyCode: true,
+  price: true,
+  priceWithTax: true,
+  name: true,
+});
+
+export type SearchProductVariantType = FromSelectorWithScalars<typeof searchProductVariantSelector, 'ProductVariant'>;
+
+export const searchCustomerSelector = Selector('Customer')({
+  firstName: true,
+  lastName: true,
+  id: true,
+  emailAddress: true,
+});
+
+export type SearchCustomerType = FromSelectorWithScalars<typeof searchCustomerSelector, 'Customer'>;
+
 export const draftOrderSelector = Selector('Order')({
   id: true,
   createdAt: true,
@@ -63,14 +86,41 @@ export const draftOrderSelector = Selector('Order')({
   lines: {
     id: true,
     quantity: true,
-    productVariant: {
-      id: true,
-      sku: true,
-      name: true,
-      featuredAsset: { preview: true },
-      product: { name: true, featuredAsset: { preview: true } },
-    },
+    productVariant: searchProductVariantSelector,
   },
 });
 
 export type DraftOrderType = FromSelectorWithScalars<typeof draftOrderSelector, 'Order'>;
+
+export const updatedDraftOrderSelector = Selector('UpdateOrderItemsResult')({
+  __typename: true,
+  '...on Order': draftOrderSelector,
+  '...on InsufficientStockError': {
+    errorCode: true,
+    message: true,
+    order: draftOrderSelector,
+    quantityAvailable: true,
+  },
+  '...on NegativeQuantityError': {
+    errorCode: true,
+    message: true,
+  },
+  '...on OrderLimitError': {
+    errorCode: true,
+    message: true,
+    maxItems: true,
+  },
+  '...on OrderModificationError': {
+    errorCode: true,
+    message: true,
+  },
+});
+
+export const removeOrderItemsResultSelector = Selector('RemoveOrderItemsResult')({
+  __typename: true,
+  '...on Order': draftOrderSelector,
+  '...on OrderModificationError': {
+    errorCode: true,
+    message: true,
+  },
+});

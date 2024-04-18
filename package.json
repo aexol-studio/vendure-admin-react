@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "zeus": "zeus https://vendure-dev.aexol.com/admin-api ./src/",
+    "zeus": "zeus http://localhost:3000/admin-api ./src/",
     "preview": "vite preview",
     "toc": "i18next-resources-for-ts toc -i ./src/locales/en -o ./src/@types/resources.ts",
     "interface": "i18next-resources-for-ts interface -i ./src/locales/en -o ./src/@types/resources.d.ts"
@@ -77,6 +77,7 @@
     "i18next-resources-for-ts": "^1.5.0",
     "postcss": "^8.4.38",
     "prettier": "^3.2.5",
+    "prettier-plugin-tailwindcss": "^0.5.14",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.2.2",
     "vite": "^5.1.0",

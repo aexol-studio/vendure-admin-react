@@ -99,6 +99,37 @@ export const ActiveOrderSelector = Selector('Order')({
   },
 });
 
+// export const SearchResultSelector = Selector('SearchResult')({
+//   sku: true,
+//   productId: true,
+//   productName: true,
+//   productVariantId: true,
+//   productVariantName: true,
+//   slug: true,
+//   currencyCode: true,
+//   productAsset: { id: true, preview: true },
+//   price: {
+//     '...on PriceRange': {
+//       max: true,
+//       min: true,
+//     },
+//     '...on SinglePrice': {
+//       value: true,
+//     },
+//   },
+//   priceWithTax: {
+//     '...on PriceRange': {
+//       max: true,
+//       min: true,
+//     },
+//     '...on SinglePrice': {
+//       value: true,
+//     },
+//   },
+// });
+
+// export type SearchResultType = FromSelectorWithScalars<typeof SearchResultSelector, 'SearchResult'>;
+
 export type ActiveOrderType = FromSelectorWithScalars<typeof ActiveOrderSelector, 'Order'>;
 export const OrderListSelector = Selector('Order')({
   type: true,

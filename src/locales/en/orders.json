@@ -17,5 +17,29 @@
         "code": "Order code"
     },
     "filterPlaceholder": "Field for filter",
-    "createOrder": "Create order"
+    "createOrder": "Create order",
+    "create": {
+        "addProduct": "Add Product",
+        "back": "Back",
+        "draftOrder": "Draft order",
+        "leaveToastMessage": "Are you sure you want to leave this page?",
+        "leaveToastButton": "Leave",
+        "discardButton": "Discard",
+        "completeOrderButton": "Complete draft order",
+        "addTitle": "Add item to draft order",
+        "addHeader": "Here you can add items to draft order",
+        "searchHeader": "Product",
+        "searchPlaceholder": "Type to search for products...",
+        "product": "Product",
+        "slug": "Slug",
+        "preview": "Preview",
+        "id": "Id",
+        "actions": "Actions",
+        "noItemsFound": "No items found",
+        "cancel": "Cancel",
+        "add": "Add item to order",
+        "": "",
+        "": "",
+        "a": "a"
+    }
 }

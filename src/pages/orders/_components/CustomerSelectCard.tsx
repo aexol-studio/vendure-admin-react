@@ -1,4 +1,3 @@
-import { adminApiQuery } from '@/common/client';
 import {
   Card,
   CardHeader,
@@ -12,7 +11,7 @@ import {
   Input,
   CardDescription,
 } from '@/components';
-import { AutoCompleteInput } from '@/components/AutoCompleteInput';
+import { AutoCompleteCustomerInput } from '@/components/AutoCompleteCustomerInput';
 import {
   Dialog,
   DialogClose,
@@ -22,7 +21,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { DraftOrderType } from '@/graphql/draft_order';
+import { DraftOrderType, SearchCustomerType } from '@/graphql/draft_order';
 import { ResolverInputTypes } from '@/zeus';
 import { useState } from 'react';
 
@@ -37,7 +36,10 @@ export const CustomerSelectCard: React.FC<{
   }) => Promise<void>;
 }> = ({ customer, handleCustomerEvent }) => {
   const [tab, setTab] = useState('select');
-  const [tempID, setTempID] = useState<string | null>(null);
+  const [tempID, setTempID] = useState<string | undefined>(undefined);
+
+  const [selected, setSelected] = useState<SearchCustomerType | undefined>(undefined);
+
   return (
     <Card>
       <CardHeader>
@@ -88,24 +90,11 @@ export const CustomerSelectCard: React.FC<{
                       </TabsTrigger>
                     </TabsList>
                     <TabsContent value="select">
-                      <AutoCompleteInput
-                        selected={
-                          customer && { value: customer.id, label: `${customer.firstName} ${customer.lastName}` }
-                        }
-                        onSelect={(selected) => setTempID(selected?.value ?? null)}
-                        route={async ({ filter }) => {
-                          const data = await adminApiQuery()({
-                            customers: [
-                              { options: { take: 10, filter } },
-                              { items: { id: true, firstName: true, lastName: true }, totalItems: true },
-                            ],
-                          });
-                          return data.customers?.items.map((customer) => ({
-                            value: customer?.id,
-                            label: `${customer.firstName} ${customer.lastName}`,
-                          }));
-                        }}
-                      />
+                      <AutoCompleteCustomerInput onSelect={(selected) => setSelected(selected)} />
+                      <DialogDescription className="pb-4 pt-4">
+                        Selected customer:
+                        {selected ? `${selected.firstName} ${selected.lastName} ${selected.emailAddress}` : ' ---'}
+                      </DialogDescription>
                     </TabsContent>
                     <TabsContent value="create">
                       <Input label="Title" name="title" />
@@ -115,7 +104,7 @@ export const CustomerSelectCard: React.FC<{
                       <Input label="Phone" name="phoneNumber" />
                     </TabsContent>
                   </Tabs>
-                  <div className="flex w-full gap-2 justify-between">
+                  <div className="flex w-full justify-between gap-2">
                     <DialogClose asChild>
                       <Button type="button" className="w-full" variant="secondary">
                         Close

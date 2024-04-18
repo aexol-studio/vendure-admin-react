@@ -308,6 +308,9 @@ export const AllTypesProps: Record<string,any> = {
 		deleteCustomerNote:{
 
 		},
+		duplicateEntity:{
+			input:"DuplicateEntityInput"
+		},
 		createFacet:{
 			input:"CreateFacetInput"
 		},
@@ -388,6 +391,9 @@ export const AllTypesProps: Record<string,any> = {
 		},
 		setOrderCustomFields:{
 			input:"UpdateOrderInput"
+		},
+		setOrderCustomer:{
+			input:"SetOrderCustomerInput"
 		},
 		modifyOrder:{
 			input:"ModifyOrderInput"
@@ -795,7 +801,9 @@ export const AllTypesProps: Record<string,any> = {
 		firstName:"StringOperators",
 		lastName:"StringOperators",
 		phoneNumber:"StringOperators",
-		emailAddress:"StringOperators"
+		emailAddress:"StringOperators",
+		_and:"CustomerFilterParameter",
+		_or:"CustomerFilterParameter"
 	},
 	CustomerListOptions:{
 		sort:"CustomerSortParameter",
@@ -807,6 +815,9 @@ export const AllTypesProps: Record<string,any> = {
 	},
 	UpdateCustomerNoteInput:{
 
+	},
+	DuplicateEntityInput:{
+		duplicatorInput:"ConfigurableOperationInput"
 	},
 	Facet:{
 		valueList:{
@@ -886,7 +897,9 @@ export const AllTypesProps: Record<string,any> = {
 		shipping:"NumberOperators",
 		shippingWithTax:"NumberOperators",
 		total:"NumberOperators",
-		totalWithTax:"NumberOperators"
+		totalWithTax:"NumberOperators",
+		_and:"OrderFilterParameter",
+		_or:"OrderFilterParameter"
 	},
 	OrderSortParameter:{
 		customerLastName:"SortOrder",
@@ -911,6 +924,9 @@ export const AllTypesProps: Record<string,any> = {
 		filter:"OrderFilterParameter",
 		filterOperator:"LogicalOperator"
 	},
+	SetOrderCustomerInput:{
+
+	},
 	UpdateOrderInput:{
 		customFields:"JSON"
 	},
@@ -924,10 +940,11 @@ export const AllTypesProps: Record<string,any> = {
 	RefundOrderInput:{
 		lines:"OrderLineInput",
 		shipping:"Money",
-		adjustment:"Money"
+		adjustment:"Money",
+		amount:"Money"
 	},
 	OrderLineInput:{
-
+		customFields:"OrderLineCustomFieldsInput"
 	},
 	SettleRefundInput:{
 
@@ -942,7 +959,7 @@ export const AllTypesProps: Record<string,any> = {
 		metadata:"JSON"
 	},
 	AdministratorRefundInput:{
-
+		amount:"Money"
 	},
 	ModifyOrderOptions:{
 
@@ -957,10 +974,11 @@ export const AllTypesProps: Record<string,any> = {
 		updateShippingAddress:"UpdateOrderAddressInput",
 		updateBillingAddress:"UpdateOrderAddressInput",
 		refund:"AdministratorRefundInput",
+		refunds:"AdministratorRefundInput",
 		options:"ModifyOrderOptions"
 	},
 	AddItemInput:{
-
+		customFields:"OrderLineCustomFieldsInput"
 	},
 	SurchargeInput:{
 		price:"Money"
@@ -969,10 +987,10 @@ export const AllTypesProps: Record<string,any> = {
 		metadata:"JSON"
 	},
 	AddItemToDraftOrderInput:{
-
+		customFields:"OrderLineCustomFieldsInput"
 	},
 	AdjustDraftOrderLineInput:{
-
+		customFields:"OrderLineCustomFieldsInput"
 	},
 	PaymentMethodListOptions:{
 		sort:"PaymentMethodSortParameter",
@@ -1049,14 +1067,17 @@ export const AllTypesProps: Record<string,any> = {
 	},
 	ProductFilterParameter:{
 		facetValueId:"IDOperators",
-		enabled:"BooleanOperators",
+		sku:"StringOperators",
 		id:"IDOperators",
 		createdAt:"DateOperators",
 		updatedAt:"DateOperators",
 		languageCode:"StringOperators",
 		name:"StringOperators",
 		slug:"StringOperators",
-		description:"StringOperators"
+		description:"StringOperators",
+		enabled:"BooleanOperators",
+		_and:"ProductFilterParameter",
+		_or:"ProductFilterParameter"
 	},
 	ProductVariantListOptions:{
 		sort:"ProductVariantSortParameter",
@@ -1081,7 +1102,9 @@ export const AllTypesProps: Record<string,any> = {
 		price:"NumberOperators",
 		currencyCode:"StringOperators",
 		priceWithTax:"NumberOperators",
-		stockLevel:"StringOperators"
+		stockLevel:"StringOperators",
+		_and:"ProductVariantFilterParameter",
+		_or:"ProductVariantFilterParameter"
 	},
 	ProductTranslationInput:{
 		languageCode:"LanguageCode",
@@ -1420,7 +1443,9 @@ export const AllTypesProps: Record<string,any> = {
 		updatedAt:"DateOperators",
 		firstName:"StringOperators",
 		lastName:"StringOperators",
-		emailAddress:"StringOperators"
+		emailAddress:"StringOperators",
+		_and:"AdministratorFilterParameter",
+		_or:"AdministratorFilterParameter"
 	},
 	AdministratorSortParameter:{
 		id:"SortOrder",
@@ -1441,7 +1466,9 @@ export const AllTypesProps: Record<string,any> = {
 		width:"NumberOperators",
 		height:"NumberOperators",
 		source:"StringOperators",
-		preview:"StringOperators"
+		preview:"StringOperators",
+		_and:"AssetFilterParameter",
+		_or:"AssetFilterParameter"
 	},
 	AssetSortParameter:{
 		id:"SortOrder",
@@ -1466,7 +1493,9 @@ export const AllTypesProps: Record<string,any> = {
 		defaultCurrencyCode:"StringOperators",
 		trackInventory:"BooleanOperators",
 		outOfStockThreshold:"NumberOperators",
-		pricesIncludeTax:"BooleanOperators"
+		pricesIncludeTax:"BooleanOperators",
+		_and:"ChannelFilterParameter",
+		_or:"ChannelFilterParameter"
 	},
 	ChannelSortParameter:{
 		id:"SortOrder",
@@ -1487,7 +1516,9 @@ export const AllTypesProps: Record<string,any> = {
 		slug:"StringOperators",
 		position:"NumberOperators",
 		description:"StringOperators",
-		parentId:"IDOperators"
+		parentId:"IDOperators",
+		_and:"CollectionFilterParameter",
+		_or:"CollectionFilterParameter"
 	},
 	CollectionSortParameter:{
 		id:"SortOrder",
@@ -1522,7 +1553,9 @@ export const AllTypesProps: Record<string,any> = {
 		type:"StringOperators",
 		name:"StringOperators",
 		enabled:"BooleanOperators",
-		parentId:"IDOperators"
+		parentId:"IDOperators",
+		_and:"CountryFilterParameter",
+		_or:"CountryFilterParameter"
 	},
 	CountrySortParameter:{
 		id:"SortOrder",
@@ -1537,7 +1570,9 @@ export const AllTypesProps: Record<string,any> = {
 		id:"IDOperators",
 		createdAt:"DateOperators",
 		updatedAt:"DateOperators",
-		name:"StringOperators"
+		name:"StringOperators",
+		_and:"CustomerGroupFilterParameter",
+		_or:"CustomerGroupFilterParameter"
 	},
 	CustomerGroupSortParameter:{
 		id:"SortOrder",
@@ -1562,7 +1597,9 @@ export const AllTypesProps: Record<string,any> = {
 		updatedAt:"DateOperators",
 		languageCode:"StringOperators",
 		name:"StringOperators",
-		code:"StringOperators"
+		code:"StringOperators",
+		_and:"FacetFilterParameter",
+		_or:"FacetFilterParameter"
 	},
 	FacetSortParameter:{
 		id:"SortOrder",
@@ -1578,7 +1615,9 @@ export const AllTypesProps: Record<string,any> = {
 		languageCode:"StringOperators",
 		facetId:"IDOperators",
 		name:"StringOperators",
-		code:"StringOperators"
+		code:"StringOperators",
+		_and:"FacetValueFilterParameter",
+		_or:"FacetValueFilterParameter"
 	},
 	FacetValueSortParameter:{
 		id:"SortOrder",
@@ -1599,7 +1638,9 @@ export const AllTypesProps: Record<string,any> = {
 		isSettled:"BooleanOperators",
 		duration:"NumberOperators",
 		retries:"NumberOperators",
-		attempts:"NumberOperators"
+		attempts:"NumberOperators",
+		_and:"JobFilterParameter",
+		_or:"JobFilterParameter"
 	},
 	JobSortParameter:{
 		id:"SortOrder",
@@ -1619,7 +1660,9 @@ export const AllTypesProps: Record<string,any> = {
 		name:"StringOperators",
 		code:"StringOperators",
 		description:"StringOperators",
-		enabled:"BooleanOperators"
+		enabled:"BooleanOperators",
+		_and:"PaymentMethodFilterParameter",
+		_or:"PaymentMethodFilterParameter"
 	},
 	PaymentMethodSortParameter:{
 		id:"SortOrder",
@@ -1648,7 +1691,9 @@ export const AllTypesProps: Record<string,any> = {
 		usageLimit:"NumberOperators",
 		name:"StringOperators",
 		description:"StringOperators",
-		enabled:"BooleanOperators"
+		enabled:"BooleanOperators",
+		_and:"PromotionFilterParameter",
+		_or:"PromotionFilterParameter"
 	},
 	PromotionSortParameter:{
 		id:"SortOrder",
@@ -1671,7 +1716,9 @@ export const AllTypesProps: Record<string,any> = {
 		type:"StringOperators",
 		name:"StringOperators",
 		enabled:"BooleanOperators",
-		parentId:"IDOperators"
+		parentId:"IDOperators",
+		_and:"ProvinceFilterParameter",
+		_or:"ProvinceFilterParameter"
 	},
 	ProvinceSortParameter:{
 		id:"SortOrder",
@@ -1687,7 +1734,9 @@ export const AllTypesProps: Record<string,any> = {
 		createdAt:"DateOperators",
 		updatedAt:"DateOperators",
 		code:"StringOperators",
-		description:"StringOperators"
+		description:"StringOperators",
+		_and:"RoleFilterParameter",
+		_or:"RoleFilterParameter"
 	},
 	RoleSortParameter:{
 		id:"SortOrder",
@@ -1700,7 +1749,9 @@ export const AllTypesProps: Record<string,any> = {
 		id:"IDOperators",
 		createdAt:"DateOperators",
 		updatedAt:"DateOperators",
-		name:"StringOperators"
+		name:"StringOperators",
+		_and:"SellerFilterParameter",
+		_or:"SellerFilterParameter"
 	},
 	SellerSortParameter:{
 		id:"SortOrder",
@@ -1716,7 +1767,9 @@ export const AllTypesProps: Record<string,any> = {
 		code:"StringOperators",
 		name:"StringOperators",
 		description:"StringOperators",
-		fulfillmentHandlerCode:"StringOperators"
+		fulfillmentHandlerCode:"StringOperators",
+		_and:"ShippingMethodFilterParameter",
+		_or:"ShippingMethodFilterParameter"
 	},
 	ShippingMethodSortParameter:{
 		id:"SortOrder",
@@ -1732,7 +1785,9 @@ export const AllTypesProps: Record<string,any> = {
 		createdAt:"DateOperators",
 		updatedAt:"DateOperators",
 		name:"StringOperators",
-		description:"StringOperators"
+		description:"StringOperators",
+		_and:"StockLocationFilterParameter",
+		_or:"StockLocationFilterParameter"
 	},
 	StockLocationSortParameter:{
 		id:"SortOrder",
@@ -1745,7 +1800,9 @@ export const AllTypesProps: Record<string,any> = {
 		id:"IDOperators",
 		createdAt:"DateOperators",
 		updatedAt:"DateOperators",
-		value:"StringOperators"
+		value:"StringOperators",
+		_and:"TagFilterParameter",
+		_or:"TagFilterParameter"
 	},
 	TagSortParameter:{
 		id:"SortOrder",
@@ -1758,7 +1815,9 @@ export const AllTypesProps: Record<string,any> = {
 		createdAt:"DateOperators",
 		updatedAt:"DateOperators",
 		name:"StringOperators",
-		isDefault:"BooleanOperators"
+		isDefault:"BooleanOperators",
+		_and:"TaxCategoryFilterParameter",
+		_or:"TaxCategoryFilterParameter"
 	},
 	TaxCategorySortParameter:{
 		id:"SortOrder",
@@ -1772,7 +1831,9 @@ export const AllTypesProps: Record<string,any> = {
 		updatedAt:"DateOperators",
 		name:"StringOperators",
 		enabled:"BooleanOperators",
-		value:"NumberOperators"
+		value:"NumberOperators",
+		_and:"TaxRateFilterParameter",
+		_or:"TaxRateFilterParameter"
 	},
 	TaxRateSortParameter:{
 		id:"SortOrder",
@@ -1785,7 +1846,9 @@ export const AllTypesProps: Record<string,any> = {
 		id:"IDOperators",
 		createdAt:"DateOperators",
 		updatedAt:"DateOperators",
-		name:"StringOperators"
+		name:"StringOperators",
+		_and:"ZoneFilterParameter",
+		_or:"ZoneFilterParameter"
 	},
 	ZoneSortParameter:{
 		id:"SortOrder",
@@ -1798,12 +1861,18 @@ export const AllTypesProps: Record<string,any> = {
 		id:"IDOperators",
 		createdAt:"DateOperators",
 		updatedAt:"DateOperators",
-		type:"StringOperators"
+		type:"StringOperators",
+		_and:"HistoryEntryFilterParameter",
+		_or:"HistoryEntryFilterParameter"
 	},
 	HistoryEntrySortParameter:{
 		id:"SortOrder",
 		createdAt:"SortOrder",
 		updatedAt:"SortOrder"
+	},
+	OrderLineCustomFieldsInput:{
+		datetimeExample:"DateTime",
+		datetimeExampleList:"DateTime"
 	},
 	NativeAuthInput:{
 
@@ -1831,6 +1900,7 @@ export const ReturnTypes: Record<string,any> = {
 		customerGroup:"CustomerGroup",
 		customers:"CustomerList",
 		customer:"Customer",
+		entityDuplicators:"EntityDuplicatorDefinition",
 		facets:"FacetList",
 		facet:"Facet",
 		facetValues:"FacetValueList",
@@ -1930,6 +2000,7 @@ export const ReturnTypes: Record<string,any> = {
 		addNoteToCustomer:"Customer",
 		updateCustomerNote:"HistoryEntry",
 		deleteCustomerNote:"DeletionResponse",
+		duplicateEntity:"DuplicateEntityResult",
 		createFacet:"Facet",
 		updateFacet:"Facet",
 		deleteFacet:"DeletionResponse",
@@ -1957,6 +2028,7 @@ export const ReturnTypes: Record<string,any> = {
 		transitionFulfillmentToState:"TransitionFulfillmentToStateResult",
 		transitionPaymentToState:"TransitionPaymentToStateResult",
 		setOrderCustomFields:"Order",
+		setOrderCustomer:"Order",
 		modifyOrder:"ModifyOrderResult",
 		addManualPaymentToOrder:"AddManualPaymentToOrderResult",
 		createDraftOrder:"Order",
@@ -2146,6 +2218,25 @@ export const ReturnTypes: Record<string,any> = {
 		"...on Customer":"Customer",
 		"...on EmailAddressConflictError":"EmailAddressConflictError"
 	},
+	EntityDuplicatorDefinition:{
+		code:"String",
+		args:"ConfigArgDefinition",
+		description:"String",
+		forEntities:"String",
+		requiresPermission:"Permission"
+	},
+	DuplicateEntitySuccess:{
+		newEntityId:"ID"
+	},
+	DuplicateEntityError:{
+		errorCode:"ErrorCode",
+		message:"String",
+		duplicationError:"String"
+	},
+	DuplicateEntityResult:{
+		"...on DuplicateEntitySuccess":"DuplicateEntitySuccess",
+		"...on DuplicateEntityError":"DuplicateEntityError"
+	},
 	Facet:{
 		isPrivate:"Boolean",
 		id:"ID",
@@ -2203,7 +2294,9 @@ export const ReturnTypes: Record<string,any> = {
 		orderProcess:"OrderProcessState",
 		permittedAssetTypes:"String",
 		permissions:"PermissionDefinition",
-		customFieldConfig:"CustomFields"
+		moneyStrategyPrecision:"Int",
+		customFieldConfig:"CustomFields",
+		entityCustomFields:"EntityCustomFields"
 	},
 	HistoryEntry:{
 		isPublic:"Boolean",
@@ -2394,6 +2487,11 @@ export const ReturnTypes: Record<string,any> = {
 		errorCode:"ErrorCode",
 		message:"String"
 	},
+	RefundAmountError:{
+		errorCode:"ErrorCode",
+		message:"String",
+		maximumRefundable:"Int"
+	},
 	RefundStateTransitionError:{
 		errorCode:"ErrorCode",
 		message:"String",
@@ -2476,7 +2574,8 @@ export const ReturnTypes: Record<string,any> = {
 		"...on PaymentOrderMismatchError":"PaymentOrderMismatchError",
 		"...on RefundOrderStateError":"RefundOrderStateError",
 		"...on AlreadyRefundedError":"AlreadyRefundedError",
-		"...on RefundStateTransitionError":"RefundStateTransitionError"
+		"...on RefundStateTransitionError":"RefundStateTransitionError",
+		"...on RefundAmountError":"RefundAmountError"
 	},
 	SettleRefundResult:{
 		"...on Refund":"Refund",
@@ -2501,7 +2600,8 @@ export const ReturnTypes: Record<string,any> = {
 		"...on InsufficientStockError":"InsufficientStockError",
 		"...on CouponCodeExpiredError":"CouponCodeExpiredError",
 		"...on CouponCodeInvalidError":"CouponCodeInvalidError",
-		"...on CouponCodeLimitError":"CouponCodeLimitError"
+		"...on CouponCodeLimitError":"CouponCodeLimitError",
+		"...on IneligibleShippingMethodError":"IneligibleShippingMethodError"
 	},
 	AddManualPaymentToOrderResult:{
 		"...on Order":"Order",
@@ -2516,7 +2616,6 @@ export const ReturnTypes: Record<string,any> = {
 		totalItems:"Int"
 	},
 	Product:{
-		enabled:"Boolean",
 		channels:"Channel",
 		id:"ID",
 		createdAt:"DateTime",
@@ -2525,6 +2624,7 @@ export const ReturnTypes: Record<string,any> = {
 		name:"String",
 		slug:"String",
 		description:"String",
+		enabled:"Boolean",
 		featuredAsset:"Asset",
 		assets:"Asset",
 		variants:"ProductVariant",
@@ -2537,7 +2637,8 @@ export const ReturnTypes: Record<string,any> = {
 	},
 	ProductVariantPrice:{
 		currencyCode:"CurrencyCode",
-		price:"Money"
+		price:"Money",
+		customFields:"JSON"
 	},
 	ProductVariant:{
 		enabled:"Boolean",
@@ -2972,6 +3073,7 @@ export const ReturnTypes: Record<string,any> = {
 	ErrorResult:{
 		"...on MimeTypeError": "MimeTypeError",
 		"...on LanguageNotAvailableError": "LanguageNotAvailableError",
+		"...on DuplicateEntityError": "DuplicateEntityError",
 		"...on FacetInUseError": "FacetInUseError",
 		"...on ChannelDefaultLanguageError": "ChannelDefaultLanguageError",
 		"...on SettlePaymentError": "SettlePaymentError",
@@ -2988,6 +3090,7 @@ export const ReturnTypes: Record<string,any> = {
 		"...on NothingToRefundError": "NothingToRefundError",
 		"...on AlreadyRefundedError": "AlreadyRefundedError",
 		"...on QuantityTooGreatError": "QuantityTooGreatError",
+		"...on RefundAmountError": "RefundAmountError",
 		"...on RefundStateTransitionError": "RefundStateTransitionError",
 		"...on PaymentStateTransitionError": "PaymentStateTransitionError",
 		"...on FulfillmentStateTransitionError": "FulfillmentStateTransitionError",
@@ -3116,6 +3219,7 @@ export const ReturnTypes: Record<string,any> = {
 		readonly:"Boolean",
 		internal:"Boolean",
 		nullable:"Boolean",
+		requiresPermission:"Permission",
 		ui:"JSON"
 	},
 	StringCustomFieldConfig:{
@@ -3128,6 +3232,7 @@ export const ReturnTypes: Record<string,any> = {
 		readonly:"Boolean",
 		internal:"Boolean",
 		nullable:"Boolean",
+		requiresPermission:"Permission",
 		pattern:"String",
 		options:"StringFieldOption",
 		ui:"JSON"
@@ -3146,6 +3251,7 @@ export const ReturnTypes: Record<string,any> = {
 		readonly:"Boolean",
 		internal:"Boolean",
 		nullable:"Boolean",
+		requiresPermission:"Permission",
 		pattern:"String",
 		ui:"JSON"
 	},
@@ -3158,6 +3264,7 @@ export const ReturnTypes: Record<string,any> = {
 		readonly:"Boolean",
 		internal:"Boolean",
 		nullable:"Boolean",
+		requiresPermission:"Permission",
 		min:"Int",
 		max:"Int",
 		step:"Int",
@@ -3172,6 +3279,7 @@ export const ReturnTypes: Record<string,any> = {
 		readonly:"Boolean",
 		internal:"Boolean",
 		nullable:"Boolean",
+		requiresPermission:"Permission",
 		min:"Float",
 		max:"Float",
 		step:"Float",
@@ -3186,6 +3294,7 @@ export const ReturnTypes: Record<string,any> = {
 		readonly:"Boolean",
 		internal:"Boolean",
 		nullable:"Boolean",
+		requiresPermission:"Permission",
 		ui:"JSON"
 	},
 	DateTimeCustomFieldConfig:{
@@ -3197,6 +3306,7 @@ export const ReturnTypes: Record<string,any> = {
 		readonly:"Boolean",
 		internal:"Boolean",
 		nullable:"Boolean",
+		requiresPermission:"Permission",
 		min:"String",
 		max:"String",
 		step:"Int",
@@ -3211,6 +3321,7 @@ export const ReturnTypes: Record<string,any> = {
 		readonly:"Boolean",
 		internal:"Boolean",
 		nullable:"Boolean",
+		requiresPermission:"Permission",
 		entity:"String",
 		scalarFields:"String",
 		ui:"JSON"
@@ -3224,6 +3335,7 @@ export const ReturnTypes: Record<string,any> = {
 		readonly:"Boolean",
 		internal:"Boolean",
 		nullable:"Boolean",
+		requiresPermission:"Permission",
 		ui:"JSON"
 	},
 	LocaleTextCustomFieldConfig:{
@@ -3235,6 +3347,7 @@ export const ReturnTypes: Record<string,any> = {
 		readonly:"Boolean",
 		internal:"Boolean",
 		nullable:"Boolean",
+		requiresPermission:"Permission",
 		ui:"JSON"
 	},
 	LocalizedString:{
@@ -3369,7 +3482,7 @@ export const ReturnTypes: Record<string,any> = {
 		taxLines:"TaxLine",
 		order:"Order",
 		fulfillmentLines:"FulfillmentLine",
-		customFields:"JSON"
+		customFields:"OrderLineCustomFields"
 	},
 	RefundLine:{
 		orderLine:"OrderLine",
@@ -3729,6 +3842,25 @@ export const ReturnTypes: Record<string,any> = {
 		label:"String",
 		value:"Float"
 	},
+	OrderLineCustomFields:{
+		booleanExample:"Boolean",
+		booleanExampleCustom:"Boolean",
+		datetimeExample:"DateTime",
+		floatExample:"Float",
+		intExample:"Int",
+		stringExample:"String",
+		textExample:"String",
+		relationExample:"Asset",
+		productRelationExample:"Product",
+		productVariantRelationExample:"ProductVariant",
+		booleanExampleList:"Boolean",
+		datetimeExampleList:"DateTime",
+		floatExampleList:"Float",
+		intExampleList:"Int",
+		stringExampleList:"String",
+		textExampleList:"String",
+		relationExampleList:"Asset"
+	},
 	CustomFields:{
 		Address:"CustomFieldConfig",
 		Administrator:"CustomFieldConfig",
@@ -3748,6 +3880,7 @@ export const ReturnTypes: Record<string,any> = {
 		ProductOption:"CustomFieldConfig",
 		ProductOptionGroup:"CustomFieldConfig",
 		ProductVariant:"CustomFieldConfig",
+		ProductVariantPrice:"CustomFieldConfig",
 		Promotion:"CustomFieldConfig",
 		Region:"CustomFieldConfig",
 		Seller:"CustomFieldConfig",
@@ -3757,6 +3890,10 @@ export const ReturnTypes: Record<string,any> = {
 		TaxRate:"CustomFieldConfig",
 		User:"CustomFieldConfig",
 		Zone:"CustomFieldConfig"
+	},
+	EntityCustomFields:{
+		entityName:"String",
+		customFields:"CustomFieldConfig"
 	}
 }
 
