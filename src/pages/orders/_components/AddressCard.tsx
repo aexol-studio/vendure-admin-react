@@ -29,6 +29,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { AddressBaseType } from '@/graphql/draft_order';
+import { cn } from '@/lib/utils';
 import React, { PropsWithChildren } from 'react';
 
 export const AddressCard: React.FC<
@@ -43,13 +44,14 @@ export const AddressCard: React.FC<
       defaultShippingAddress?: boolean;
       country?: { code?: string; name?: string };
     })[];
+    valid: boolean;
   }>
-> = ({ children, type, defaultValue, customerAddresses }) => {
+> = ({ children, type, defaultValue, customerAddresses, valid }) => {
   const [selectedAddress, setSelectedAddress] = React.useState<AddressBaseType | null>(null);
   const isShipping = type === 'shipping';
 
   return (
-    <Card>
+    <Card className={cn('w-full', { 'border-red-500': !valid })}>
       <CardHeader>
         <CardTitle>{isShipping ? 'Shipping' : 'Billing'} address</CardTitle>
         <CardDescription>{`Here you can set ${isShipping ? 'shipping' : 'billing'} address`}</CardDescription>

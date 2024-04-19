@@ -25,8 +25,12 @@ import {
   TabsList,
   TabsTrigger,
   AutoCompleteSearchInput,
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
 } from '@/components';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, PencilIcon, TrashIcon } from 'lucide-react';
 
 import { CustomerSelectCard } from './_components/CustomerSelectCard';
 import { Dialog, DialogClose, DialogContent, DialogTrigger } from '@/components/ui/dialog';
@@ -66,23 +70,57 @@ const registerComponents: {
 type VariantWithQuantity = DraftOrderType['lines'][number]['productVariant'] & { quantity?: number };
 
 const OrderStateBadge: React.FC<{ state?: DraftOrderType['state'] }> = ({ state }) => {
+  let className = '';
+  switch (state) {
+    case 'Draft':
+      className = 'bg-primary-foreground text-primary-background';
+      break;
+    case 'AddingItems':
+      className = 'bg-primary-foreground text-primary-background';
+      break;
+    case 'ArrangingPayment':
+      className = 'bg-primary-foreground text-primary-background';
+      break;
+    case 'PaymentAuthorized':
+      className = 'bg-primary-foreground text-primary-background';
+      break;
+    case 'PaymentSettled':
+      className = 'bg-primary-foreground text-primary-background';
+      break;
+    case 'Cancelled':
+      className = 'bg-destructive text-primary-background';
+      break;
+    case 'Fulfilled':
+      className = 'bg-primary-foreground text-primary-background';
+      break;
+    case 'PartiallyFulfilled':
+      className = 'bg-primary-foreground text-primary-background';
+      break;
+    default:
+      className = 'bg-primary-foreground text-primary-background';
+  }
+
   switch (state) {
     case 'AddingItems':
-      return <Badge>Adding items</Badge>;
+      return <Badge className={className}>Adding items</Badge>;
     case 'ArrangingPayment':
-      return <Badge>Arranging payment</Badge>;
+      return <Badge className={className}>Arranging payment</Badge>;
     case 'PaymentAuthorized':
-      return <Badge>Payment authorized</Badge>;
+      return <Badge className={className}>Payment authorized</Badge>;
     case 'PaymentSettled':
-      return <Badge>Payment settled</Badge>;
+      return <Badge className={className}>Payment settled</Badge>;
     case 'Cancelled':
-      return <Badge variant="destructive">Cancelled</Badge>;
+      return (
+        <Badge className={className} variant="destructive">
+          Cancelled
+        </Badge>
+      );
     case 'Fulfilled':
-      return <Badge>Fulfilled</Badge>;
+      return <Badge className={className}>Fulfilled</Badge>;
     case 'PartiallyFulfilled':
-      return <Badge>Partially fulfilled</Badge>;
+      return <Badge className={className}>Partially fulfilled</Badge>;
     default:
-      return <Badge>{state}</Badge>;
+      return <Badge className={className}>{state}</Badge>;
   }
 };
 
@@ -274,7 +312,25 @@ export const OrderCreatePage = () => {
       ],
     });
     if (transitionOrderToState?.__typename === 'Order') setDraftOrder(transitionOrderToState);
+    else toast(`Error: ${transitionOrderToState?.message}`, { position: 'top-center' });
   };
+
+  const isOrderValid = useMemo(() => {
+    const isVariantValid = draftOrder?.lines.every((line) => line.productVariant);
+    const isCustomerValid = draftOrder?.customer?.id;
+    const isBillingAddressValid = draftOrder?.billingAddress?.streetLine1;
+    const isShippingAddressValid = draftOrder?.shippingAddress?.streetLine1;
+    const isShippingMethodValid = draftOrder?.shippingLines?.length;
+    return {
+      valid:
+        isVariantValid && isCustomerValid && isBillingAddressValid && isShippingAddressValid && isShippingMethodValid,
+      isVariantValid,
+      isCustomerValid,
+      isBillingAddressValid,
+      isShippingAddressValid,
+      isShippingMethodValid,
+    };
+  }, [draftOrder]);
 
   return (
     <main>
@@ -318,7 +374,7 @@ export const OrderCreatePage = () => {
               >
                 {t('create.discardButton')}
               </Button>
-              <Button size="sm" onClick={onSubmit}>
+              <Button size="sm" onClick={onSubmit} disabled={!isOrderValid.valid}>
                 {t('create.completeOrderButton')}
               </Button>
             </div>
@@ -420,9 +476,23 @@ export const OrderCreatePage = () => {
                               key={line.id}
                               variant={{ ...line.productVariant, quantity: line.quantity }}
                             >
-                              <Button size="sm" variant="ghost" onClick={() => removeLineItem(line.id)}>
-                                Remove
-                              </Button>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger>Open</DropdownMenuTrigger>
+                                <DropdownMenuContent>
+                                  <DropdownMenuItem>
+                                    <Button size="sm" variant="ghost" onClick={() => removeLineItem(line.id)}>
+                                      <TrashIcon className="h-4 w-4" />
+                                      Remove
+                                    </Button>
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem>
+                                    <Button size="sm" variant="ghost" onClick={() => console.log('Edit')}>
+                                      <PencilIcon className="h-4 w-4" />
+                                      Edit
+                                    </Button>
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
                             </LineItem>
                           ))
                         ) : (
@@ -445,7 +515,11 @@ export const OrderCreatePage = () => {
               </Card>
             </div>
             <div className="grid auto-rows-max items-start gap-4 lg:gap-8">
-              <CustomerSelectCard customer={draftOrder?.customer} handleCustomerEvent={handleCustomerEvent} />
+              <CustomerSelectCard
+                customer={draftOrder?.customer}
+                handleCustomerEvent={handleCustomerEvent}
+                valid={!!isOrderValid.isCustomerValid}
+              />
               <AddressCard
                 type="billing"
                 defaultValue={{
@@ -453,6 +527,7 @@ export const OrderCreatePage = () => {
                   ...draftOrder?.billingAddress,
                 }}
                 customerAddresses={draftOrder?.customer?.addresses}
+                valid={!!isOrderValid.isBillingAddressValid}
               />
               <AddressCard
                 type="shipping"
@@ -461,6 +536,7 @@ export const OrderCreatePage = () => {
                   ...draftOrder?.shippingAddress,
                 }}
                 customerAddresses={draftOrder?.customer?.addresses}
+                valid={!!isOrderValid.isShippingAddressValid && !!isOrderValid.isBillingAddressValid}
               >
                 <ShippingMethod
                   shippingMethods={eligibleShippingMethodsType}
@@ -537,6 +613,7 @@ const LineItem: React.FC<
           )}
         </TableCell>
       ) : null}
+      {children}
     </TableRow>
   );
 };

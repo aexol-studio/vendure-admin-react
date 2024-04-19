@@ -22,11 +22,13 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { DraftOrderType, SearchCustomerType } from '@/graphql/draft_order';
+import { cn } from '@/lib/utils';
 import { ResolverInputTypes } from '@/zeus';
 import { useState } from 'react';
 
 export const CustomerSelectCard: React.FC<{
   customer: DraftOrderType['customer'];
+  valid: boolean;
   handleCustomerEvent: ({
     customerId,
     input,
@@ -34,14 +36,12 @@ export const CustomerSelectCard: React.FC<{
     customerId?: string;
     input?: ResolverInputTypes['CreateCustomerInput'];
   }) => Promise<void>;
-}> = ({ customer, handleCustomerEvent }) => {
+}> = ({ customer, valid, handleCustomerEvent }) => {
   const [tab, setTab] = useState('select');
-  const [tempID, setTempID] = useState<string | undefined>(undefined);
-
   const [selected, setSelected] = useState<SearchCustomerType | undefined>(undefined);
 
   return (
-    <Card>
+    <Card className={cn('w-full', { 'border-red-500': !valid })}>
       <CardHeader>
         <CardTitle>Customer</CardTitle>
         {customer ? (
@@ -118,10 +118,10 @@ export const CustomerSelectCard: React.FC<{
                       ) : (
                         <Button
                           type="button"
-                          disabled={!tempID}
+                          disabled={!selected?.id}
                           onClick={async () => {
-                            if (!tempID) return;
-                            await handleCustomerEvent({ customerId: tempID });
+                            if (!selected?.id) return;
+                            await handleCustomerEvent({ customerId: selected?.id });
                           }}
                           className="w-full"
                         >
