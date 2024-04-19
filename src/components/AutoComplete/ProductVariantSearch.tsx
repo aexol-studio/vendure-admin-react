@@ -12,7 +12,7 @@ interface Props {
 
 ///TODO Add clear select option
 
-export const AutoCompleteSearchInput: React.FC<Props> = ({ onSelectItem }) => {
+export const ProductVariantSearch: React.FC<Props> = ({ onSelectItem }) => {
   const { t } = useTranslation('orders');
   const ref = useRef<HTMLInputElement>(null);
   const [focused, setFocused] = useState(false);

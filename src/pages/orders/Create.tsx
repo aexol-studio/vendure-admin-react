@@ -24,7 +24,7 @@ import {
   TabsContent,
   TabsList,
   TabsTrigger,
-  AutoCompleteSearchInput,
+  ProductVariantSearch,
 } from '@/components';
 import { ChevronLeft } from 'lucide-react';
 
@@ -91,7 +91,7 @@ export const OrderCreatePage = () => {
   const { id } = useParams();
   const { state, setField } = useGFFLP('AddItemToDraftOrderInput', 'customFields')({});
   const [eligibleShippingMethodsType, setEligibleShippingMethodsType] = useState<EligibleShippingMethodsType[]>([]);
-  const [draftOrder, setDraftOrder] = useState<DraftOrderType | null>();
+  const [draftOrder, setDraftOrder] = useState<DraftOrderType | undefined>();
 
   const [open, setOpen] = useState(false);
 
@@ -230,17 +230,19 @@ export const OrderCreatePage = () => {
     customerId?: string;
     input?: ResolverInputTypes['CreateCustomerInput'];
   }) => {
-    const { setCustomerForDraftOrder } = await adminApiMutation()({
-      setCustomerForDraftOrder: [
-        { orderId: id!, customerId, input },
-        {
-          __typename: true,
-          '...on Order': draftOrderSelector,
-          '...on EmailAddressConflictError': { errorCode: true, message: true },
-        },
-      ],
-    });
-    if (setCustomerForDraftOrder.__typename === 'Order') setDraftOrder(setCustomerForDraftOrder);
+    if (id) {
+      const { setCustomerForDraftOrder } = await adminApiMutation()({
+        setCustomerForDraftOrder: [
+          { orderId: id, customerId, input },
+          {
+            __typename: true,
+            '...on Order': draftOrderSelector,
+            '...on EmailAddressConflictError': { errorCode: true, message: true },
+          },
+        ],
+      });
+      if (setCustomerForDraftOrder.__typename === 'Order') setDraftOrder(setCustomerForDraftOrder);
+    }
   };
   const navigate = useNavigate();
 
@@ -333,7 +335,7 @@ export const OrderCreatePage = () => {
                 <CardContent>
                   <div className="grid gap-6">
                     <Label htmlFor="product">{t('create.searchPlaceholder')}</Label>
-                    <AutoCompleteSearchInput onSelectItem={(i) => openAddVariantDialog(i)} />
+                    <ProductVariantSearch onSelectItem={(i) => openAddVariantDialog(i)} />
                     <Dialog open={open} onOpenChange={(e) => (!e ? closeAddVariantDialog() : setOpen(true))}>
                       <DialogContent className="h-[90vh] max-w-[90vw]">
                         {variantToAdd ? (
@@ -402,7 +404,6 @@ export const OrderCreatePage = () => {
                         )}
                       </DialogContent>
                     </Dialog>
-
                     <Table>
                       <TableHeader>
                         <TableRow>
