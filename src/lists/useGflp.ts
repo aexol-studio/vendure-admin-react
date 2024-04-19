@@ -1,5 +1,5 @@
 import { ModelTypes } from '@/zeus';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 
 type FormField<T> = {
   initialValue?: T;
@@ -17,16 +17,15 @@ export const useFFLP = <T>(config: {
     initialValue?: T[P];
   };
 }) => {
-  const [state, setState] = useState<{ [P in keyof T]: FormField<T[P]> }>({
-    ...(Object.fromEntries(
-      Object.keys(config).map((k) => [k, { value: config[k as keyof T]?.initialValue || '' }]),
-    ) as { [P in keyof T]: FormField<T[P]> }),
-  });
+  const [state, setState] = useState<{ [P in keyof T]: FormField<T[P]> }>(
+    Object.fromEntries(Object.keys(config).map((k) => [k, { value: config[k as keyof T]?.initialValue || '' }])) as {
+      [P in keyof T]: FormField<T[P]>;
+    },
+  );
   const setField = useCallback(
     <F extends keyof T>(field: F, value: T[F]) => {
       const newState = { ...state };
       const invalid = config[field]?.validate(value);
-
       newState[field] = { ...newState[field], value };
       if (invalid && !invalid.isValid) {
         newState[field]!['error'] = invalid.errorMsg;
@@ -45,10 +44,7 @@ export const useFFLP = <T>(config: {
       if (fieldValue) {
         const isValid = config[field as keyof T]?.validate(fieldValue.value);
         if (isValid && !isValid.isValid) {
-          newState[field as keyof T] = {
-            ...newState[field as keyof T],
-            error: isValid.errorMsg,
-          };
+          newState[field as keyof T] = { ...newState[field as keyof T], error: isValid.errorMsg };
         } else {
           newState[field as keyof T] = {
             ...newState[field as keyof T],
@@ -67,14 +63,4 @@ export const useFFLP = <T>(config: {
     setField,
     validateAllFields,
   };
-};
-
-export const setInArrayBy = <T>(list: T[], fn: (x: T) => boolean, element: T) => {
-  const ll = list.find((e) => !fn(e));
-  return list
-    .filter((e) => fn(e))
-    .concat({
-      ...ll,
-      ...element,
-    });
 };
