@@ -30,10 +30,11 @@ import React, { PropsWithChildren, useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { PaginationInput } from '@/lists/models';
-import { Input, Search, ordersSearchProps } from '@/components';
-import { Link } from 'react-router-dom';
+import { Badge, Input, Search, ordersSearchProps } from '@/components';
+import { Link, NavLink } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { OrderStateBadge } from './_components/OrderStateBadge';
 
 const SortButton: React.FC<
   PropsWithChildren<{ key: string; currSort: PaginationInput['sort']; onClick: () => void }>
@@ -82,7 +83,6 @@ export const OrderListPage = () => {
     Paginate,
     setSort,
     optionInfo,
-
     removeFilterField,
     resetFilter,
     setFilterField,
@@ -97,6 +97,8 @@ export const OrderListPage = () => {
     },
     listType: 'orders',
   });
+
+  //make and array of columns based on passed type
 
   const columns: ColumnDef<OrderListType>[] = [
     {
@@ -114,7 +116,6 @@ export const OrderListPage = () => {
       enableHiding: false,
       enableColumnFilter: false,
     },
-
     {
       accessorKey: 'id',
       header: () => (
@@ -122,10 +123,29 @@ export const OrderListPage = () => {
           ID
         </SortButton>
       ),
+      cell: ({ row }) => {
+        const to = `/orders/${row.original.id}`;
+        return (
+          <Link to={to} className="text-primary-600">
+            <Badge variant="outline" className="flex w-full items-center justify-center">
+              {row.original.id}
+            </Badge>
+          </Link>
+        );
+      },
+    },
+    {
+      accessorKey: 'state',
+      header: () => (
+        <SortButton currSort={optionInfo.sort} key="state" onClick={() => setSort('state')}>
+          State
+        </SortButton>
+      ),
+      cell: ({ row }) => <OrderStateBadge fullWidth state={row.original.state} />,
     },
     {
       accessorKey: 'firstName',
-      header: 'firstName',
+      header: () => <div>Customer First name</div>,
       cell: ({ row }) => <div className="capitalize">{row.original.customer?.firstName}</div>,
     },
     {
@@ -188,15 +208,6 @@ export const OrderListPage = () => {
       ),
     },
     {
-      accessorKey: 'state',
-      header: () => (
-        <SortButton currSort={optionInfo.sort} key="state" onClick={() => setSort('state')}>
-          State
-        </SortButton>
-      ),
-    },
-
-    {
       accessorKey: 'type',
       header: 'type',
     },
@@ -242,7 +253,22 @@ export const OrderListPage = () => {
 
   // const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+    id: true,
+    state: true,
+    select: true,
+    firstName: true,
+    lastName: true,
+    emailAddress: false,
+    phoneNumber: false,
+    code: false,
+    createdAt: true,
+    orderPlacedAt: true,
+    shipping: true,
+    type: false,
+    updatedAt: false,
+    actions: true,
+  });
   const [rowSelection, setRowSelection] = useState({});
 
   const table = useReactTable({
@@ -268,9 +294,18 @@ export const OrderListPage = () => {
   });
 
   return (
-    <Stack column className="gap-6 max-w-[70vw]">
-      <div className="max-w-fit">
-        <div className="flex items-center py-4 gap-4">
+    <Stack column className="gap-6">
+      <div className="h-full w-full">
+        <Button
+          onClick={async () => {
+            const id = await createDraftOrder();
+            if (id) navigate(`/orders/${id}`);
+            else console.error('Failed to create order');
+          }}
+        >
+          {t('createOrder')}
+        </Button>
+        <div className="mb-4 flex flex-col items-end gap-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="ml-auto">
@@ -295,23 +330,16 @@ export const OrderListPage = () => {
                 })}
             </DropdownMenuContent>
           </DropdownMenu>
+          <Search {...ordersSearchProps} />
+          <div className="flex gap-2">
+            <Input onChange={(e) => setFilterField('customerLastName', { contains: e.target.value })} />
+            <Button onClick={() => removeFilterField('customerLastName')}>Reset Field</Button>
+            <Button onClick={() => resetFilter()}>reset filter</Button>
+            <Button onClick={() => setFilterField('code', { contains: 'dddddupa' })}>set filter</Button>
+          </div>
         </div>
-        <Button
-          onClick={async () => {
-            const id = await createDraftOrder();
-            if (id) navigate(`/orders/draft/${id}`);
-            else console.error('Failed to create order');
-          }}
-        >
-          {t('createOrder')}
-        </Button>
-        <Search {...ordersSearchProps} />
-        <Input onChange={(e) => setFilterField('customerLastName', { contains: e.target.value })} />
-        <Button onClick={() => removeFilterField('customerLastName')}>Reset Field</Button>
-        <Button onClick={() => resetFilter()}>reset filter</Button>
-        <Button onClick={() => setFilterField('code', { contains: 'dddddupa' })}>set filter</Button>
-        <div className="rounded-md border max-w-fit">
-          <Table>
+        <div className="h-full w-full rounded-md border">
+          <Table className="h-full w-full">
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>

@@ -1649,6 +1649,7 @@ of the GlobalSettings */
 	permittedAssetTypes?:boolean | `@${string}`,
 	permissions?:ValueTypes["PermissionDefinition"],
 	moneyStrategyPrecision?:boolean | `@${string}`,
+	plugins?:ValueTypes["Plugin"],
 	/** This field is deprecated in v2.2 in favor of the entityCustomFields field,
 which allows custom fields to be defined on user-supplies entities. */
 	customFieldConfig?:ValueTypes["CustomFields"],
@@ -4466,6 +4467,12 @@ The `code` field is typically a 2-character ISO code such as "GB", "US", "DE" et
 	customFields?:boolean | `@${string}`,
 		__typename?: boolean | `@${string}`
 }>;
+	["Plugin"]: AliasType<{
+	name?:boolean | `@${string}`,
+	path?:boolean | `@${string}`,
+	version?:boolean | `@${string}`,
+		__typename?: boolean | `@${string}`
+}>;
 	["MetricSummary"]: AliasType<{
 	interval?:boolean | `@${string}`,
 	type?:boolean | `@${string}`,
@@ -5814,6 +5821,7 @@ of the GlobalSettings */
 	permittedAssetTypes?:boolean | `@${string}`,
 	permissions?:ResolverInputTypes["PermissionDefinition"],
 	moneyStrategyPrecision?:boolean | `@${string}`,
+	plugins?:ResolverInputTypes["Plugin"],
 	/** This field is deprecated in v2.2 in favor of the entityCustomFields field,
 which allows custom fields to be defined on user-supplies entities. */
 	customFieldConfig?:ResolverInputTypes["CustomFields"],
@@ -8653,6 +8661,12 @@ The `code` field is typically a 2-character ISO code such as "GB", "US", "DE" et
 	customFields?:boolean | `@${string}`,
 		__typename?: boolean | `@${string}`
 }>;
+	["Plugin"]: AliasType<{
+	name?:boolean | `@${string}`,
+	path?:boolean | `@${string}`,
+	version?:boolean | `@${string}`,
+		__typename?: boolean | `@${string}`
+}>;
 	["MetricSummary"]: AliasType<{
 	interval?:boolean | `@${string}`,
 	type?:boolean | `@${string}`,
@@ -10097,6 +10111,7 @@ of the GlobalSettings */
 	permittedAssetTypes: Array<string>,
 	permissions: Array<ModelTypes["PermissionDefinition"]>,
 	moneyStrategyPrecision: number,
+	plugins?: Array<ModelTypes["Plugin"]> | undefined,
 	/** This field is deprecated in v2.2 in favor of the entityCustomFields field,
 which allows custom fields to be defined on user-supplies entities. */
 	customFieldConfig: ModelTypes["CustomFields"],
@@ -12423,6 +12438,11 @@ The `code` field is typically a 2-character ISO code such as "GB", "US", "DE" et
 	members: Array<ModelTypes["Region"]>,
 	customFields?: ModelTypes["JSON"] | undefined
 };
+	["Plugin"]: {
+		name: string,
+	path?: string | undefined,
+	version?: string | undefined
+};
 	["MetricSummary"]: {
 		interval: ModelTypes["MetricInterval"],
 	type: ModelTypes["MetricType"],
@@ -13922,6 +13942,7 @@ of the GlobalSettings */
 	permittedAssetTypes: Array<string>,
 	permissions: Array<GraphQLTypes["PermissionDefinition"]>,
 	moneyStrategyPrecision: number,
+	plugins?: Array<GraphQLTypes["Plugin"]> | undefined,
 	/** This field is deprecated in v2.2 in favor of the entityCustomFields field,
 which allows custom fields to be defined on user-supplies entities. */
 	customFieldConfig: GraphQLTypes["CustomFields"],
@@ -16760,6 +16781,12 @@ The `code` field is typically a 2-character ISO code such as "GB", "US", "DE" et
 	name: string,
 	members: Array<GraphQLTypes["Region"]>,
 	customFields?: GraphQLTypes["JSON"] | undefined
+};
+	["Plugin"]: {
+	__typename: "Plugin",
+	name: string,
+	path?: string | undefined,
+	version?: string | undefined
 };
 	["MetricSummary"]: {
 	__typename: "MetricSummary",

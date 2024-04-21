@@ -1,10 +1,22 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useDebounce } from 'use-debounce';
-import { Button, ImageWithPreview, Input } from '@/components';
+import {
+  Button,
+  ImageWithPreview,
+  Input,
+  ScrollArea,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components';
 import { adminApiQuery } from '@/common/client';
 import { useTranslation } from 'react-i18next';
 import { LogicalOperator } from '@/zeus';
 import { SearchProductVariantType, searchProductVariantSelector } from '@/graphql/draft_order';
+import { Price } from '../Price';
 
 interface Props {
   onSelectItem: (selected: SearchProductVariantType) => void;
@@ -55,38 +67,81 @@ export const ProductVariantSearch: React.FC<Props> = ({ onSelectItem }) => {
       {focused && (
         <div
           onMouseDown={(e) => e.preventDefault()}
-          className="absolute left-0 top-[100%+2]  z-10 max-h-96 min-w-full max-w-full overflow-auto border bg-black"
+          className="border-primary-200 dark:border-primary-700 absolute left-0 top-[100%+2px] z-10 min-w-full max-w-full border bg-primary-foreground shadow-lg"
         >
-          {results && results.length > 0 ? (
-            results.map((r, index) => (
-              <div
-                key={r.productId + r.product.id + index}
-                className="flex w-full flex-1 flex-row items-center justify-between gap-6 p-4 dark:hover:bg-stone-800/50"
-              >
-                <div className="w-16">{r.product.id}</div>
-                <div className="flex-1">{r.name}</div>
-                <div className="flex-1">{r.sku}</div>
-                <div className="flex-1">{r.product.name}</div>
-                <div className="w-16">
-                  {r.priceWithTax} {r.currencyCode}
-                </div>
-                <ImageWithPreview src={r.product.featuredAsset?.preview} alt={r.name} />
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    onSelectItem(r);
-                    ref.current?.blur();
-                  }}
-                >
-                  {t('create.addProduct')}
-                </Button>
-              </div>
-            ))
-          ) : (
-            <div className="p-4">{t('create.noItemsFound')}</div>
-          )}
+          <ScrollArea className="h-96 overflow-auto">
+            <Table>
+              <TableHeader>
+                <TableRow noHover>
+                  <TableHead>ID</TableHead>
+                  <TableHead>Image</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Price</TableHead>
+                  <TableHead>Action</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {results && results.length > 0 ? (
+                  results.map((r) => (
+                    <TableRow key={r.id}>
+                      <TableCell>{r.id}</TableCell>
+                      <TableCell>
+                        <ImageWithPreview src={r.product?.featuredAsset?.preview} alt={r.name} />
+                      </TableCell>
+                      <TableCell>
+                        <div>
+                          <p className="text-sm">{r.product.name}</p>
+                          <p className="text-xs">{r.name}</p>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Price price={r.priceWithTax} code={r.currencyCode} />
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            onSelectItem(r);
+                            ref.current?.blur();
+                          }}
+                        >
+                          {t('create.addProduct')}
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <div className="p-4">{t('create.noItemsFound')}</div>
+                )}
+              </TableBody>
+            </Table>
+          </ScrollArea>
         </div>
       )}
     </div>
   );
 };
+{
+  /* <div
+                  key={r.productId + r.product.id + index}
+                  className="flex w-full flex-1 flex-row items-center justify-between gap-6 p-4 dark:hover:bg-stone-800/50"
+                >
+                  <div className="w-16">{r.product.id}</div>
+                  <div className="flex-1">{r.name}</div>
+                  <div className="flex-1">{r.sku}</div>
+                  <div className="flex-1">{r.product.name}</div>
+                  <div className="w-16">
+                    {r.priceWithTax} {r.currencyCode}
+                  </div>
+                  <ImageWithPreview src={r.product.featuredAsset?.preview} alt={r.name} />
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      onSelectItem(r);
+                      ref.current?.blur();
+                    }}
+                  >
+                    {t('create.addProduct')}
+                  </Button>
+                </div> */
+}

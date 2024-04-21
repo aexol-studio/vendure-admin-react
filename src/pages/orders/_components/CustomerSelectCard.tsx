@@ -10,6 +10,7 @@ import {
   TabsContent,
   Input,
   CardDescription,
+  Checkbox,
 } from '@/components';
 import { CustomerSearch } from '@/components/AutoComplete/CustomerSearch';
 import {
@@ -31,6 +32,7 @@ import { cn } from '@/lib/utils';
 type CreateUserInput = ResolverInputTypes['CreateCustomerInput'];
 
 export const CustomerSelectCard: React.FC<{
+  isDraft: boolean;
   customer?: SearchCustomerType;
   handleCustomerEvent: ({
     customerId,
@@ -39,7 +41,7 @@ export const CustomerSelectCard: React.FC<{
     customerId?: string;
     input?: ResolverInputTypes['CreateCustomerInput'];
   }) => Promise<void>;
-}> = ({ customer, handleCustomerEvent }) => {
+}> = ({ isDraft, customer, handleCustomerEvent }) => {
   const { t } = useTranslation('orders');
   const [tab, setTab] = useState('select');
   const [selected, setSelected] = useState<SearchCustomerType | undefined>(customer);
@@ -53,10 +55,7 @@ export const CustomerSelectCard: React.FC<{
     'phoneNumber',
     'emailAddress',
   )({
-    title: {
-      initialValue: '',
-      validate: (v) => (!v || v === '' ? [t('form.requiredError')] : v.length < 5 ? [t('form.userError')] : undefined),
-    },
+    title: { initialValue: '', validate: (v) => {} },
     firstName: { initialValue: '', validate: (v) => (!v || v === '' ? [t('form.requiredError')] : undefined) },
     lastName: { initialValue: '', validate: (v) => (!v || v === '' ? [t('form.requiredError')] : undefined) },
     phoneNumber: {
@@ -89,34 +88,30 @@ export const CustomerSelectCard: React.FC<{
     setField('emailAddress', state.emailAddress?.value || '');
     setField('phoneNumber', state.phoneNumber?.value || '');
     setField('title', state.title?.value || '');
-    if (
-      (!state.title || state.title?.errors.length === 0) &&
-      (!state.firstName || state.firstName?.errors.length === 0) &&
-      (!state.lastName || state.lastName?.errors.length === 0) &&
-      (!state.emailAddress || state.emailAddress?.errors.length === 0) &&
-      (!state.phoneNumber || state.phoneNumber?.errors.length === 0) &&
-      (!state.title || state.title?.errors.length === 0)
-    ) {
-      await handleCustomerEvent({
-        input: {
-          title: state.title?.value,
-          firstName: state.firstName?.value || '',
-          lastName: state.lastName?.value || '',
-          emailAddress: state.emailAddress?.value || '',
-          phoneNumber: state.phoneNumber?.value,
-        },
-      });
-      setOpen(false);
-    }
+
+    await handleCustomerEvent({
+      input: {
+        title: state.title?.value,
+        firstName: state.firstName?.value || '',
+        lastName: state.lastName?.value || '',
+        emailAddress: state.emailAddress?.value || '',
+        phoneNumber: state.phoneNumber?.value,
+      },
+    });
+    setOpen(false);
   };
 
   return (
-    <Card>
+    <Card className={cn(!isDraft ? 'border-primary' : customer?.id ? 'border-green-500' : 'border-orange-800')}>
       <CardHeader>
         <CardTitle>{t('create.selectCustomer.select')}</CardTitle>
         {customer ? (
           <CardDescription>
-            {customer.firstName} {customer.lastName}
+            <p>
+              {customer.firstName} {customer.lastName}
+            </p>
+            <p>{customer.emailAddress}</p>
+            {customer.phoneNumber && <p>{customer.phoneNumber}</p>}
           </CardDescription>
         ) : (
           <CardDescription>{t('create.selectCustomer.label')}</CardDescription>
@@ -136,7 +131,6 @@ export const CustomerSelectCard: React.FC<{
                   <DialogTitle>{t('create.selectCustomer.label')}</DialogTitle>
                   <DialogDescription>{t('create.selectCustomer.description')}</DialogDescription>
                 </DialogHeader>
-
                 <Tabs value={tab} onValueChange={setTab}>
                   <TabsList className="w-full">
                     <TabsTrigger className="w-full" value="select">

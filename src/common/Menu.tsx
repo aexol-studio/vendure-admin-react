@@ -1,25 +1,35 @@
-import { logOut, loginAtom } from '@/common/client';
+import { adminApiQuery, logOut, loginAtom } from '@/common/client';
 import { useAtom } from 'jotai';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbList,
+  BreadcrumbSeparator,
   Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
+  Label,
   ScrollArea,
 } from '@/components';
 
-import { Bell, GripVertical, MenuIcon, Package2 } from 'lucide-react';
+import {
+  BarChart,
+  Bell,
+  FlagIcon,
+  GripVertical,
+  LogOutIcon,
+  MenuIcon,
+  Moon,
+  Package2,
+  Slash,
+  Store,
+  Sun,
+} from 'lucide-react';
 import * as ResizablePrimitive from 'react-resizable-panels';
 
 import { cn } from '@/lib/utils';
@@ -27,8 +37,10 @@ import { Nav } from './AwesomeMenu/Nav';
 import { Separator } from '@radix-ui/react-dropdown-menu';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { ShoppingCart, Folder, Barcode } from 'lucide-react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useMatches } from 'react-router-dom';
 import { ChannelSwitcher } from './AwesomeMenu/ChannelSwitcher';
+import { useTheme } from '@/theme/useTheme';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 const ResizablePanelGroup = ({ className, ...props }: React.ComponentProps<typeof ResizablePrimitive.PanelGroup>) => (
   <ResizablePrimitive.PanelGroup
@@ -62,50 +74,62 @@ const ResizableHandle = ({
 );
 
 export const Menu: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
+  const linkPath: string[] = [];
   const { t } = useTranslation(['common']);
   const [isCollapsed, setIsCollapsed] = React.useState<boolean>(false);
   const [, setIsLoggedIn] = useAtom(loginAtom);
 
+  const [activeChannel, setActiveChannel] = React.useState<{
+    id: string;
+    code: string;
+  }>();
+  const [channels, setChannels] = React.useState<
+    {
+      id: string;
+      code: string;
+      token?: string;
+      icon: React.ReactNode;
+    }[]
+  >([]);
+  useEffect(() => {
+    Promise.all([
+      adminApiQuery()({
+        activeChannel: { id: true, code: true, token: true },
+      }),
+      adminApiQuery()({
+        channels: [{ options: { take: 10 } }, { items: { id: true, code: true, token: true }, totalItems: true }],
+      }),
+    ]).then(([{ activeChannel }, { channels }]) => {
+      setActiveChannel(activeChannel);
+      const data = channels.items.map((channel) => ({
+        id: channel?.id,
+        code: channel?.code,
+        token: channel?.token,
+        icon: <FlagIcon />,
+      }));
+      setChannels(data);
+    });
+  }, []);
+
+  const onChannelChange = (id: string) => {
+    const channel = channels.find((channel) => channel.id === id);
+    setActiveChannel(channel);
+    window.localStorage.setItem('vendure-token', channel?.token || '');
+  };
+
+  const matches = useMatches();
+  const removableCrumbs = ['draft'];
+  const crumbs = matches
+    .filter((match) => !!match.pathname)
+    .map((match) => match.pathname)
+    .flatMap((p) => p.split('/'))
+    .filter(Boolean)
+    .filter((crumb) => !removableCrumbs.includes(crumb));
+  const { theme, setTheme } = useTheme();
+
   return (
     <div className="w-full border-r bg-muted/40">
       <div className="flex h-full max-h-screen flex-col gap-2">
-        <div className="flex h-[50px] items-center border-b px-4 lg:h-[60px] lg:px-6">
-          <div className="flex gap-4 items-center">
-            <NavLink to="/" className="font-semibold">
-              <div className="flex items-center gap-2">
-                <Package2 className="h-6 w-6" />
-                <span className="">Aexol Shop</span>
-              </div>
-            </NavLink>
-          </div>
-          <div className="flex-1" />
-          <div className="flex gap-2 items-center">
-            <Button variant="outline" size="icon" className="h-10 w-10">
-              <Bell className="h-4 w-4" />
-              <span className="sr-only">Toggle notifications</span>
-            </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <MenuIcon className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56 mr-4">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onSelect={() => {
-                    setIsLoggedIn('no');
-                    logOut();
-                  }}
-                >
-                  Log out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>{' '}
-          </div>
-        </div>
         <div className="flex-1">
           <TooltipProvider delayDuration={100}>
             <ResizablePanelGroup
@@ -131,40 +155,141 @@ export const Menu: React.FC<{ children?: React.ReactNode }> = ({ children }) => 
                 }}
                 className={cn(isCollapsed && 'min-w-[50px] transition-all duration-300 ease-in-out')}
               >
-                <div className={cn('flex h-[52px] items-center justify-center', isCollapsed ? 'h-[52px]' : 'px-2')}>
-                  <ChannelSwitcher isCollapsed={isCollapsed} channels={[{ code: 'test', icon: <></>, label: '' }]} />
+                <div
+                  className={cn(
+                    'flex h-[70px] items-center justify-center border-b lg:h-[80px]',
+                    isCollapsed ? '' : 'px-2',
+                  )}
+                >
+                  <ChannelSwitcher
+                    isCollapsed={isCollapsed}
+                    activeChannel={activeChannel}
+                    channels={channels}
+                    onChannelChange={onChannelChange}
+                  />
                 </div>
                 <Separator />
                 <Nav
                   isCollapsed={isCollapsed}
                   links={[
+                    { title: t('menu.dashboard'), href: '/', icon: BarChart },
+                    { title: t('menu.marketplace'), href: '/marketplace', icon: Store },
                     { title: t('menu.products'), href: '/products', icon: Barcode },
                     { title: t('menu.collections'), href: '/collections', icon: Folder },
                     { title: t('menu.orders'), href: '/orders', icon: ShoppingCart },
                   ]}
                 />
                 <Separator />
-                {!isCollapsed && (
-                  <div className="mt-auto p-4">
-                    <Card>
-                      <CardHeader className="p-2 pt-0 md:p-4">
-                        <CardTitle>Upgrade to Pro</CardTitle>
-                        <CardDescription>
-                          Unlock all features and get unlimited access to our support team.
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent className="p-2 pt-0 md:p-4 md:pt-0">
-                        <Button size="sm" className="w-full">
-                          Upgrade
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  </div>
-                )}
               </ResizablePanel>
               <ResizableHandle withHandle />
               <ResizablePanel>
-                <ScrollArea className="relative h-[calc(100vh-50px)] lg:h-[calc(100vh-60px)] overflow-y-auto">
+                <div className="flex h-[70px] items-start border-b px-4 py-4 lg:h-[80px] lg:px-6">
+                  <div className="flex flex-col items-start gap-2">
+                    <div className="flex items-center gap-2">
+                      <Package2 className="h-6 w-6" />
+                      <span className="">Aexol Shop</span>
+                    </div>
+                    <Breadcrumb>
+                      <BreadcrumbList>
+                        {crumbs.length ? (
+                          crumbs.map((c, i) => {
+                            linkPath.push(c);
+                            return (
+                              <React.Fragment key={c}>
+                                <BreadcrumbItem>
+                                  <NavLink to={'/' + linkPath.join('/')}>
+                                    <p className="capitalize">{c}</p>
+                                  </NavLink>
+                                </BreadcrumbItem>
+                                {i !== crumbs.length - 1 && (
+                                  <BreadcrumbSeparator>
+                                    <Slash />
+                                  </BreadcrumbSeparator>
+                                )}
+                              </React.Fragment>
+                            );
+                          })
+                        ) : (
+                          <BreadcrumbItem>
+                            <NavLink to="/">
+                              <p>Dashboard</p>
+                            </NavLink>
+                          </BreadcrumbItem>
+                        )}
+                      </BreadcrumbList>
+                    </Breadcrumb>
+                  </div>
+                  <div className="flex-1" />
+                  <div className="flex items-center gap-2">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" size="sm" className="h-10">
+                          Active administrators (1)
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="mr-4">
+                        <div className="flex flex-col gap-4 rounded-md">
+                          <Label className="select-none">Active administrators</Label>
+                          <span className="text-sm text-muted-foreground">No active administrators</span>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" size="icon" className="h-10 w-10">
+                          <Bell className="h-4 w-4" />
+                          <span className="sr-only">Toggle notifications</span>
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="mr-4">
+                        <div className="flex flex-col gap-4 rounded-md">
+                          <Label className="select-none">Notifications</Label>
+                          <div className="flex items-center gap-4 border border-dashed p-4">
+                            <Bell className="h-4 w-4 text-accent" />
+                            <span className="text-sm text-muted-foreground">No new notifications</span>
+                          </div>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="icon">
+                          {theme === 'light' ? (
+                            <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                          ) : (
+                            <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                          )}
+                          <span className="sr-only">Toggle theme</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => setTheme('light')}>Light</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setTheme('dark')}>Dark</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setTheme('system')}>System</DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="icon">
+                          <MenuIcon className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="mr-4 w-56">
+                        <DropdownMenuItem
+                          className="flex cursor-pointer items-center gap-2"
+                          onSelect={() => {
+                            setIsLoggedIn('no');
+                            logOut();
+                          }}
+                        >
+                          <LogOutIcon className="h-4 w-4" />
+                          Log out
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
+                <ScrollArea className="relative h-[calc(100vh-70px)] overflow-y-hidden lg:h-[calc(100vh-80px)]">
                   {children}
                 </ScrollArea>
               </ResizablePanel>

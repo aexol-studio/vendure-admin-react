@@ -1,15 +1,13 @@
 import { GraphQLError, GraphQLResponse, Thunder, ZeusScalars, chainOptions, fetchOptions } from '@/zeus';
 import { atom } from 'jotai';
 const VTOKEN = 'vendure-admin-token';
+const CHTOKEN = 'vendure-token';
 export let token: string | null = window.localStorage.getItem(VTOKEN);
+export let channel: string | null = window.localStorage.getItem(CHTOKEN);
 
 export const scalars = ZeusScalars({
   Money: {
     decode: (e) => e as number,
-  },
-  JSON: {
-    encode: (e: unknown) => JSON.stringify(JSON.stringify(e)),
-    decode: (e: unknown) => JSON.parse(e as string),
   },
   DateTime: {
     decode: (e: unknown) => new Date(e as string).toISOString(),
@@ -65,17 +63,19 @@ const apiFetchVendure =
 export const VendureChain = (...options: chainOptions) => Thunder(apiFetchVendure(options));
 
 const buildHeaders = (ctx: { locale: string; channel?: string }): Parameters<typeof VendureChain>[1] => {
+  const channel = ctx.channel || window.localStorage.getItem(CHTOKEN) || 'default-channel';
   if (!ctx.channel) {
     return {
       headers: {
         'Content-Type': 'application/json',
+        'vendure-token': channel,
       },
     };
   }
   return {
     headers: {
       'Content-Type': 'application/json',
-      'vendure-token': ctx.channel,
+      'vendure-token': channel,
     },
   };
 };
@@ -89,21 +89,9 @@ export const adminApiQuery = (ctx: { locale: string; channel?: string } = { loca
 
 export const adminApiMutation = (ctx: { locale: string; channel?: string } = { locale: 'en' }) => {
   const HOST = `${VENDURE_HOST}?languageCode=${ctx.locale}`;
-
   return VendureChain(HOST, {
     ...buildHeaders(ctx),
   })('mutation', { scalars });
-};
-
-export const SSGQuery = (
-  ctx: { locale: string; channel?: string } = {
-    locale: 'en',
-  },
-) => {
-  const HOST = `${VENDURE_HOST}?languageCode=${ctx.locale}`;
-  return VendureChain(HOST, {
-    ...buildHeaders(ctx),
-  })('query', { scalars });
 };
 
 const handleFetchResponse = (response: Response): Promise<GraphQLResponse> => {
@@ -126,6 +114,7 @@ const handleFetchResponse = (response: Response): Promise<GraphQLResponse> => {
 
 export const logOut = () => {
   window.localStorage.removeItem(VTOKEN);
+  window.localStorage.removeItem(CHTOKEN);
   token = null;
 };
 
