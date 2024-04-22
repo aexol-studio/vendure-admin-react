@@ -1,4 +1,4 @@
-import { Button } from '@/components';
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components';
 import {
   Dialog,
   DialogClose,
@@ -8,54 +8,105 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { EligibleShippingMethodsType } from '@/graphql/draft_order';
-import React from 'react';
+import { DraftOrderType, EligibleShippingMethodsType } from '@/graphql/draft_order';
+import { cn } from '@/lib/utils';
+import React, { useState } from 'react';
 
 export const ShippingMethod: React.FC<{
-  selectedShippingMethod: string;
-  onChange: (value: string) => void;
+  order?: DraftOrderType;
+  shippingLines?: { id: string; price: number; priceWithTax: number; shippingMethod: { id: string } }[];
+  onSelectShippingMethod: (value: string) => Promise<void>;
   shippingMethods: EligibleShippingMethodsType[];
-}> = ({ shippingMethods, selectedShippingMethod, onChange }) => {
+}> = ({ order, shippingMethods, shippingLines, onSelectShippingMethod }) => {
+  const [localSelectedShippingMethod, setLocalSelectedShippingMethod] = useState<string | undefined>(undefined);
+  const data = shippingMethods.find((method) => method.id === shippingLines?.[0]?.shippingMethod.id);
+
   return (
-    <Dialog>
-      <Button variant="outline" size="sm">
-        <DialogTrigger>Set shipping method</DialogTrigger>
-      </Button>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Set shipping method</DialogTitle>
-          <DialogDescription>Select a shipping method</DialogDescription>
-        </DialogHeader>
-        <div className="grid gap-6">
-          {shippingMethods.map((shippingMethod) => (
-            <div key={shippingMethod.id} className="flex items-center gap-2">
-              <input
-                type="radio"
-                id={shippingMethod.id}
-                name="shippingMethod"
-                value={shippingMethod.id}
-                checked={selectedShippingMethod === shippingMethod.id}
-                onChange={() => onChange(shippingMethod.id)}
-              />
-              <label htmlFor={shippingMethod.id}>
-                <div>
-                  <div>{shippingMethod.name}</div>
-                </div>
-              </label>
+    <Card
+      className={cn(
+        order?.state !== 'Draft' ? 'border-primary' : shippingLines?.length ? 'border-green-500' : 'border-orange-800',
+      )}
+    >
+      <CardHeader>
+        <CardTitle>Select shipping method</CardTitle>
+        <CardDescription>Select a shipping method</CardDescription>
+        <div>
+          {data ? (
+            <div className="flex flex-col">
+              <h3>{data.name}</h3>
+              <p>{data.code}</p>
+              <p>{order?.shipping}</p>
             </div>
-          ))}
+          ) : (
+            <p>No shipping method selected</p>
+          )}
         </div>
-        <div className="flex w-full gap-2 justify-between">
-          <DialogClose asChild>
-            <Button type="button" className="w-full" variant="secondary">
-              Close
+      </CardHeader>
+      <CardContent>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="outline" size="sm">
+              Set shipping method
             </Button>
-          </DialogClose>
-          <Button type="submit" className="w-full" variant="outline">
-            Save
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+          </DialogTrigger>
+          <DialogContent className="h-[50vh] max-w-[60vw]">
+            <form
+              className="flex h-full flex-col justify-between"
+              onSubmit={async (e) => {
+                e.preventDefault();
+                const method = shippingMethods.find((method) => method.id === localSelectedShippingMethod);
+                if (method) {
+                  await onSelectShippingMethod(method.id);
+                }
+              }}
+            >
+              <div className="flex flex-col gap-8">
+                <DialogHeader>
+                  <DialogTitle>Set shipping method</DialogTitle>
+                  <DialogDescription>Select a shipping method</DialogDescription>
+                </DialogHeader>
+                <div className="flex flex-wrap">
+                  {shippingMethods.map((shippingMethod) => {
+                    return (
+                      <div key={shippingMethod.id} className="w-1/4 p-1">
+                        <button
+                          onClick={() => {
+                            const method = shippingMethods.find((method) => method.id === shippingMethod.id);
+                            if (method) {
+                              setLocalSelectedShippingMethod(method.id);
+                            }
+                          }}
+                          className={cn(
+                            'relative flex w-full gap-2 border p-4',
+                            localSelectedShippingMethod === shippingMethod.id
+                              ? 'border-primary'
+                              : 'border-primary-foreground',
+                          )}
+                        >
+                          <div className="flex flex-col items-start">
+                            <h3 className="text-lg">{shippingMethod.name}</h3>
+                            <p className="text-sm">{shippingMethod.code}</p>
+                          </div>
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="flex w-full justify-between gap-2">
+                <DialogClose asChild>
+                  <Button type="button" className="w-full" variant="secondary">
+                    Close
+                  </Button>
+                </DialogClose>
+                <Button type="submit" className="w-full" variant="outline">
+                  Save
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </CardContent>
+    </Card>
   );
 };

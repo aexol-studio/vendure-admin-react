@@ -28,25 +28,28 @@ const TableFooter = React.forwardRef<HTMLTableSectionElement, React.HTMLAttribut
   ({ className, ...props }, ref) => (
     <tfoot
       ref={ref}
-      className={cn('border-t bg-stone-100/50 font-medium [&>tr]:last:border-b-0 dark:bg-stone-800/50', className)}
+      className={cn('border-t bg-stone-100/50 font-medium dark:bg-stone-800/50 [&>tr]:last:border-b-0', className)}
       {...props}
     />
   ),
 );
 TableFooter.displayName = 'TableFooter';
 
-const TableRow = React.forwardRef<HTMLTableRowElement, React.HTMLAttributes<HTMLTableRowElement>>(
-  ({ className, ...props }, ref) => (
-    <tr
-      ref={ref}
-      className={cn(
-        'border-b transition-colors hover:bg-stone-100/50 data-[state=selected]:bg-stone-100 dark:hover:bg-stone-800/50 dark:data-[state=selected]:bg-stone-800',
-        className,
-      )}
-      {...props}
-    />
-  ),
-);
+const TableRow = React.forwardRef<
+  HTMLTableRowElement,
+  React.HTMLAttributes<HTMLTableRowElement> & { noHover?: boolean; noBorder?: boolean }
+>(({ noBorder, noHover, className, ...props }, ref) => (
+  <tr
+    ref={ref}
+    className={cn(
+      'transition-colors data-[state=selected]:bg-stone-100 dark:data-[state=selected]:bg-stone-800',
+      !noHover && 'hover:bg-stone-100/50 dark:hover:bg-stone-800/50',
+      !noBorder && 'border-b',
+      className,
+    )}
+    {...props}
+  />
+));
 TableRow.displayName = 'TableRow';
 
 const TableHead = React.forwardRef<HTMLTableCellElement, React.ThHTMLAttributes<HTMLTableCellElement>>(
@@ -54,7 +57,7 @@ const TableHead = React.forwardRef<HTMLTableCellElement, React.ThHTMLAttributes<
     <th
       ref={ref}
       className={cn(
-        'h-12 px-2 text-left align-middle font-medium text-stone-500 [&:has([role=checkbox])]:pr-0 dark:text-stone-400',
+        'h-12 px-2 text-left align-middle font-medium text-stone-500 dark:text-stone-400 [&:has([role=checkbox])]:pr-0',
         className,
       )}
       {...props}

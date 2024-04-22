@@ -9,6 +9,8 @@
         "100perPage": "100 per page"
     },
     "menu": {
+        "marketplace":"marketplace",
+        "dashboard": "dashboard",
         "products": "products",
         "collections": "collections",
         "orders": "orders",

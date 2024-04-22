@@ -33,7 +33,6 @@ export function registerCustomFieldComponent<P>({
     console.error(`Component ${name} already registered`);
     return;
   }
-
   console.log(`Registering component ${name} in ${where}`);
   registerComponents.push({ name, component, where });
 }
@@ -161,6 +160,6 @@ function generateSingleFields<T>({
       return { ...field, component: <DefaultRelationInput {...props} /> };
     default:
       //TODO: Implement other field types
-      return { name: '🏗️', component: <span className="font-bold text-sm">Not implemented yet</span> };
+      return { name: '🏗️', component: <span className="text-sm font-bold">Not implemented yet</span> };
   }
 }

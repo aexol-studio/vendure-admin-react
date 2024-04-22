@@ -1,10 +1,30 @@
 import { Selector } from '@/zeus';
 import { FromSelectorWithScalars } from './scalars';
 
+export const configurableOperationDefinitionSelector = Selector('ConfigurableOperationDefinition')({
+  args: {
+    __typename: true,
+    defaultValue: true,
+    description: true,
+    label: true,
+    list: true,
+    name: true,
+    required: true,
+    type: true,
+    ui: true,
+  },
+  code: true,
+  description: true,
+});
+
+export type ConfigurableOperationDefinitionType = FromSelectorWithScalars<
+  typeof configurableOperationDefinitionSelector,
+  'ConfigurableOperationDefinition'
+>;
+
 export const eligibleShippingMethodsSelector = Selector('ShippingMethod')({
   id: true,
   description: true,
-  metadata: true,
   name: true,
   code: true,
 });
@@ -13,6 +33,15 @@ export type EligibleShippingMethodsType = FromSelectorWithScalars<
   typeof eligibleShippingMethodsSelector,
   'ShippingMethod'
 >;
+
+export const paymentMethodsSelector = Selector('PaymentMethod')({
+  id: true,
+  name: true,
+  description: true,
+  enabled: true,
+});
+
+export type PaymentMethodsType = FromSelectorWithScalars<typeof paymentMethodsSelector, 'PaymentMethod'>;
 
 export const addressBaseSelector = Selector('Address')({
   city: true,
@@ -37,6 +66,7 @@ export const searchProductVariantSelector = Selector('ProductVariant')({
   price: true,
   priceWithTax: true,
   name: true,
+  stockLevels: { stockOnHand: true },
 });
 
 export type SearchProductVariantType = FromSelectorWithScalars<typeof searchProductVariantSelector, 'ProductVariant'>;
@@ -46,6 +76,7 @@ export const searchCustomerSelector = Selector('Customer')({
   lastName: true,
   id: true,
   emailAddress: true,
+  phoneNumber: true,
 });
 
 export type SearchCustomerType = FromSelectorWithScalars<typeof searchCustomerSelector, 'Customer'>;
@@ -57,7 +88,37 @@ export const draftOrderSelector = Selector('Order')({
   code: true,
   state: true,
   total: true,
-  shippingLines: { id: true },
+  totalWithTax: true,
+  shipping: true,
+  fulfillments: {
+    id: true,
+    createdAt: true,
+    updatedAt: true,
+    method: true,
+    nextStates: true,
+    state: true,
+    summary: { fulfillmentId: true, orderLineId: true, quantity: true },
+    trackingCode: true,
+  },
+  taxSummary: {
+    description: true,
+    taxBase: true,
+    taxRate: true,
+    taxTotal: true,
+  },
+  shippingLines: {
+    id: true,
+    price: true,
+    priceWithTax: true,
+    discountedPrice: true,
+    discountedPriceWithTax: true,
+    shippingMethod: {
+      id: true,
+      name: true,
+      code: true,
+      fulfillmentHandlerCode: true,
+    },
+  },
   billingAddress: {
     countryCode: true,
     country: true,

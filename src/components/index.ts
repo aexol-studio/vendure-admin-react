@@ -3,4 +3,4 @@ export * from './Stack';
 export * from './Search';
 export * from './ui';
 export * from './ImageWithPreview';
-export * from './AutoCompleteSearchInput';
+export * from './AutoComplete/ProductVariantSearch';

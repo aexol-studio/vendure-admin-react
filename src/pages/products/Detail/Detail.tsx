@@ -72,9 +72,9 @@ export const ProductDetailPage = () => {
         </TabsList>
         <TabsContent className="w-full" value="product">
           <Stack className="gap-x-8">
-            <Stack className="gap-x-8 flex-1">
+            <Stack className="flex-1 gap-x-8">
               <img className="w-72" src={object?.featuredAsset?.source} />
-              <Stack column className="gap-y-4 flex-1">
+              <Stack column className="flex-1 gap-y-4">
                 <div className="flex items-center space-x-2">
                   <Switch
                     id="product-enabled"
@@ -203,7 +203,7 @@ export const ProductDetailPage = () => {
               }}
               defaultValue={object?.variants?.[0].id}
             >
-              <TabsList className="flex-wrap h-auto justify-start">
+              <TabsList className="h-auto flex-wrap justify-start">
                 {object?.variants.map((v) => (
                   <TabsTrigger key={v.id} value={v.id}>
                     {v.name}

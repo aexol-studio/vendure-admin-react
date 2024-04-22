@@ -31,7 +31,6 @@ export const OrderDetailPage = () => {
   });
 
   const { state, setField } = useGFFLP('ModifyOrderInput', 'options')({});
-
   useEffect(() => {}, [object]);
 
   return (

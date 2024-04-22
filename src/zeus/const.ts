@@ -2295,6 +2295,7 @@ export const ReturnTypes: Record<string,any> = {
 		permittedAssetTypes:"String",
 		permissions:"PermissionDefinition",
 		moneyStrategyPrecision:"Int",
+		plugins:"Plugin",
 		customFieldConfig:"CustomFields",
 		entityCustomFields:"EntityCustomFields"
 	},
@@ -3831,6 +3832,11 @@ export const ReturnTypes: Record<string,any> = {
 		name:"String",
 		members:"Region",
 		customFields:"JSON"
+	},
+	Plugin:{
+		name:"String",
+		path:"String",
+		version:"String"
 	},
 	MetricSummary:{
 		interval:"MetricInterval",
