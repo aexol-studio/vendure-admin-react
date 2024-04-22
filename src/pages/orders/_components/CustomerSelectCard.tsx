@@ -10,7 +10,6 @@ import {
   TabsContent,
   Input,
   CardDescription,
-  Checkbox,
 } from '@/components';
 import { CustomerSearch } from '@/components/AutoComplete/CustomerSearch';
 import {
@@ -29,8 +28,10 @@ import { useTranslation } from 'react-i18next';
 import { useGFFLP } from '@/lists/useGflp';
 import { cn } from '@/lib/utils';
 
-type CreateUserInput = ResolverInputTypes['CreateCustomerInput'];
-
+const phoneNumberRegExp = new RegExp(/^\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/);
+const emailRegExp = new RegExp(
+  /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+);
 export const CustomerSelectCard: React.FC<{
   isDraft: boolean;
   customer?: SearchCustomerType;
@@ -47,7 +48,7 @@ export const CustomerSelectCard: React.FC<{
   const [selected, setSelected] = useState<SearchCustomerType | undefined>(customer);
   const [open, setOpen] = useState(false);
 
-  const { state, setField } = useGFFLP(
+  const { state, setField, checkIfAllFieldsAreValid } = useGFFLP(
     'CreateCustomerInput',
     'firstName',
     'lastName',
@@ -55,50 +56,52 @@ export const CustomerSelectCard: React.FC<{
     'phoneNumber',
     'emailAddress',
   )({
-    title: { initialValue: '', validate: (v) => {} },
-    firstName: { initialValue: '', validate: (v) => (!v || v === '' ? [t('form.requiredError')] : undefined) },
-    lastName: { initialValue: '', validate: (v) => (!v || v === '' ? [t('form.requiredError')] : undefined) },
+    firstName: {
+      initialValue: '',
+      validate: (v) => {
+        if (!v || v === '') return [t('form.requiredError')];
+      },
+    },
+    lastName: {
+      initialValue: '',
+      validate: (v) => {
+        if (!v || v === '') return [t('form.requiredError')];
+      },
+    },
     phoneNumber: {
       initialValue: '',
-      validate: (v) =>
-        !v || v === ''
-          ? [t('form.requiredError')]
-          : new RegExp(/^\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/).test(v)
-            ? undefined
-            : [t('form.phoneError')],
+      validate: (v) => {
+        if (!v || v === '') return [t('form.requiredError')];
+        if (!phoneNumberRegExp.test(v)) return [t('form.phoneError')];
+      },
     },
     emailAddress: {
       initialValue: '',
-      validate: (v) =>
-        !v || v === ''
-          ? [t('form.requiredError')]
-          : new RegExp(
-                /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-              ).test(v.toLowerCase())
-            ? undefined
-            : [t('form.emailError')],
+      validate: (v) => {
+        if (!v || v === '') return [t('form.requiredError')];
+        if (!emailRegExp.test(v.toLowerCase())) return [t('form.emailError')];
+      },
     },
   });
-  state.emailAddress?.validatedValue;
+
   useEffect(() => setSelected(customer), [customer]);
 
   const validateAndSubmitIfCorrect = async () => {
-    setField('firstName', state.firstName?.value || '');
-    setField('lastName', state.lastName?.value || '');
-    setField('emailAddress', state.emailAddress?.value || '');
-    setField('phoneNumber', state.phoneNumber?.value || '');
-    setField('title', state.title?.value || '');
+    const fieldsAreValid = checkIfAllFieldsAreValid();
+    console.log(fieldsAreValid);
 
-    await handleCustomerEvent({
-      input: {
-        title: state.title?.value,
-        firstName: state.firstName?.value || '',
-        lastName: state.lastName?.value || '',
-        emailAddress: state.emailAddress?.value || '',
-        phoneNumber: state.phoneNumber?.value,
-      },
-    });
-    setOpen(false);
+    if (fieldsAreValid) {
+      await handleCustomerEvent({
+        input: {
+          title: state.title?.validatedValue,
+          firstName: state.firstName?.validatedValue || '',
+          lastName: state.lastName?.validatedValue || '',
+          emailAddress: state.emailAddress?.validatedValue || '',
+          phoneNumber: state.phoneNumber?.validatedValue,
+        },
+      });
+      setOpen(false);
+    }
   };
 
   return (
