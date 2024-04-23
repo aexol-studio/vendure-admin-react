@@ -1,31 +1,13 @@
-import { adminApiQuery } from '@/common/client';
-import { Badge, Button, Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { useList } from '@/lists/useList';
+import { Badge, Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { PluginsAtom } from '@/state/atoms';
+import { useAtomValue } from 'jotai';
+import { Check, X } from 'lucide-react';
+
 import { useTranslation } from 'react-i18next';
 
-const getPlugins = async () => {
-  const response = await adminApiQuery()({
-    globalSettings: { serverConfig: { plugins: { name: true, version: true, path: true } } },
-  });
-  return response.globalSettings.serverConfig.plugins;
-};
-
 export const MarketPlaceListPage = () => {
-  const { objects: plugins, Paginate } = useList({
-    route: async () => {
-      const data = await getPlugins();
-      return { items: data, totalItems: data?.length || 0 };
-    },
-    listType: 'marketplace',
-  });
+  const plugins = useAtomValue(PluginsAtom);
   const { t } = useTranslation('products');
 
   return (
@@ -34,9 +16,16 @@ export const MarketPlaceListPage = () => {
         return (
           <Card key={plugin.name}>
             <CardHeader>
-              <CardTitle className="flex justify-between">
-                {plugin.name}
-                <Badge>version: {plugin.version}</Badge>
+              <CardTitle className="flex justify-between flex-col gap-4">
+                <span>{plugin.name}</span>
+                <Badge variant="destructive" noHover className="w-fit gap-2">
+                  <span className="tracking-wide">version:</span>
+                  {plugin.version}
+                </Badge>
+                <Badge variant="outline" noHover className="w-fit gap-2">
+                  <span>Active:</span>
+                  {plugin.active ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
+                </Badge>
               </CardTitle>
               <CardDescription></CardDescription>
             </CardHeader>
@@ -52,8 +41,19 @@ export const MarketPlaceListPage = () => {
                   <div>
                     {plugin.path ? (
                       <div>
-                        <p>This plugin is located at</p>
-                        <p className="text-xs">{plugin.path}</p>
+                        <div>
+                          <p>This plugin is located at</p>
+                          <p className="text-xs">{plugin.path}</p>
+                        </div>
+                        <div>
+                          <p>Status: </p>
+                          <p className="text-xs">{plugin.status}</p>
+                        </div>
+                        <div>
+                          <p>Active: </p>
+                          <p className="text-xs">{plugin.active ? 'Yes' : 'No'}</p>
+                        </div>
+                        {!plugin.active ? <Button variant="outline">Activate</Button> : null}
                       </div>
                     ) : null}
                   </div>

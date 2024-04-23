@@ -478,6 +478,19 @@ export const AddressCard: React.FC<
                               )}
                             </Label>
                           </div>
+                        ) : null}
+                        <div className="my-2 flex items-center space-x-2">
+                          <Checkbox
+                            id="createForCustomer"
+                            value={createForCustomer ? 'true' : 'false'}
+                            onCheckedChange={() => setCreateForCustomer(!createForCustomer)}
+                          />
+                          <Label
+                            htmlFor="createForCustomer"
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                          >
+                            Create for customer
+                          </Label>
                         </div>
                       ) : null} */}
                       <div className="my-2 flex items-center space-x-2 py-2">

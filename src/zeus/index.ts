@@ -4471,6 +4471,9 @@ The `code` field is typically a 2-character ISO code such as "GB", "US", "DE" et
 	name?:boolean | `@${string}`,
 	path?:boolean | `@${string}`,
 	version?:boolean | `@${string}`,
+	mounted?:boolean | `@${string}`,
+	active?:boolean | `@${string}`,
+	status?:boolean | `@${string}`,
 		__typename?: boolean | `@${string}`
 }>;
 	["MetricSummary"]: AliasType<{
@@ -8665,6 +8668,9 @@ The `code` field is typically a 2-character ISO code such as "GB", "US", "DE" et
 	name?:boolean | `@${string}`,
 	path?:boolean | `@${string}`,
 	version?:boolean | `@${string}`,
+	mounted?:boolean | `@${string}`,
+	active?:boolean | `@${string}`,
+	status?:boolean | `@${string}`,
 		__typename?: boolean | `@${string}`
 }>;
 	["MetricSummary"]: AliasType<{
@@ -12441,7 +12447,10 @@ The `code` field is typically a 2-character ISO code such as "GB", "US", "DE" et
 	["Plugin"]: {
 		name: string,
 	path?: string | undefined,
-	version?: string | undefined
+	version?: string | undefined,
+	mounted?: boolean | undefined,
+	active?: boolean | undefined,
+	status?: string | undefined
 };
 	["MetricSummary"]: {
 		interval: ModelTypes["MetricInterval"],
@@ -16786,7 +16795,10 @@ The `code` field is typically a 2-character ISO code such as "GB", "US", "DE" et
 	__typename: "Plugin",
 	name: string,
 	path?: string | undefined,
-	version?: string | undefined
+	version?: string | undefined,
+	mounted?: boolean | undefined,
+	active?: boolean | undefined,
+	status?: string | undefined
 };
 	["MetricSummary"]: {
 	__typename: "MetricSummary",

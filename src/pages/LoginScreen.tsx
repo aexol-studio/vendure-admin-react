@@ -1,12 +1,13 @@
 import { Layout } from '@/common/Layout';
-import { adminApiMutation, loginAtom } from '@/common/client';
+import { adminApiMutation } from '@/common/client';
 import { Button, Checkbox, Input, Label } from '@/components';
+import { LoginAtom } from '@/state/atoms';
 import { useAtom } from 'jotai';
 import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 export const LoginScreen = () => {
-  const [, setIsLoggedIn] = useAtom(loginAtom);
+  const [, setIsLoggedIn] = useAtom(LoginAtom);
   const [image, setImage] = useState<{
     src: string;
     author: string;

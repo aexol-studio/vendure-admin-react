@@ -1,4 +1,4 @@
-import { adminApiQuery, logOut, loginAtom } from '@/common/client';
+import { CHTOKEN, adminApiQuery, logOut } from '@/common/client';
 import { useAtom } from 'jotai';
 import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -20,7 +20,7 @@ import {
 import {
   BarChart,
   Bell,
-  FlagIcon,
+  Globe2,
   GripVertical,
   LogOutIcon,
   MenuIcon,
@@ -29,18 +29,22 @@ import {
   Slash,
   Store,
   Sun,
+  Trash2Icon,
 } from 'lucide-react';
 import * as ResizablePrimitive from 'react-resizable-panels';
 
 import { cn } from '@/lib/utils';
 import { Nav } from './AwesomeMenu/Nav';
-import { Separator } from '@radix-ui/react-dropdown-menu';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { ShoppingCart, Folder, Barcode } from 'lucide-react';
 import { NavLink, useMatches } from 'react-router-dom';
 import { ChannelSwitcher } from './AwesomeMenu/ChannelSwitcher';
 import { useTheme } from '@/theme/useTheme';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { ActiveAdmins } from './AwesomeMenu/ActiveAdmins';
+import { ActiveChannelAtom, LoginAtom } from '@/state/atoms';
+import { clearAllCache } from '@/lists/cache';
+import { ChannelType, channelSelector } from '@/graphql/draft_order';
 
 const ResizablePanelGroup = ({ className, ...props }: React.ComponentProps<typeof ResizablePrimitive.PanelGroup>) => (
   <ResizablePrimitive.PanelGroup
@@ -77,44 +81,28 @@ export const Menu: React.FC<{ children?: React.ReactNode }> = ({ children }) => 
   const linkPath: string[] = [];
   const { t } = useTranslation(['common']);
   const [isCollapsed, setIsCollapsed] = React.useState<boolean>(false);
-  const [, setIsLoggedIn] = useAtom(loginAtom);
+  const [, setIsLoggedIn] = useAtom(LoginAtom);
 
-  const [activeChannel, setActiveChannel] = React.useState<{
-    id: string;
-    code: string;
-  }>();
-  const [channels, setChannels] = React.useState<
-    {
-      id: string;
-      code: string;
-      token?: string;
-      icon: React.ReactNode;
-    }[]
-  >([]);
+  const [activeChannel, setActiveChannel] = useAtom(ActiveChannelAtom);
+  const [channels, setChannels] = React.useState<ChannelType[]>([]);
   useEffect(() => {
     Promise.all([
+      adminApiQuery()({ activeChannel: channelSelector }),
       adminApiQuery()({
-        activeChannel: { id: true, code: true, token: true },
-      }),
-      adminApiQuery()({
-        channels: [{ options: { take: 10 } }, { items: { id: true, code: true, token: true }, totalItems: true }],
+        channels: [{ options: { take: 10 } }, { items: channelSelector, totalItems: true }],
       }),
     ]).then(([{ activeChannel }, { channels }]) => {
       setActiveChannel(activeChannel);
-      const data = channels.items.map((channel) => ({
-        id: channel?.id,
-        code: channel?.code,
-        token: channel?.token,
-        icon: <FlagIcon />,
-      }));
-      setChannels(data);
+      setChannels(channels.items);
     });
   }, []);
 
   const onChannelChange = (id: string) => {
     const channel = channels.find((channel) => channel.id === id);
+    if (!channel) return;
     setActiveChannel(channel);
-    window.localStorage.setItem('vendure-token', channel?.token || '');
+    window.localStorage.setItem(CHTOKEN, channel.token);
+    clearAllCache();
   };
 
   const matches = useMatches();
@@ -168,7 +156,6 @@ export const Menu: React.FC<{ children?: React.ReactNode }> = ({ children }) => 
                     onChannelChange={onChannelChange}
                   />
                 </div>
-                <Separator />
                 <Nav
                   isCollapsed={isCollapsed}
                   links={[
@@ -178,8 +165,8 @@ export const Menu: React.FC<{ children?: React.ReactNode }> = ({ children }) => 
                     { title: t('menu.collections'), href: '/collections', icon: Folder },
                     { title: t('menu.orders'), href: '/orders', icon: ShoppingCart },
                   ]}
+                  settings={[{ title: t('menu.channels'), href: '/channels', icon: Globe2 }]}
                 />
-                <Separator />
               </ResizablePanel>
               <ResizableHandle withHandle />
               <ResizablePanel>
@@ -221,19 +208,7 @@ export const Menu: React.FC<{ children?: React.ReactNode }> = ({ children }) => 
                   </div>
                   <div className="flex-1" />
                   <div className="flex items-center gap-2">
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button variant="outline" size="sm" className="h-10">
-                          Active administrators (1)
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="mr-4">
-                        <div className="flex flex-col gap-4 rounded-md">
-                          <Label className="select-none">Active administrators</Label>
-                          <span className="text-sm text-muted-foreground">No active administrators</span>
-                        </div>
-                      </PopoverContent>
-                    </Popover>
+                    <ActiveAdmins />
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button variant="outline" size="icon" className="h-10 w-10">
@@ -275,6 +250,10 @@ export const Menu: React.FC<{ children?: React.ReactNode }> = ({ children }) => 
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent className="mr-4 w-56">
+                        <DropdownMenuItem className="flex cursor-pointer items-center gap-2" onSelect={clearAllCache}>
+                          <Trash2Icon className="h-4 w-4" />
+                          Clear cache
+                        </DropdownMenuItem>
                         <DropdownMenuItem
                           className="flex cursor-pointer items-center gap-2"
                           onSelect={() => {

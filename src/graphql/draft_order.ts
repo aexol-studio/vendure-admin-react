@@ -1,6 +1,23 @@
 import { Selector } from '@/zeus';
 import { FromSelectorWithScalars } from './scalars';
 
+export const countrySelector = Selector('Country')({
+  code: true,
+  name: true,
+});
+
+export type CountryType = FromSelectorWithScalars<typeof countrySelector, 'Country'>;
+
+export const channelSelector = Selector('Channel')({
+  id: true,
+  code: true,
+  token: true,
+  currencyCode: true,
+  defaultLanguageCode: true,
+});
+
+export type ChannelType = FromSelectorWithScalars<typeof channelSelector, 'Channel'>;
+
 export const configurableOperationDefinitionSelector = Selector('ConfigurableOperationDefinition')({
   args: {
     __typename: true,

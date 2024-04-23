@@ -8,6 +8,17 @@ export type PaginatedCacheables =
   | 'modal-products-list'
   | 'modal-product-variants-list';
 export type DetailCacheables = 'productDetail' | 'orderDetail' | 'collectionDetail' | 'facetDetail';
+
+export const clearAllCache = () => {
+  const importantKeys = ['vendure-admin-token', 'vendure-token', 'i18nextLng'];
+  Object.keys(window.localStorage).forEach((key) => {
+    if (!importantKeys.includes(key)) {
+      window.localStorage.removeItem(key);
+    }
+  });
+  window.location.reload();
+};
+
 type CacheKey = `${PaginatedCacheables | DetailCacheables}`;
 
 export const cache = <T>(cacheKey: CacheKey) => {

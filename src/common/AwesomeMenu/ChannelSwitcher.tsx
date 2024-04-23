@@ -1,12 +1,23 @@
-import * as React from 'react';
 import { cn } from '@/lib/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components';
-
+import { US, PL } from 'country-flag-icons/react/3x2';
+import { ChannelType } from '@/graphql/draft_order';
 interface ChannelSwitcherProps {
   isCollapsed: boolean;
-  activeChannel?: { id: string; code: string };
-  channels?: { id: string; code: string; icon: React.ReactNode }[];
+  activeChannel?: ChannelType;
+  channels?: ChannelType[];
   onChannelChange: (id: string) => void;
+}
+
+function CurrencyIcon({ currencyCode }: { currencyCode?: string }) {
+  switch (currencyCode) {
+    case 'USD':
+      return <US />;
+    case 'PLN':
+      return <PL />;
+    default:
+      return null;
+  }
 }
 
 export function ChannelSwitcher({ isCollapsed, activeChannel, channels, onChannelChange }: ChannelSwitcherProps) {
@@ -20,7 +31,7 @@ export function ChannelSwitcher({ isCollapsed, activeChannel, channels, onChanne
         aria-label="Select an channel"
       >
         <SelectValue>
-          {channels?.find((account) => account.id === activeChannel?.id)?.icon}
+          <CurrencyIcon currencyCode={channels?.find((account) => account.id === activeChannel?.id)?.currencyCode} />
           <span className={cn('ml-2', isCollapsed && 'hidden')}>
             {channels?.find((account) => account.id === activeChannel?.id)?.code}
           </span>
@@ -30,7 +41,7 @@ export function ChannelSwitcher({ isCollapsed, activeChannel, channels, onChanne
         {channels?.map((account) => (
           <SelectItem key={account.code} value={account.id}>
             <div className="flex items-center gap-3 [&_svg]:h-4 [&_svg]:w-4 [&_svg]:shrink-0 [&_svg]:text-foreground">
-              {account.icon}
+              <CurrencyIcon currencyCode={account.currencyCode} />
               {account.code}
             </div>
           </SelectItem>
