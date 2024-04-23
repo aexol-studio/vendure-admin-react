@@ -31,7 +31,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { PaginationInput } from '@/lists/models';
 import { Badge, Input, Search, ordersSearchProps } from '@/components';
-import { Link, NavLink } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { OrderStateBadge } from './_components/OrderStateBadge';
@@ -295,17 +295,17 @@ export const OrderListPage = () => {
 
   return (
     <Stack column className="gap-6">
-      <div className="h-full w-full">
-        <Button
-          onClick={async () => {
-            const id = await createDraftOrder();
-            if (id) navigate(`/orders/${id}`);
-            else console.error('Failed to create order');
-          }}
-        >
-          {t('createOrder')}
-        </Button>
+      <div className="w-full flex flex-col page-content-h">
         <div className="mb-4 flex flex-col items-end gap-4">
+          <Button
+            onClick={async () => {
+              const id = await createDraftOrder();
+              if (id) navigate(`/orders/${id}`);
+              else console.error('Failed to create order');
+            }}
+          >
+            {t('createOrder')}
+          </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="ml-auto">
@@ -338,7 +338,7 @@ export const OrderListPage = () => {
             <Button onClick={() => setFilterField('code', { contains: 'dddddupa' })}>set filter</Button>
           </div>
         </div>
-        <div className="h-full w-full rounded-md border">
+        <div className={`h-full w-full rounded-md border overflow-auto`}>
           <Table className="h-full w-full">
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (

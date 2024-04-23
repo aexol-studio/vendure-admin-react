@@ -36,6 +36,16 @@
 
     --warning: 38 92% 50%;
     --warning-foreground: 48 96% 89%;
+
+    --topbar-height: 70px;
+    --topbar-height-lg: 80px;
+
+    --page-padding-total-y: 2.75rem;
+    --page-padding-total-y-md: 4.75rem;
+
+    --page-content-h: calc(100vh - var(--topbar-height) - var(--page-padding-total-y));
+    --page-content-h-md: calc(100vh - var(--topbar-height) - var(--page-padding-total-y-md));
+    --page-content-h-lg: calc(100vh - var(--topbar-height-lg) - var(--page-padding-total-y-md));
   }
 
   .dark {
@@ -75,6 +85,19 @@
 @layer base {
   * {
     @apply border-border;
+
+    &::-webkit-scrollbar {
+      width: 6px;
+      transform: translateX(-4px);
+    }
+  
+    &::-webkit-scrollbar-thumb {
+      @apply relative rounded-full bg-border
+    }
+  
+    &::-webkit-scrollbar-track {
+      @apply flex touch-none select-none transition-colors
+    }
   }
   body {
     @apply box-border bg-background text-foreground;
@@ -89,5 +112,8 @@
   .h-screen {
     height: 100vh; /* Fallback */
     height: 100dvh;
+  }
+  .page-content-h {
+    @apply h-[var(--page-content-h)] md:h-[var(--page-content-h-md)] lg:h-[var(--page-content-h-lg)];
   }
 }
