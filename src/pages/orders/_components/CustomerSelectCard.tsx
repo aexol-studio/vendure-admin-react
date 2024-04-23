@@ -27,11 +27,8 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGFFLP } from '@/lists/useGflp';
 import { cn } from '@/lib/utils';
+import { emailRegExp, phoneNumberRegExp } from '@/utils/regExp';
 
-const phoneNumberRegExp = new RegExp(/^\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/);
-const emailRegExp = new RegExp(
-  /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-);
 export const CustomerSelectCard: React.FC<{
   isDraft: boolean;
   customer?: SearchCustomerType;

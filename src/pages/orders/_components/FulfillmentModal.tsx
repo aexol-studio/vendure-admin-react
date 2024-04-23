@@ -49,7 +49,6 @@ export const FulfillmentModal = ({
         quantity: line.quantity || 1,
         customFields: {},
       })),
-      validate: (v) => {},
     },
     handler: {
       initialValue: {
@@ -59,7 +58,6 @@ export const FulfillmentModal = ({
           value: arg.defaultValue,
         })),
       },
-      validate: (v) => {},
     },
   });
 

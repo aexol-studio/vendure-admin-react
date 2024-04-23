@@ -1,9 +1,8 @@
 import { GraphQLError, GraphQLResponse, Thunder, ZeusScalars, chainOptions, fetchOptions } from '@/zeus';
 import { atom } from 'jotai';
 const VTOKEN = 'vendure-admin-token';
-const CHTOKEN = 'vendure-token';
+export const CHTOKEN = 'vendure-token';
 export let token: string | null = window.localStorage.getItem(VTOKEN);
-export let channel: string | null = window.localStorage.getItem(CHTOKEN);
 
 export const scalars = ZeusScalars({
   Money: {
@@ -62,35 +61,34 @@ const apiFetchVendure =
 
 export const VendureChain = (...options: chainOptions) => Thunder(apiFetchVendure(options));
 
-const buildHeaders = (ctx: { locale: string; channel?: string }): Parameters<typeof VendureChain>[1] => {
-  const channel = ctx.channel || window.localStorage.getItem(CHTOKEN) || 'default-channel';
-  if (!ctx.channel) {
-    return {
-      headers: {
-        'Content-Type': 'application/json',
-        'vendure-token': channel,
-      },
-    };
-  }
-  return {
-    headers: {
-      'Content-Type': 'application/json',
-      'vendure-token': channel,
-    },
-  };
+const buildHeaders = (): Parameters<typeof VendureChain>[1] => {
+  const channel = window.localStorage.getItem(CHTOKEN);
+
+  return channel
+    ? {
+        headers: {
+          'Content-Type': 'application/json',
+          'vendure-token': channel,
+        },
+      }
+    : {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      };
 };
 
-export const adminApiQuery = (ctx: { locale: string; channel?: string } = { locale: 'en' }) => {
+export const adminApiQuery = (ctx: { locale: string } = { locale: 'en' }) => {
   const HOST = `${VENDURE_HOST}?languageCode=${ctx.locale}`;
   return VendureChain(HOST, {
-    ...buildHeaders(ctx),
+    ...buildHeaders(),
   })('query', { scalars });
 };
 
-export const adminApiMutation = (ctx: { locale: string; channel?: string } = { locale: 'en' }) => {
+export const adminApiMutation = (ctx: { locale: string } = { locale: 'en' }) => {
   const HOST = `${VENDURE_HOST}?languageCode=${ctx.locale}`;
   return VendureChain(HOST, {
-    ...buildHeaders(ctx),
+    ...buildHeaders(),
   })('mutation', { scalars });
 };
 
@@ -119,3 +117,4 @@ export const logOut = () => {
 };
 
 export const loginAtom = atom<'no' | 'yes' | 'unknown'>('unknown');
+export const channelTokenAtom = atom<string | undefined>(window.localStorage.getItem(CHTOKEN) || undefined);

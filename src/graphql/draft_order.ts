@@ -56,6 +56,20 @@ export const addressBaseSelector = Selector('Address')({
 
 export type AddressBaseType = FromSelectorWithScalars<typeof addressBaseSelector, 'Address'>;
 
+export const createAddressBaseSelector = Selector('CreateAddressInput')({
+  city: true,
+  company: true,
+  fullName: true,
+  phoneNumber: true,
+  postalCode: true,
+  province: true,
+  streetLine1: true,
+  streetLine2: true,
+  countryCode: true,
+});
+
+export type CreateAddressBaseType = FromSelectorWithScalars<typeof createAddressBaseSelector, 'CreateAddressInput'>;
+
 export const searchProductVariantSelector = Selector('ProductVariant')({
   id: true,
   featuredAsset: { preview: true },

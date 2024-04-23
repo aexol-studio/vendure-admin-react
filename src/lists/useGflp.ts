@@ -16,7 +16,7 @@ export const useFFLP = <T>(config: {
     initialValue?: T[P];
   };
 }) => {
-  const [state, setState] = useState<
+  const [state, _setState] = useState<
     Partial<{
       [P in keyof T]: FormField<T[P]>;
     }>
@@ -35,7 +35,7 @@ export const useFFLP = <T>(config: {
         isToBeValidated && invalid && invalid.length > 0
           ? ({ value: value, initialValue: state[field]?.initialValue, errors: invalid } as FormField<T[F]>)
           : ({ value: value, initialValue: state[field]?.initialValue, validatedValue: value } as FormField<T[F]>);
-      setState(JSON.parse(JSON.stringify(state)));
+      _setState(JSON.parse(JSON.stringify(state)));
     },
     [config, state],
   );
@@ -45,16 +45,9 @@ export const useFFLP = <T>(config: {
     Object.keys(config).forEach((field) => {
       const fieldKey = field as keyof T;
       const fieldValue = newState[fieldKey];
-      console.log('------------');
-      console.log('field', field);
-      console.log('fieldKey', fieldKey);
-
-      console.log('fieldValue', fieldValue);
       if (fieldValue && fieldKey) {
         const isToBeValidated = !!config[fieldKey]?.validate;
         const isInvalid = config[fieldKey]?.validate?.(fieldValue.value);
-        console.log(fieldKey, isInvalid);
-
         newState = {
           ...newState,
           [fieldKey]:
@@ -72,17 +65,55 @@ export const useFFLP = <T>(config: {
         };
       }
     });
-    setState(newState);
-    console.log(newState);
-    console.log('all valid?', !Object.keys(config).some((field) => !newState[field as keyof T]?.validatedValue));
-
-    return !Object.keys(config).some((field) => !newState[field as keyof T]?.validatedValue);
+    _setState(newState);
+    return !Object.keys(config).some(
+      (field) => config[field as keyof T]?.validate && !newState[field as keyof T]?.validatedValue,
+    );
   }, [config, state]);
 
   const haveValidFields = useMemo(
-    () => Object.keys(config).some((field) => !state[field as keyof T]?.validatedValue),
+    () =>
+      !Object.keys(config).some(
+        (field) => config[field as keyof T]?.validate && !state[field as keyof T]?.validatedValue,
+      ),
     [config, state],
   );
+
+  const setState = (value: T) => {
+    console.log(value);
+
+    let newState = { ...state };
+    Object.keys(config).forEach((field) => {
+      const fieldKey = field as keyof T;
+      console.log(value[fieldKey]);
+
+      const fieldValue = newState[fieldKey];
+      if (fieldValue && fieldKey && value[fieldKey]) {
+        console.log('a');
+
+        const isToBeValidated = !!config[fieldKey]?.validate;
+        const isInvalid = config[fieldKey]?.validate?.(value[fieldKey]);
+        newState = {
+          ...newState,
+          [fieldKey]:
+            isToBeValidated && isInvalid && isInvalid.length > 0
+              ? {
+                  initialValue: fieldValue.initialValue,
+                  value: value[fieldKey],
+                  errors: isInvalid,
+                }
+              : {
+                  initialValue: fieldValue.initialValue,
+                  value: value[fieldKey],
+                  validatedValue: value[fieldKey],
+                },
+        };
+      }
+    });
+    console.log('newState', newState);
+
+    _setState(newState);
+  };
 
   return {
     state,

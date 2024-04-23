@@ -11,8 +11,6 @@ import { OrderCreatePage } from './pages/orders/Create';
 import { LoginScreen } from './pages/LoginScreen';
 import { Dashboard } from './pages/Dashboard';
 import { MarketPlaceListPage } from './pages/marketplace/List';
-import { OrderDetailPage } from './pages/orders/Modify';
-
 const router = createBrowserRouter([
   {
     path: '/',
@@ -61,6 +59,7 @@ function App() {
   useEffect(() => {
     if (token) setIsLoggedIn('yes');
     else setIsLoggedIn('no');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return isLoggedIn === 'yes' ? <RouterProvider router={router} /> : <LoginScreen />;

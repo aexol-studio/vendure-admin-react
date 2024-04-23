@@ -9,7 +9,7 @@
         "100perPage": "100 per page"
     },
     "menu": {
-        "marketplace":"marketplace",
+        "marketplace": "marketplace",
         "dashboard": "dashboard",
         "products": "products",
         "collections": "collections",
@@ -17,5 +17,16 @@
         "facets": "facets",
         "logOut": "log out"
     },
-    "noFilterField": "None"
+    "noFilterField": "None",
+    "draft": "Draft",
+    "addingItems": "Adding Items",
+    "arrangingPayment": "Arranging Payment",
+    "paymentAuthorized": "Payment Authorized",
+    "paymentSettled": "Payment Settled",
+    "shipped": "Shipped",
+    "partiallyShipped": "Partially Shipped",
+    "partiallyFulfilled": "Partially Fulfilled",
+    "partiallyDelivered": "Partially Delivered",
+    "delivered": "Delivered",
+    "cancelled": "Cancelled"
 }

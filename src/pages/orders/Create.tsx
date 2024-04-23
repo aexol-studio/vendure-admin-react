@@ -53,7 +53,7 @@ import {
 import { AddressCard } from './_components/AddressCard';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
-  AddressBaseType,
+  CreateAddressBaseType,
   DraftOrderType,
   PaymentMethodsType,
   EligibleShippingMethodsType,
@@ -82,6 +82,7 @@ import {
 } from '@/components/ui/timeline';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Price } from '@/components/Price';
+import { OrderStateBadge } from '@/pages/orders/_components';
 
 declare global {
   interface Window {
@@ -116,60 +117,6 @@ const getAllPaginatedCountries = async () => {
   return { countries };
 };
 
-const OrderStateBadge: React.FC<{ state?: DraftOrderType['state'] }> = ({ state }) => {
-  let className = '';
-  switch (state) {
-    case 'Draft':
-      className = 'bg-primary-foreground text-primary-background';
-      break;
-    case 'AddingItems':
-      className = 'bg-primary-foreground text-primary-background';
-      break;
-    case 'ArrangingPayment':
-      className = 'bg-primary-foreground text-primary-background';
-      break;
-    case 'PaymentAuthorized':
-      className = 'bg-primary-foreground text-primary-background';
-      break;
-    case 'PaymentSettled':
-      className = 'bg-primary-foreground text-primary-background';
-      break;
-    case 'Cancelled':
-      className = 'bg-destructive text-primary-background';
-      break;
-    case 'Fulfilled':
-      className = 'bg-primary-foreground text-primary-background';
-      break;
-    case 'PartiallyFulfilled':
-      className = 'bg-primary-foreground text-primary-background';
-      break;
-    default:
-      className = 'bg-primary-foreground text-primary-background';
-  }
-
-  switch (state) {
-    case 'AddingItems':
-      return <Badge className={className}>Adding items</Badge>;
-    case 'ArrangingPayment':
-      return <Badge className={className}>Arranging payment</Badge>;
-    case 'PaymentAuthorized':
-      return <Badge className={className}>Payment authorized</Badge>;
-    case 'PaymentSettled':
-      return <Badge className={className}>Payment settled</Badge>;
-    case 'Cancelled':
-      return (
-        <Badge className={className} variant="destructive">
-          Cancelled
-        </Badge>
-      );
-    case 'Fulfilled':
-      return <Badge className={className}>Fulfilled</Badge>;
-    case 'PartiallyFulfilled':
-      return <Badge className={className}>Partially fulfilled</Badge>;
-    default:
-      return <Badge className={className}>{state}</Badge>;
-  }
-};
 const getAllHistory = async (id: string) => {
   let history: {
     id: string;
@@ -338,44 +285,6 @@ export const OrderCreatePage = () => {
     if (setDraftOrderShippingMethod.__typename === 'Order') setDraftOrder(setDraftOrderShippingMethod);
   };
 
-  const createShippingAddress = async (
-    orderId: string,
-    input: ResolverInputTypes['CreateAddressInput'],
-    createForCustomer: boolean,
-  ) => {
-    const { setDraftOrderShippingAddress } = await adminApiMutation()({
-      setDraftOrderShippingAddress: [{ orderId, input }, draftOrderSelector],
-    });
-    if (createForCustomer && draftOrder?.customer?.id) {
-      await adminApiMutation()({
-        createCustomerAddress: [{ customerId: draftOrder?.customer?.id, input }, { id: true }],
-      });
-    } else toast.info('Something went wrong while creating address for customer');
-    if (setDraftOrderShippingAddress) {
-      setDraftOrder(setDraftOrderShippingAddress);
-      return true;
-    } else return false;
-  };
-
-  const createBillingAddress = async (
-    orderId: string,
-    input: ResolverInputTypes['CreateAddressInput'],
-    createForCustomer: boolean,
-  ) => {
-    const { setDraftOrderBillingAddress } = await adminApiMutation()({
-      setDraftOrderBillingAddress: [{ orderId, input }, draftOrderSelector],
-    });
-    if (createForCustomer && draftOrder?.customer?.id) {
-      await adminApiMutation()({
-        createCustomerAddress: [{ customerId: draftOrder?.customer?.id, input }, { id: true }],
-      });
-    } else toast.info('Something went wrong while creating address for customer');
-    if (setDraftOrderBillingAddress) {
-      setDraftOrder(setDraftOrderBillingAddress);
-      return true;
-    } else return false;
-  };
-
   const rendered = useMemo(() => {
     return generateCustomFields({
       registerComponents,
@@ -524,29 +433,64 @@ export const OrderCreatePage = () => {
 
   const handleMethodChange = async ({
     address,
-    tab,
     isShipping,
     createForCustomer,
   }: {
-    address?: AddressBaseType & { countryCode: string };
-    tab: string;
+    address: CreateAddressBaseType;
     isShipping: boolean;
     createForCustomer: boolean;
   }) => {
     const orderId = draftOrder?.id;
     if (orderId && address) {
       if (isShipping) {
-        if (await createShippingAddress(orderId, address, createForCustomer)) {
-          toast(tab === 'select' ? 'Address selected successfully' : 'Address created successfully');
-        } else {
-          toast(tab === 'select' ? 'Address selection failed' : 'Address creation failed');
-        }
+        await adminApiMutation()({
+          setDraftOrderShippingAddress: [{ orderId, input: address }, draftOrderSelector],
+        })
+          .then((e) => {
+            setDraftOrder(e.setDraftOrderShippingAddress);
+            toast(
+              t(
+                createForCustomer
+                  ? 'selectAddress.addressSuccessCreateToast'
+                  : 'selectAddress.addressSuccessSelectToast',
+              ),
+            );
+          })
+          .catch(() => {
+            toast.error(
+              t(
+                createForCustomer ? 'selectAddress.addressFailedCreateToast' : 'selectAddress.addressFailedSelectToast',
+              ),
+            );
+          });
       } else {
-        if (await createBillingAddress(orderId, address, createForCustomer)) {
-          toast(tab === 'select' ? 'Address selected successfully' : 'Address created successfully');
-        } else {
-          toast(tab === 'select' ? 'Address selection failed' : 'Address creation failed');
-        }
+        await adminApiMutation()({
+          setDraftOrderBillingAddress: [{ orderId, input: address }, draftOrderSelector],
+        })
+          .then((e) => {
+            setDraftOrder(e.setDraftOrderBillingAddress);
+            toast(
+              t(
+                createForCustomer
+                  ? 'selectAddress.addressSuccessCreateToast'
+                  : 'selectAddress.addressSuccessSelectToast',
+              ),
+            );
+          })
+          .catch(() => {
+            toast.error(
+              t(
+                createForCustomer ? 'selectAddress.addressFailedCreateToast' : 'selectAddress.addressFailedSelectToast',
+              ),
+            );
+          });
+      }
+      if (createForCustomer && draftOrder?.customer?.id) {
+        await adminApiMutation()({
+          createCustomerAddress: [{ customerId: draftOrder.customer.id, input: address }, { streetLine1: true }],
+        })
+          .then((e) => toast.success(t('selectAddress.newAddress', { address: e.createCustomerAddress.streetLine1 })))
+          .catch(() => toast.error(t('selectAddress.addressAddFailed')));
       }
     }
   };
@@ -1265,7 +1209,7 @@ export const OrderCreatePage = () => {
                 onSubmitted={handleMethodChange}
                 orderId={draftOrder?.id}
                 countries={countries}
-                defaultValue={{ streetLine1: '', ...draftOrder?.billingAddress }}
+                defaultValue={draftOrder?.billingAddress}
                 customerAddresses={draftOrder?.customer?.addresses}
               />
               <AddressCard
@@ -1274,7 +1218,7 @@ export const OrderCreatePage = () => {
                 onSubmitted={handleMethodChange}
                 orderId={draftOrder?.id}
                 countries={countries}
-                defaultValue={{ streetLine1: '', ...draftOrder?.shippingAddress }}
+                defaultValue={draftOrder?.shippingAddress}
                 customerAddresses={draftOrder?.customer?.addresses}
               />
               <ShippingMethod
