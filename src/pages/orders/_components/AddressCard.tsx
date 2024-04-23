@@ -319,7 +319,7 @@ export const AddressCard: React.FC<
                           <Checkbox
                             id="createForCustomer"
                             value={createForCustomer ? 'true' : 'false'}
-                            onChange={() => setCreateForCustomer(!createForCustomer)}
+                            onCheckedChange={() => setCreateForCustomer(!createForCustomer)}
                           />
                           <Label
                             htmlFor="createForCustomer"

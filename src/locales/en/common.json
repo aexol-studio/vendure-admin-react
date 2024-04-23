@@ -15,6 +15,7 @@
         "collections": "collections",
         "orders": "orders",
         "facets": "facets",
+        "channels":"channels",
         "logOut": "log out"
     },
     "noFilterField": "None"

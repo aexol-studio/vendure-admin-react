@@ -1,9 +1,8 @@
 import { GraphQLError, GraphQLResponse, Thunder, ZeusScalars, chainOptions, fetchOptions } from '@/zeus';
-import { atom } from 'jotai';
 const VTOKEN = 'vendure-admin-token';
-const CHTOKEN = 'vendure-token';
+export const CHTOKEN = 'vendure-token';
 export let token: string | null = window.localStorage.getItem(VTOKEN);
-export let channel: string | null = window.localStorage.getItem(CHTOKEN);
+export const channel: string | null = window.localStorage.getItem(CHTOKEN);
 
 export const scalars = ZeusScalars({
   Money: {
@@ -33,7 +32,12 @@ const apiFetchVendure =
           return response.data;
         });
     }
-    const additionalHeaders: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
+    const additionalHeaders: Record<string, string> = token
+      ? {
+          'vendure-token': channel || 'default-channel',
+          Authorization: `Bearer ${token}`,
+        }
+      : {};
     return fetch(`${options[0]}`, {
       ...fetchOptions,
       body: JSON.stringify({ query, variables }),
@@ -117,5 +121,3 @@ export const logOut = () => {
   window.localStorage.removeItem(CHTOKEN);
   token = null;
 };
-
-export const loginAtom = atom<'no' | 'yes' | 'unknown'>('unknown');

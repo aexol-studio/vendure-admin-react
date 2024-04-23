@@ -65,6 +65,7 @@ import {
   paymentMethodsSelector,
   configurableOperationDefinitionSelector,
   ConfigurableOperationDefinitionType,
+  countrySelector,
 } from '@/graphql/draft_order';
 import { ResolverInputTypes, SortOrder } from '@/zeus';
 import { ShippingMethod } from './_components/ShippingMethod';
@@ -82,6 +83,8 @@ import {
 } from '@/components/ui/timeline';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Price } from '@/components/Price';
+import { useAtom } from 'jotai';
+import { CountriesAtom } from '@/state/atoms';
 
 declare global {
   interface Window {
@@ -107,7 +110,7 @@ const getAllPaginatedCountries = async () => {
     const {
       countries: { items, totalItems: total },
     } = await adminApiQuery()({
-      countries: [{ options: { skip, take: TAKE } }, { items: { code: true, name: true }, totalItems: true }],
+      countries: [{ options: { skip, take: TAKE } }, { items: countrySelector, totalItems: true }],
     });
     countries = [...countries, ...items];
     totalItems = total;
@@ -247,7 +250,8 @@ export const OrderCreatePage = () => {
 
   const [variantToAdd, setVariantToAdd] = useState<SearchProductVariantType | undefined>(undefined);
   const [customFields, setCustomFields] = useState<CustomFieldConfigType[]>([]);
-  const [countries, setCountries] = useState<{ code: string; name: string }[]>([]);
+  const [countries, setCountries] = useAtom(CountriesAtom);
+
   const [orderHistory, setOrderHistory] = useState<
     {
       id: string;
@@ -259,7 +263,6 @@ export const OrderCreatePage = () => {
     }[]
   >([]);
   const [fulfillmentHandlers, setFulfillmentHandlers] = useState<ConfigurableOperationDefinitionType[]>([]);
-
   useEffect(() => {
     const fetch = async () => {
       if (!id) return;

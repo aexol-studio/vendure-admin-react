@@ -1,4 +1,5 @@
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components';
+import { Price } from '@/components/Price';
 import {
   Dialog,
   DialogClose,
@@ -35,7 +36,9 @@ export const ShippingMethod: React.FC<{
             <div className="flex flex-col">
               <h3>{data.name}</h3>
               <p>{data.code}</p>
-              <p>{order?.shipping}</p>
+              <p>
+                <Price price={order?.shipping || 0} />
+              </p>
             </div>
           ) : (
             <p>No shipping method selected</p>
