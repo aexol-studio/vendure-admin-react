@@ -30,11 +30,12 @@ import React, { PropsWithChildren, useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { PaginationInput } from '@/lists/models';
-import { Badge, Input, Search, ordersSearchProps } from '@/components';
+import { Badge, EmptyState, Input, Search, ordersSearchProps } from '@/components';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { OrderStateBadge } from './_components/OrderStateBadge';
+import useLocalAndUrlStore from '@/state/localAndUrl';
 
 const SortButton: React.FC<
   PropsWithChildren<{ key: string; currSort: PaginationInput['sort']; onClick: () => void }>
@@ -86,6 +87,7 @@ export const OrderListPage = () => {
     removeFilterField,
     resetFilter,
     setFilterField,
+    isFilterOn,
   } = useList({
     route: async ({ page, perPage, sort, filter }) => {
       return getOrders({
@@ -363,11 +365,7 @@ export const OrderListPage = () => {
                   </TableRow>
                 ))
               ) : (
-                <TableRow>
-                  <TableCell colSpan={columns.length} className="h-24 text-center">
-                    No results.
-                  </TableCell>
-                </TableRow>
+                <EmptyState columnsLength={columns.length} filtered={isFilterOn} />
               )}
             </TableBody>
           </Table>

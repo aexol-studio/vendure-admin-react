@@ -1,4 +1,26 @@
 {
+    "emptyState": {
+        "default": {
+            "empty": {
+                "title": "No orders",
+                "text": "There are no orders yet"
+            },
+            "filtered": {
+                "title": "Nothing matches",
+                "text": "There are no orders that match your searching terms"
+            }
+        },
+        "orders": {
+            "empty": {
+                "title": "No orders",
+                "text": "There are no orders yet"
+            },
+            "filtered": {
+                "title": "Nothing matches",
+                "text": "There are no orders that match your searching terms"
+            }
+        }
+    },
     "next": "next",
     "previous": "previous",
     "perPagePlaceholder": "Items per page",
