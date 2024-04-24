@@ -26,7 +26,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ArrowDown, ArrowUp, ArrowUpDown, ChevronDown, MoreHorizontal } from 'lucide-react';
-import React, { PropsWithChildren, useState } from 'react';
+import React, { PropsWithChildren, useEffect, useMemo, useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { PaginationInput } from '@/lists/models';
@@ -35,7 +35,24 @@ import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { OrderStateBadge } from './_components/OrderStateBadge';
-import useLocalAndUrlStore from '@/state/localAndUrl';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+
+const DEFAULT_COLUMNS_VISIBILITY = {
+  id: true,
+  state: true,
+  select: true,
+  firstName: true,
+  lastName: true,
+  emailAddress: false,
+  phoneNumber: false,
+  code: false,
+  createdAt: true,
+  orderPlacedAt: true,
+  shipping: true,
+  type: false,
+  updatedAt: false,
+  actions: true,
+};
 
 const SortButton: React.FC<
   PropsWithChildren<{ key: string; currSort: PaginationInput['sort']; onClick: () => void }>
@@ -79,6 +96,7 @@ const getOrders = async (options: ResolverInputTypes['OrderListOptions']) => {
 export const OrderListPage = () => {
   const { t } = useTranslation('orders');
   const navigate = useNavigate();
+  const { setColumnsInLS, getColumnsFromLS } = useLocalStorage();
   const {
     objects: orders,
     Paginate,
@@ -99,6 +117,11 @@ export const OrderListPage = () => {
     },
     listType: 'orders',
   });
+
+  const startingColumnsVisibilityState = useMemo(() => {
+    const stateFromLS = getColumnsFromLS('orders');
+    return stateFromLS ? stateFromLS : DEFAULT_COLUMNS_VISIBILITY;
+  }, []);
 
   //make and array of columns based on passed type
 
@@ -255,23 +278,10 @@ export const OrderListPage = () => {
 
   // const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
-    id: true,
-    state: true,
-    select: true,
-    firstName: true,
-    lastName: true,
-    emailAddress: false,
-    phoneNumber: false,
-    code: false,
-    createdAt: true,
-    orderPlacedAt: true,
-    shipping: true,
-    type: false,
-    updatedAt: false,
-    actions: true,
-  });
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(startingColumnsVisibilityState);
   const [rowSelection, setRowSelection] = useState({});
+
+  useEffect(() => setColumnsInLS('orders', columnVisibility), [columnVisibility, setColumnsInLS]);
 
   const table = useReactTable({
     data: orders || [],
