@@ -85,19 +85,6 @@
 @layer base {
   * {
     @apply border-border;
-
-    &::-webkit-scrollbar {
-      width: 6px;
-      transform: translateX(-4px);
-    }
-  
-    &::-webkit-scrollbar-thumb {
-      @apply relative rounded-full bg-border
-    }
-  
-    &::-webkit-scrollbar-track {
-      @apply flex touch-none select-none transition-colors
-    }
   }
   body {
     @apply box-border bg-background text-foreground;
@@ -116,4 +103,17 @@
   .page-content-h {
     @apply h-[var(--page-content-h)] md:h-[var(--page-content-h-md)] lg:h-[var(--page-content-h-lg)];
   }
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+  transform: translateX(-4px);
+}
+
+*::-webkit-scrollbar-thumb {
+  @apply relative rounded-full bg-border
+}
+
+*::-webkit-scrollbar-track {
+  @apply flex touch-none select-none transition-colors
 }
