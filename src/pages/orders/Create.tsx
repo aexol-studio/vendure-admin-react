@@ -37,7 +37,7 @@ import {
   Checkbox,
   Textarea,
 } from '@/components';
-import { Badge, ChevronLeft, Grip, Trash } from 'lucide-react';
+import { ChevronLeft, Grip, Trash } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { CustomerSelectCard } from './_components/CustomerSelectCard';
 import {
@@ -84,8 +84,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Price } from '@/components/Price';
 import { OrderStateBadge } from '@/pages/orders/_components';
-import { useAtom } from 'jotai';
-import { CountriesAtom } from '@/state/atoms';
+import { useServer } from '@/state/server';
 
 declare global {
   interface Window {
@@ -188,17 +187,15 @@ const getFulfillmentHandlers = async () => {
 export const OrderCreatePage = () => {
   const { t } = useTranslation('orders');
   const { id } = useParams();
+  const countries = useServer((p) => p.countries);
+  const setCountries = useServer((p) => p.setCountries);
   const { state, setField } = useGFFLP('AddItemToDraftOrderInput', 'customFields')({});
   const [eligibleShippingMethodsType, setEligibleShippingMethodsType] = useState<EligibleShippingMethodsType[]>([]);
   const [paymentMethodsType, setPaymentMethodsType] = useState<PaymentMethodsType[]>([]);
   const [draftOrder, setDraftOrder] = useState<DraftOrderType | undefined>();
-
-  const [open, setOpen] = useState(false);
-
   const [variantToAdd, setVariantToAdd] = useState<SearchProductVariantType | undefined>(undefined);
   const [customFields, setCustomFields] = useState<CustomFieldConfigType[]>([]);
-  const [countries, setCountries] = useAtom(CountriesAtom);
-
+  const [open, setOpen] = useState(false);
   const [orderHistory, setOrderHistory] = useState<
     {
       id: string;
@@ -210,6 +207,7 @@ export const OrderCreatePage = () => {
     }[]
   >([]);
   const [fulfillmentHandlers, setFulfillmentHandlers] = useState<ConfigurableOperationDefinitionType[]>([]);
+
   useEffect(() => {
     const fetch = async () => {
       if (!id) return;
@@ -270,9 +268,7 @@ export const OrderCreatePage = () => {
     fetch();
   }, []);
 
-  const selectShippingMethod = async (shippingMethodId: string) => {
-    const orderId = draftOrder?.id;
-    if (!orderId) return;
+  const selectShippingMethod = async (orderId: string, shippingMethodId: string) => {
     const { setDraftOrderShippingMethod } = await adminApiMutation()({
       setDraftOrderShippingMethod: [
         { orderId, shippingMethodId },
@@ -286,6 +282,7 @@ export const OrderCreatePage = () => {
       ],
     });
     if (setDraftOrderShippingMethod.__typename === 'Order') setDraftOrder(setDraftOrderShippingMethod);
+    else toast.error(`${setDraftOrderShippingMethod.errorCode}: ${setDraftOrderShippingMethod.message}`);
   };
 
   const rendered = useMemo(() => {
@@ -445,6 +442,13 @@ export const OrderCreatePage = () => {
   }) => {
     const orderId = draftOrder?.id;
     if (orderId && address) {
+      if (createForCustomer && draftOrder?.customer?.id) {
+        await adminApiMutation()({
+          createCustomerAddress: [{ customerId: draftOrder.customer.id, input: address }, { streetLine1: true }],
+        })
+          .then((e) => toast.success(t('selectAddress.newAddress', { address: e.createCustomerAddress.streetLine1 })))
+          .catch(() => toast.error(t('selectAddress.addressAddFailed')));
+      }
       if (isShipping) {
         await adminApiMutation()({
           setDraftOrderShippingAddress: [{ orderId, input: address }, draftOrderSelector],
@@ -487,13 +491,6 @@ export const OrderCreatePage = () => {
               ),
             );
           });
-      }
-      if (createForCustomer && draftOrder?.customer?.id) {
-        await adminApiMutation()({
-          createCustomerAddress: [{ customerId: draftOrder.customer.id, input: address }, { streetLine1: true }],
-        })
-          .then((e) => toast.success(t('selectAddress.newAddress', { address: e.createCustomerAddress.streetLine1 })))
-          .catch(() => toast.error(t('selectAddress.addressAddFailed')));
       }
     }
   };
@@ -751,7 +748,7 @@ export const OrderCreatePage = () => {
                     <Dialog>
                       <DialogTrigger asChild>
                         <Button variant="secondary" size="sm">
-                          Add payment to order (<Price price={draftOrder?.totalWithTax} />)
+                          Add payment to order (<Price price={draftOrder?.totalWithTax || 0} />)
                         </Button>
                       </DialogTrigger>
                       <DialogContent>
@@ -1038,7 +1035,7 @@ export const OrderCreatePage = () => {
                                           if (key === 'from' || key === 'to') {
                                             return (
                                               <div key={key} className="flex items-center gap-1">
-                                                <p>{key}:</p>
+                                                <div>{key}:</div>
                                                 <OrderStateBadge state={value as string} />
                                               </div>
                                             );

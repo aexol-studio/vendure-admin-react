@@ -1,10 +1,9 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { Root } from '@/pages/Root';
 import { useEffect, useState } from 'react';
-import { adminApiQuery, token } from '@/common/client';
+import { adminApiQuery } from '@/common/client';
 import { ProductListPage } from '@/pages/products/List';
 import { CollectionsListPage } from '@/pages/collections/List';
-import { useAtom } from 'jotai';
 import { ProductDetailPage } from '@/pages/products/Detail/Detail';
 import { OrderListPage } from '@/pages/orders/List';
 import { OrderCreatePage } from './pages/orders/Create';
@@ -12,9 +11,10 @@ import { LoginScreen } from './pages/LoginScreen';
 import { Dashboard } from './pages/Dashboard';
 import { MarketPlaceListPage } from './pages/marketplace/List';
 import { io } from 'socket.io-client';
-import { ActiveAdminsAtom, LoginAtom, PluginsAtom } from './state/atoms';
 import { AnimatePresence } from 'framer-motion';
-import { Loader2 } from 'lucide-react';
+import { useSettings } from '@/state/settings';
+import { activeAdministratorSelector, serverConfigSelector } from '@/graphql/draft_order';
+import { useServer } from '@/state/server';
 
 const router = createBrowserRouter([
   {
@@ -59,11 +59,14 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
+  const isLoggedIn = useSettings((p) => p.isLoggedIn);
+
   const [needSocket, setNeedSocket] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useAtom(LoginAtom);
-  const [, setIsConnected] = useState(false);
-  const [, setClients] = useAtom(ActiveAdminsAtom);
-  const [, setPlugins] = useAtom(PluginsAtom);
+  const setActiveAdministrator = useServer((p) => p.setActiveAdministrator);
+  const setActiveClients = useServer((p) => p.setActiveClients);
+  const setServerConfig = useServer((p) => p.setServerConfig);
+  const setIsConnected = useServer((p) => p.setIsConnected);
+  const activeAdministrator = useServer((p) => p.activeAdministrator);
 
   function onConnect() {
     setIsConnected(true);
@@ -74,48 +77,30 @@ function App() {
   }
 
   function onClients(clients) {
-    setClients(
+    setActiveClients(
       clients
         .sort((a, b) => {
-          const aMe = a.id === activeAdmin?.id;
-          const bMe = b.id === activeAdmin?.id;
+          const aMe = a.id === activeAdministrator?.id;
+          const bMe = b.id === activeAdministrator?.id;
           if (aMe && !bMe) return -1;
           if (bMe && !aMe) return 1;
           return new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime();
         })
-        .map((client) => ({ ...client, me: client.id === activeAdmin?.id })),
+        .map((client) => ({ ...client, me: client.id === activeAdministrator?.id })),
     );
   }
 
-  const [activeAdmin, setActiveAdmin] = useState<{
-    id: string;
-    emailAddress: string;
-    firstName: string;
-    lastName: string;
-  }>();
-
-  useEffect(() => {
-    if (token) {
-      setIsLoggedIn('yes');
-    } else setIsLoggedIn('no');
-  }, []);
-
   useEffect(() => {
     const init = async () => {
-      const response = await adminApiQuery()({
-        globalSettings: {
-          serverConfig: { plugins: { name: true, version: true, path: true, active: true, status: true } },
-        },
-      });
-      const { activeAdministrator } = await adminApiQuery()({
-        activeAdministrator: { id: true, emailAddress: true, firstName: true, lastName: true },
-      });
-      setActiveAdmin(activeAdministrator);
-      setPlugins(response.globalSettings.serverConfig.plugins || []);
+      const response = await adminApiQuery()({ globalSettings: { serverConfig: serverConfigSelector } });
+      const { activeAdministrator } = await adminApiQuery()({ activeAdministrator: activeAdministratorSelector });
+
+      setActiveAdministrator(activeAdministrator);
+      setServerConfig(response.globalSettings.serverConfig);
       const socket = response.globalSettings.serverConfig.plugins?.find(
         (plugin) => plugin.name === 'AexolAdminsPlugin',
       );
-      if (socket?.active) setNeedSocket(true);
+      if (socket && socket.active) setNeedSocket(true);
     };
     init();
   }, [isLoggedIn]);
@@ -123,7 +108,7 @@ function App() {
   useEffect(() => {
     if (!needSocket) return;
     const socket = io('localhost:3000');
-    socket.emit('events', { ...activeAdmin, location: window.location.href, lastActive: new Date() });
+    socket.emit('events', { ...activeAdministrator, location: window.location.href, lastActive: new Date() });
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
     socket.on('events', onClients);
@@ -134,17 +119,7 @@ function App() {
     };
   }, [needSocket]);
 
-  return (
-    <AnimatePresence>
-      {isLoggedIn === 'unknown' && (
-        <div className="flex h-screen items-center justify-center">
-          <Loader2 className="h-16 w-16 animate-spin" />
-        </div>
-      )}
-      {isLoggedIn === 'no' && <LoginScreen />}
-      {isLoggedIn === 'yes' && <RouterProvider router={router} />}
-    </AnimatePresence>
-  );
+  return <AnimatePresence>{isLoggedIn ? <RouterProvider router={router} /> : <LoginScreen />}</AnimatePresence>;
 }
 
 export default App;

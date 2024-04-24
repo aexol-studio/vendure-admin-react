@@ -85,7 +85,6 @@ export const CustomerSelectCard: React.FC<{
 
   const validateAndSubmitIfCorrect = async () => {
     const fieldsAreValid = checkIfAllFieldsAreValid();
-    console.log(fieldsAreValid);
 
     if (fieldsAreValid) {
       await handleCustomerEvent({

@@ -1,3 +1,5 @@
+import { SETTINGS_LOCAL_STORAGE_KEY } from '@/state/settings';
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type PaginatedCacheables =
   | 'products'
@@ -10,7 +12,7 @@ export type PaginatedCacheables =
 export type DetailCacheables = 'productDetail' | 'orderDetail' | 'collectionDetail' | 'facetDetail';
 
 export const clearAllCache = () => {
-  const importantKeys = ['vendure-admin-token', 'vendure-token', 'i18nextLng'];
+  const importantKeys = [SETTINGS_LOCAL_STORAGE_KEY];
   Object.keys(window.localStorage).forEach((key) => {
     if (!importantKeys.includes(key)) {
       window.localStorage.removeItem(key);

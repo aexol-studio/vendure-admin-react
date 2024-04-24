@@ -1,6 +1,5 @@
-import { CHTOKEN, adminApiQuery, logOut } from '@/common/client';
-import { useAtom } from 'jotai';
-import React, { useEffect } from 'react';
+import { adminApiQuery } from '@/common/client';
+import React, { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -42,9 +41,10 @@ import { ChannelSwitcher } from './AwesomeMenu/ChannelSwitcher';
 import { useTheme } from '@/theme/useTheme';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ActiveAdmins } from './AwesomeMenu/ActiveAdmins';
-import { ActiveChannelAtom, LoginAtom } from '@/state/atoms';
 import { clearAllCache } from '@/lists/cache';
-import { ChannelType, channelSelector } from '@/graphql/draft_order';
+import { channelSelector } from '@/graphql/draft_order';
+import { useServer } from '@/state/server';
+import { useSettings } from '@/state/settings';
 
 const ResizablePanelGroup = ({ className, ...props }: React.ComponentProps<typeof ResizablePrimitive.PanelGroup>) => (
   <ResizablePrimitive.PanelGroup
@@ -77,42 +77,41 @@ const ResizableHandle = ({
   </ResizablePrimitive.PanelResizeHandle>
 );
 
+const removableCrumbs = ['draft'];
+
 export const Menu: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   const linkPath: string[] = [];
   const { t } = useTranslation(['common']);
   const [isCollapsed, setIsCollapsed] = React.useState<boolean>(false);
-  const [, setIsLoggedIn] = useAtom(LoginAtom);
 
-  const [activeChannel, setActiveChannel] = useAtom(ActiveChannelAtom);
-  const [channels, setChannels] = React.useState<ChannelType[]>([]);
+  const setSelectedChannel = useSettings((p) => p.setSelectedChannel);
+  const logOut = useSettings((p) => p.logOut);
+
+  const setChannels = useServer((p) => p.setChannels);
+
   useEffect(() => {
-    Promise.all([
-      adminApiQuery()({ activeChannel: channelSelector }),
-      adminApiQuery()({
-        channels: [{ options: { take: 10 } }, { items: channelSelector, totalItems: true }],
-      }),
-    ]).then(([{ activeChannel }, { channels }]) => {
-      setActiveChannel(activeChannel);
+    adminApiQuery()({
+      channels: [{ options: { take: 10 } }, { items: channelSelector, totalItems: true }],
+      activeChannel: channelSelector,
+    }).then(({ activeChannel, channels }) => {
+      setSelectedChannel(activeChannel);
       setChannels(channels.items);
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const onChannelChange = (id: string) => {
-    const channel = channels.find((channel) => channel.id === id);
-    if (!channel) return;
-    setActiveChannel(channel);
-    window.localStorage.setItem(CHTOKEN, channel.token);
-    clearAllCache();
-  };
-
   const matches = useMatches();
-  const removableCrumbs = ['draft'];
-  const crumbs = matches
-    .filter((match) => !!match.pathname)
-    .map((match) => match.pathname)
-    .flatMap((p) => p.split('/'))
-    .filter(Boolean)
-    .filter((crumb) => !removableCrumbs.includes(crumb));
+
+  const crumbs = useMemo(
+    () =>
+      matches
+        .filter((match) => !!match.pathname)
+        .map((match) => match.pathname)
+        .flatMap((p) => p.split('/'))
+        .filter(Boolean)
+        .filter((crumb) => !removableCrumbs.includes(crumb)),
+    [matches],
+  );
   const { theme, setTheme } = useTheme();
 
   return (
@@ -149,12 +148,7 @@ export const Menu: React.FC<{ children?: React.ReactNode }> = ({ children }) => 
                     isCollapsed ? '' : 'px-2',
                   )}
                 >
-                  <ChannelSwitcher
-                    isCollapsed={isCollapsed}
-                    activeChannel={activeChannel}
-                    channels={channels}
-                    onChannelChange={onChannelChange}
-                  />
+                  <ChannelSwitcher isCollapsed={isCollapsed} />
                 </div>
                 <Nav
                   isCollapsed={isCollapsed}
@@ -254,13 +248,7 @@ export const Menu: React.FC<{ children?: React.ReactNode }> = ({ children }) => 
                           <Trash2Icon className="h-4 w-4" />
                           Clear cache
                         </DropdownMenuItem>
-                        <DropdownMenuItem
-                          className="flex cursor-pointer items-center gap-2"
-                          onSelect={() => {
-                            setIsLoggedIn('no');
-                            logOut();
-                          }}
-                        >
+                        <DropdownMenuItem className="flex cursor-pointer items-center gap-2" onSelect={() => logOut()}>
                           <LogOutIcon className="h-4 w-4" />
                           Log out
                         </DropdownMenuItem>

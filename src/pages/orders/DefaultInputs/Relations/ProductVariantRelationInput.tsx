@@ -76,7 +76,7 @@ export function ProductVariantRelationInput<T>(props: DefaultProps<T>) {
               <div
                 key={variant.id}
                 className={cn(
-                  'w-1/4 p-2 border-2 cursor-pointer',
+                  'w-1/4 cursor-pointer border-2 p-2',
                   selectedVariant?.id === variant.id && 'border-blue-500',
                 )}
                 onClick={() => {
@@ -90,7 +90,7 @@ export function ProductVariantRelationInput<T>(props: DefaultProps<T>) {
           </div>
         </ScrollArea>
         <DialogFooter>
-          <div className="flex flex-col w-full gap-2">
+          <div className="flex w-full flex-col gap-2">
             {Paginate}
             <div className="flex justify-end gap-2">
               <Button variant="secondary" size="lg">

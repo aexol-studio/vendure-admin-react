@@ -53,7 +53,7 @@ export function AssetsRelationInput<T>(props: DefaultProps<T>) {
         <div>
           {selectedAsset && (
             <div>
-              <img src={selectedAsset.preview} alt={selectedAsset.name} className="object-fill w-32 h-32" />
+              <img src={selectedAsset.preview} alt={selectedAsset.name} className="h-32 w-32 object-fill" />
               <Button
                 variant="secondary"
                 size="sm"
@@ -78,20 +78,20 @@ export function AssetsRelationInput<T>(props: DefaultProps<T>) {
             {assets?.map((asset) => (
               <div
                 key={asset.id}
-                className={cn('w-1/4 p-2 border-2 cursor-pointer', selectedAsset?.id === asset.id && 'border-blue-500')}
+                className={cn('w-1/4 cursor-pointer border-2 p-2', selectedAsset?.id === asset.id && 'border-blue-500')}
                 onClick={() => {
                   setSelectedAsset(asset);
                   onChange(asset.id as T);
                 }}
               >
-                <img src={asset.preview} alt={asset.name} className="object-contain w-full h-32" />
+                <img src={asset.preview} alt={asset.name} className="h-32 w-full object-contain" />
                 <span>{asset.name}</span>
               </div>
             ))}
           </div>
         </ScrollArea>
         <DialogFooter>
-          <div className="flex flex-col w-full gap-2">
+          <div className="flex w-full flex-col gap-2">
             {Paginate}
             <div className="flex justify-end gap-2">
               <Button
@@ -109,7 +109,7 @@ export function AssetsRelationInput<T>(props: DefaultProps<T>) {
                   input.click();
                 }}
               >
-                <ImageUp className="w-4 h-4" />
+                <ImageUp className="h-4 w-4" />
                 <span>Upload</span>
               </Button>
               <Button variant="secondary" size="lg">

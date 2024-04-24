@@ -1,13 +1,12 @@
 import { Layout } from '@/common/Layout';
 import { adminApiMutation } from '@/common/client';
 import { Button, Checkbox, Input, Label } from '@/components';
-import { LoginAtom } from '@/state/atoms';
-import { useAtom } from 'jotai';
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
 export const LoginScreen = () => {
-  const [, setIsLoggedIn] = useAtom(LoginAtom);
+  const { t } = useTranslation('common');
   const [image, setImage] = useState<{
     src: string;
     author: string;
@@ -40,41 +39,34 @@ export const LoginScreen = () => {
         { username, password, rememberMe },
         {
           __typename: true,
-          '...on CurrentUser': {
-            id: true,
-          },
-          '...on InvalidCredentialsError': {
-            message: true,
-          },
-          '...on NativeAuthStrategyError': {
-            message: true,
-          },
+          '...on CurrentUser': { id: true },
+          '...on InvalidCredentialsError': { message: true },
+          '...on NativeAuthStrategyError': { message: true },
         },
       ],
     });
-    if (data.login.__typename === 'CurrentUser') setIsLoggedIn('yes');
-    else toast(data.login.message, {});
+    if (data.login.__typename !== 'CurrentUser') toast(data.login.message, {});
   };
   return (
     <Layout>
       <div className="w-full lg:grid lg:min-h-[600px] lg:grid-cols-2 xl:min-h-[800px]">
         <div className="flex items-center justify-center py-12">
           <div className="mx-auto grid w-[350px] gap-6">
-            <h1 className="select-none text-3xl font-bold">Log in into Vendure</h1>
+            <h1 className="select-none text-3xl font-bold">{t('logVendure')}</h1>
             <form onSubmit={login} className="grid gap-4">
               <div className="grid gap-2">
                 <Label className="select-none" htmlFor="email">
-                  Email
+                  {t('userName')}
                 </Label>
-                <Input placeholder="Username" name="username" />
+                <Input placeholder={t('userName')} name="username" />
               </div>
               <div className="grid gap-2">
                 <div className="flex items-center">
                   <Label className="select-none" htmlFor="password">
-                    Password
+                    {t('password')}
                   </Label>
                 </div>
-                <Input placeholder="Password" type="password" name="password" />
+                <Input placeholder={t('password')} type="password" name="password" />
               </div>
               <div className="flex items-center space-x-2">
                 <Checkbox id="rememberMe" name="rememberMe" />
@@ -82,10 +74,10 @@ export const LoginScreen = () => {
                   htmlFor="rememberMe"
                   className="select-none text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
-                  Remember me
+                  {t('rememberMe')}
                 </label>
               </div>
-              <Button type="submit">Login</Button>
+              <Button type="submit">{t('login')}</Button>
             </form>
           </div>
         </div>
@@ -100,9 +92,9 @@ export const LoginScreen = () => {
             />
           )}
           <div className="absolute bottom-0 right-0 bg-gradient-to-t from-black to-transparent p-6 dark:from-black/50 dark:to-transparent">
-            <h1 className="mb-2 select-none text-3xl font-bold text-white">Hi! Welcome back. Good to see you.</h1>
+            <h1 className="mb-2 select-none text-3xl font-bold text-white">{t('welcome')}</h1>
             <p className="text-xs font-semibold text-white">
-              Photo by{' '}
+              {t('photoBy')}
               <a href={image?.imageCreatorUrl} className="text-blue-500 underline">
                 {image?.author}
               </a>
@@ -110,12 +102,12 @@ export const LoginScreen = () => {
             <p className="text-xs text-white">
               {image?.imageLocation} on{' '}
               <a href={image?.imageUnsplashUrl} className="select-none text-blue-500 underline">
-                Unsplash
+                {t('unsplash')}
               </a>
             </p>
             <div className="flex select-none items-center justify-end gap-2">
               <a href="https://aexol.com" target="_blank" rel="noreferrer">
-                <p className="text-end text-xs text-white">Powered by</p>
+                <p className="text-end text-xs text-white">{t('poweredBy')}</p>
                 <svg width="40" height="40" viewBox="0 0 71 70" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <g clipPath="url(#clip0_1401_144)">
                     <path

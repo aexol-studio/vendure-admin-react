@@ -63,7 +63,6 @@ export const FulfillmentModal = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(state);
     if (!state.lines?.value || !state.handler?.value) return;
     onSubmitted({
       lines: state.lines?.value.map((line) => ({

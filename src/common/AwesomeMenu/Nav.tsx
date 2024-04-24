@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, buttonVariants } from '@/components';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { NavLink, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 interface NavProps {
   isCollapsed: boolean;
@@ -25,7 +26,7 @@ interface NavProps {
 
 export function Nav({ links, settings, isCollapsed }: NavProps) {
   const location = useLocation();
-
+  const { t } = useTranslation('common');
   return (
     <div
       data-collapsed={isCollapsed}
@@ -133,15 +134,13 @@ export function Nav({ links, settings, isCollapsed }: NavProps) {
         <div className="flex h-full flex-col justify-end p-4">
           <Card>
             <CardHeader className="p-2 pt-0 md:p-4">
-              <CardTitle>Looking for plugins?</CardTitle>
-              <CardDescription className="pt-4 md:pt-2">
-                Visit our marketplace to find plugins that can help you customize your experience.
-              </CardDescription>
+              <CardTitle> {t('awesomeMenu.cardTitle')}</CardTitle>
+              <CardDescription className="pt-4 md:pt-2">{t('awesomeMenu.cardDescription')}</CardDescription>
             </CardHeader>
             <CardContent className="p-2 pt-0 md:p-4 md:pt-0">
               <NavLink to="/marketplace">
                 <Button size="sm" className="w-full">
-                  Visit Marketplace
+                  {t('awesomeMenu.cardButton')}
                 </Button>
               </NavLink>
             </CardContent>

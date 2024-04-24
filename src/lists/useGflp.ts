@@ -80,17 +80,11 @@ export const useFFLP = <T>(config: {
   );
 
   const setState = (value: T) => {
-    console.log(value);
-
     let newState = { ...state };
     Object.keys(config).forEach((field) => {
       const fieldKey = field as keyof T;
-      console.log(value[fieldKey]);
-
       const fieldValue = newState[fieldKey];
       if (fieldValue && fieldKey && value[fieldKey]) {
-        console.log('a');
-
         const isToBeValidated = !!config[fieldKey]?.validate;
         const isInvalid = config[fieldKey]?.validate?.(value[fieldKey]);
         newState = {
@@ -110,8 +104,6 @@ export const useFFLP = <T>(config: {
         };
       }
     });
-    console.log('newState', newState);
-
     _setState(newState);
   };
 

@@ -216,3 +216,18 @@ export const removeOrderItemsResultSelector = Selector('RemoveOrderItemsResult')
     message: true,
   },
 });
+
+export const serverConfigSelector = Selector('ServerConfig')({
+  plugins: { name: true, version: true, path: true, active: true, status: true },
+});
+
+export type ServerConfigType = FromSelectorWithScalars<typeof serverConfigSelector, 'ServerConfig'>;
+
+export const activeAdministratorSelector = Selector('Administrator')({
+  id: true,
+  emailAddress: true,
+  firstName: true,
+  lastName: true,
+});
+
+export type ActiveAdministratorType = FromSelectorWithScalars<typeof activeAdministratorSelector, 'Administrator'>;

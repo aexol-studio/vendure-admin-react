@@ -112,14 +112,16 @@
         "phoneNumberShort": "tel.",
         "isDefaultBilling": "Customer default shipping address",
         "isDefaultShipping": "customer default billing address",
-        "createForCustomer": "Create for customer",
-        "": "",
-        "": "",
-        "": "",
-        "": "",
-        "": "",
-        "": "",
-        "": "",
-        "": ""
+        "createForCustomer": "Create for customer"
+    },
+    "selectShipmentMethod": {
+        "cardTitle": "Select shipping method",
+        "cardDescription": "Select a shipping method",
+        "noSelected": "No shipping method selected",
+        "buttonLabel": "Set shipping method",
+        "close": "Close",
+        "save": "Save",
+        "setMethodTitle": "Set shipping method",
+        "setMethodDescription": "Select a shipping method"
     }
 }

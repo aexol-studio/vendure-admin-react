@@ -1,22 +1,18 @@
 import { Badge, Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { PluginsAtom } from '@/state/atoms';
-import { useAtomValue } from 'jotai';
+import { useServer } from '@/state/server';
 import { Check, X } from 'lucide-react';
 
-import { useTranslation } from 'react-i18next';
-
 export const MarketPlaceListPage = () => {
-  const plugins = useAtomValue(PluginsAtom);
-  const { t } = useTranslation('products');
+  const serverConfig = useServer((p) => p.serverConfig);
 
   return (
     <div className="grid grid-cols-4 gap-4">
-      {plugins?.map((plugin) => {
+      {serverConfig?.plugins?.map((plugin) => {
         return (
           <Card key={plugin.name}>
             <CardHeader>
-              <CardTitle className="flex justify-between flex-col gap-4">
+              <CardTitle className="flex flex-col justify-between gap-4">
                 <span>{plugin.name}</span>
                 <Badge variant="destructive" noHover className="w-fit gap-2">
                   <span className="tracking-wide">version:</span>
@@ -24,7 +20,7 @@ export const MarketPlaceListPage = () => {
                 </Badge>
                 <Badge variant="outline" noHover className="w-fit gap-2">
                   <span>Active:</span>
-                  {plugin.active ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
+                  {plugin.active ? <Check className="h-4 w-4" /> : <X className="h-4 w-4" />}
                 </Badge>
               </CardTitle>
               <CardDescription></CardDescription>
