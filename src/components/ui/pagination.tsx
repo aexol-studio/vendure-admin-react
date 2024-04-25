@@ -35,7 +35,7 @@ type PaginationLinkProps = {
 const PaginationLink = ({ className, isActive, ...props }: PaginationLinkProps) => (
   <a
     aria-current={isActive ? 'page' : undefined}
-    className={cn(isActive ? 'text-primary' : 'text-muted-foreground cursor-pointer', className)}
+    className={cn(isActive ? 'text-primary' : 'cursor-pointer text-muted-foreground', className)}
     {...props}
   />
 );

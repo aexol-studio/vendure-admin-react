@@ -1,9 +1,5 @@
+import { useSettings } from '@/state/settings';
 import { GraphQLError, GraphQLResponse, Thunder, ZeusScalars, chainOptions, fetchOptions } from '@/zeus';
-import { atom } from 'jotai';
-const VTOKEN = 'vendure-admin-token';
-const CHTOKEN = 'vendure-token';
-export let token: string | null = window.localStorage.getItem(VTOKEN);
-export let channel: string | null = window.localStorage.getItem(CHTOKEN);
 
 export const scalars = ZeusScalars({
   Money: {
@@ -33,7 +29,15 @@ const apiFetchVendure =
           return response.data;
         });
     }
-    const additionalHeaders: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
+    const token = useSettings.getState().token;
+    const logIn = useSettings.getState().logIn;
+    const selectedChannel = useSettings.getState().selectedChannel;
+    const additionalHeaders: Record<string, string> = token
+      ? {
+          ...(selectedChannel && { 'vendure-token': selectedChannel.token }),
+          Authorization: `Bearer ${token}`,
+        }
+      : {};
     return fetch(`${options[0]}`, {
       ...fetchOptions,
       body: JSON.stringify({ query, variables }),
@@ -46,9 +50,8 @@ const apiFetchVendure =
     })
       .then((r) => {
         const authToken = r.headers.get('vendure-auth-token');
-        if (authToken != null) {
-          token = authToken;
-          window.localStorage.setItem(VTOKEN, token);
+        if (authToken !== null) {
+          logIn(authToken);
         }
         return handleFetchResponse(r);
       })
@@ -62,35 +65,36 @@ const apiFetchVendure =
 
 export const VendureChain = (...options: chainOptions) => Thunder(apiFetchVendure(options));
 
-const buildHeaders = (ctx: { locale: string; channel?: string }): Parameters<typeof VendureChain>[1] => {
-  const channel = ctx.channel || window.localStorage.getItem(CHTOKEN) || 'default-channel';
-  if (!ctx.channel) {
-    return {
-      headers: {
-        'Content-Type': 'application/json',
-        'vendure-token': channel,
-      },
-    };
-  }
-  return {
-    headers: {
-      'Content-Type': 'application/json',
-      'vendure-token': channel,
-    },
-  };
+const buildHeaders = (): Parameters<typeof VendureChain>[1] => {
+  const channel = useSettings.getState().selectedChannel;
+
+  return channel
+    ? {
+        headers: {
+          'Content-Type': 'application/json',
+          'vendure-token': channel.token,
+        },
+      }
+    : {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      };
 };
 
-export const adminApiQuery = (ctx: { locale: string; channel?: string } = { locale: 'en' }) => {
-  const HOST = `${VENDURE_HOST}?languageCode=${ctx.locale}`;
+export const adminApiQuery = () => {
+  const locale = useSettings.getState().language;
+  const HOST = `${VENDURE_HOST}?languageCode=${locale}`;
   return VendureChain(HOST, {
-    ...buildHeaders(ctx),
+    ...buildHeaders(),
   })('query', { scalars });
 };
 
-export const adminApiMutation = (ctx: { locale: string; channel?: string } = { locale: 'en' }) => {
-  const HOST = `${VENDURE_HOST}?languageCode=${ctx.locale}`;
+export const adminApiMutation = () => {
+  const locale = useSettings.getState().language;
+  const HOST = `${VENDURE_HOST}?languageCode=${locale}`;
   return VendureChain(HOST, {
-    ...buildHeaders(ctx),
+    ...buildHeaders(),
   })('mutation', { scalars });
 };
 
@@ -111,11 +115,3 @@ const handleFetchResponse = (response: Response): Promise<GraphQLResponse> => {
   }
   return response.json() as Promise<GraphQLResponse>;
 };
-
-export const logOut = () => {
-  window.localStorage.removeItem(VTOKEN);
-  window.localStorage.removeItem(CHTOKEN);
-  token = null;
-};
-
-export const loginAtom = atom<'no' | 'yes' | 'unknown'>('unknown');

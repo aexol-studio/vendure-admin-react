@@ -3836,7 +3836,10 @@ export const ReturnTypes: Record<string,any> = {
 	Plugin:{
 		name:"String",
 		path:"String",
-		version:"String"
+		version:"String",
+		mounted:"Boolean",
+		active:"Boolean",
+		status:"String"
 	},
 	MetricSummary:{
 		interval:"MetricInterval",

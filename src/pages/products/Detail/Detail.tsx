@@ -60,7 +60,6 @@ export const ProductDetailPage = () => {
     setField('translations', object?.translations);
   }, [object]);
 
-  console.log({ currentTranslationValue, currentTranslationLng, translations });
   return (
     <Stack column className="gap-y-4">
       <h2>{t('forms.update')}</h2>
@@ -156,7 +155,6 @@ export const ProductDetailPage = () => {
                         description: new Date().toLocaleString(),
                       });
                     });
-                    console.log(object.slug);
                     reset();
                     resetCache('products');
                     return;

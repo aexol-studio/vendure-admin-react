@@ -49,7 +49,6 @@ export const FulfillmentModal = ({
         quantity: line.quantity || 1,
         customFields: {},
       })),
-      validate: (v) => {},
     },
     handler: {
       initialValue: {
@@ -59,13 +58,11 @@ export const FulfillmentModal = ({
           value: arg.defaultValue,
         })),
       },
-      validate: (v) => {},
     },
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(state);
     if (!state.lines?.value || !state.handler?.value) return;
     onSubmitted({
       lines: state.lines?.value.map((line) => ({

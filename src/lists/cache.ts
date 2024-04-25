@@ -1,3 +1,5 @@
+import { SETTINGS_LOCAL_STORAGE_KEY } from '@/state/settings';
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type PaginatedCacheables =
   | 'products'
@@ -8,6 +10,17 @@ export type PaginatedCacheables =
   | 'modal-products-list'
   | 'modal-product-variants-list';
 export type DetailCacheables = 'productDetail' | 'orderDetail' | 'collectionDetail' | 'facetDetail';
+
+export const clearAllCache = () => {
+  const importantKeys = [SETTINGS_LOCAL_STORAGE_KEY];
+  Object.keys(window.localStorage).forEach((key) => {
+    if (!importantKeys.includes(key)) {
+      window.localStorage.removeItem(key);
+    }
+  });
+  window.location.reload();
+};
+
 type CacheKey = `${PaginatedCacheables | DetailCacheables}`;
 
 export const cache = <T>(cacheKey: CacheKey) => {
