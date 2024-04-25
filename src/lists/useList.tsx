@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils';
 import { cache } from '@/lists/cache';
 import { GenericReturn, PaginationInput, PromisePaginated } from '@/lists/models';
 import { ModelTypes, SortOrder } from '@/zeus';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 
@@ -64,6 +64,7 @@ export const useList = <T extends PromisePaginated, K extends keyof ListType>({
     fieldValue: ModelTypes[ListType[K]][keyof ModelTypes[ListType[K]]],
   ) => void;
   removeFilterField: (filterField: keyof ModelTypes[ListType[K]]) => void;
+  isFilterOn: boolean;
 } => {
   const { t } = useTranslation('common');
   const [searchParams, setSearchParams] = useSearchParams();
@@ -128,6 +129,26 @@ export const useList = <T extends PromisePaginated, K extends keyof ListType>({
       throw new Error(`Parsing filter searchParams Key to JSON failed: ${err}`);
     }
   }, [searchParams]);
+
+  const isFilterOn = useMemo(() => {
+    let isFilterOn = false;
+    const filter = searchParamValues.filter;
+
+    if (filter) {
+      Object.keys(filter).forEach((fieldKey) => {
+        const property = filter[fieldKey as keyof typeof filter];
+        if (property) {
+          Object.keys(property).forEach((filterTypeKey) => {
+            if (property[filterTypeKey as keyof typeof property]) {
+              isFilterOn = true;
+            }
+          });
+        }
+      });
+    }
+
+    return isFilterOn;
+  }, [searchParamValues]);
 
   useEffect(() => {
     const c = cache<{
@@ -269,5 +290,6 @@ export const useList = <T extends PromisePaginated, K extends keyof ListType>({
     setFilterField,
     removeFilterField,
     optionInfo: searchParamValues,
+    isFilterOn,
   };
 };

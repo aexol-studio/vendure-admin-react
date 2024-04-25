@@ -1,4 +1,8 @@
 {
+    "emptyState": {
+        "title": "Brak elementów",
+        "text": "Nie ma żadnych elementów"
+    },
     "menu":{
         "marketplace":"marketplace",
         "dashboard":"dashboard",

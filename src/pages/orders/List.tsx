@@ -26,15 +26,16 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ArrowDown, ArrowUp, ArrowUpDown, ChevronDown, MoreHorizontal } from 'lucide-react';
-import React, { PropsWithChildren, useState } from 'react';
+import React, { PropsWithChildren, useEffect, useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { PaginationInput } from '@/lists/models';
-import { Badge, Input } from '@/components';
+import { Badge, EmptyState, Input } from '@/components';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { OrderStateBadge } from './_components/OrderStateBadge';
+import { ColumnsVisibilityStoreType, columnsVisibilityStore } from '@/state';
 
 const SortButton: React.FC<
   PropsWithChildren<{ sortKey: string; currSort: PaginationInput['sort']; onClick: () => void }>
@@ -78,6 +79,8 @@ const getOrders = async (options: ResolverInputTypes['OrderListOptions']) => {
 export const OrderListPage = () => {
   const { t } = useTranslation('orders');
   const navigate = useNavigate();
+  const columnsVisibilityState = columnsVisibilityStore((state: ColumnsVisibilityStoreType) => state.orders);
+  const setColumnsVisibilityState = columnsVisibilityStore((state: ColumnsVisibilityStoreType) => state.setOrders);
   const {
     objects: orders,
     Paginate,
@@ -86,6 +89,7 @@ export const OrderListPage = () => {
     removeFilterField,
     resetFilter,
     setFilterField,
+    isFilterOn,
   } = useList({
     route: async ({ page, perPage, sort, filter }) => {
       return getOrders({
@@ -253,23 +257,10 @@ export const OrderListPage = () => {
 
   // const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
-    id: true,
-    state: true,
-    select: true,
-    firstName: true,
-    lastName: true,
-    emailAddress: false,
-    phoneNumber: false,
-    code: false,
-    createdAt: true,
-    orderPlacedAt: true,
-    shipping: true,
-    type: false,
-    updatedAt: false,
-    actions: true,
-  });
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(columnsVisibilityState);
   const [rowSelection, setRowSelection] = useState({});
+
+  useEffect(() => setColumnsVisibilityState(columnVisibility), [columnVisibility, setColumnsVisibilityState]);
 
   const table = useReactTable({
     data: orders || [],
@@ -295,17 +286,17 @@ export const OrderListPage = () => {
 
   return (
     <Stack column className="gap-6">
-      <div className="h-full w-full">
-        <Button
-          onClick={async () => {
-            const id = await createDraftOrder();
-            if (id) navigate(`/orders/${id}`);
-            else console.error('Failed to create order');
-          }}
-        >
-          {t('createOrder')}
-        </Button>
+      <div className="page-content-h flex w-full flex-col">
         <div className="mb-4 flex flex-col items-end gap-4">
+          <Button
+            onClick={async () => {
+              const id = await createDraftOrder();
+              if (id) navigate(`/orders/${id}`);
+              else console.error('Failed to create order');
+            }}
+          >
+            {t('createOrder')}
+          </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="ml-auto">
@@ -338,7 +329,7 @@ export const OrderListPage = () => {
             <Button onClick={() => setFilterField('code', { contains: 'dddddupa' })}>set filter</Button>
           </div>
         </div>
-        <div className="h-full w-full rounded-md border">
+        <div className={`h-full w-full overflow-auto rounded-md border`}>
           <Table className="h-full w-full">
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
@@ -363,11 +354,7 @@ export const OrderListPage = () => {
                   </TableRow>
                 ))
               ) : (
-                <TableRow>
-                  <TableCell colSpan={columns.length} className="h-24 text-center">
-                    No results.
-                  </TableCell>
-                </TableRow>
+                <EmptyState columnsLength={columns.length} filtered={isFilterOn} />
               )}
             </TableBody>
           </Table>
