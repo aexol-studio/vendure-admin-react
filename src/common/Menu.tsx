@@ -1,6 +1,5 @@
-import { adminApiQuery, logOut, loginAtom } from '@/common/client';
-import { useAtom } from 'jotai';
-import React, { useEffect } from 'react';
+import { adminApiQuery } from '@/common/client';
+import React, { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -20,7 +19,7 @@ import {
 import {
   BarChart,
   Bell,
-  FlagIcon,
+  Globe2,
   GripVertical,
   LogOutIcon,
   MenuIcon,
@@ -29,18 +28,23 @@ import {
   Slash,
   Store,
   Sun,
+  Trash2Icon,
 } from 'lucide-react';
 import * as ResizablePrimitive from 'react-resizable-panels';
 
 import { cn } from '@/lib/utils';
 import { Nav } from './AwesomeMenu/Nav';
-import { Separator } from '@radix-ui/react-dropdown-menu';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { ShoppingCart, Folder, Barcode } from 'lucide-react';
 import { NavLink, useMatches } from 'react-router-dom';
 import { ChannelSwitcher } from './AwesomeMenu/ChannelSwitcher';
 import { useTheme } from '@/theme/useTheme';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { ActiveAdmins } from './AwesomeMenu/ActiveAdmins';
+import { clearAllCache } from '@/lists/cache';
+import { channelSelector } from '@/graphql/draft_order';
+import { useServer } from '@/state/server';
+import { useSettings } from '@/state/settings';
 
 const ResizablePanelGroup = ({ className, ...props }: React.ComponentProps<typeof ResizablePrimitive.PanelGroup>) => (
   <ResizablePrimitive.PanelGroup
@@ -73,58 +77,41 @@ const ResizableHandle = ({
   </ResizablePrimitive.PanelResizeHandle>
 );
 
+const removableCrumbs = ['draft'];
+
 export const Menu: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   const linkPath: string[] = [];
   const { t } = useTranslation(['common']);
   const [isCollapsed, setIsCollapsed] = React.useState<boolean>(false);
-  const [, setIsLoggedIn] = useAtom(loginAtom);
 
-  const [activeChannel, setActiveChannel] = React.useState<{
-    id: string;
-    code: string;
-  }>();
-  const [channels, setChannels] = React.useState<
-    {
-      id: string;
-      code: string;
-      token?: string;
-      icon: React.ReactNode;
-    }[]
-  >([]);
+  const setSelectedChannel = useSettings((p) => p.setSelectedChannel);
+  const logOut = useSettings((p) => p.logOut);
+
+  const setChannels = useServer((p) => p.setChannels);
+
   useEffect(() => {
-    Promise.all([
-      adminApiQuery()({
-        activeChannel: { id: true, code: true, token: true },
-      }),
-      adminApiQuery()({
-        channels: [{ options: { take: 10 } }, { items: { id: true, code: true, token: true }, totalItems: true }],
-      }),
-    ]).then(([{ activeChannel }, { channels }]) => {
-      setActiveChannel(activeChannel);
-      const data = channels.items.map((channel) => ({
-        id: channel?.id,
-        code: channel?.code,
-        token: channel?.token,
-        icon: <FlagIcon />,
-      }));
-      setChannels(data);
+    adminApiQuery()({
+      channels: [{ options: { take: 10 } }, { items: channelSelector, totalItems: true }],
+      activeChannel: channelSelector,
+    }).then(({ activeChannel, channels }) => {
+      setSelectedChannel(activeChannel);
+      setChannels(channels.items);
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const onChannelChange = (id: string) => {
-    const channel = channels.find((channel) => channel.id === id);
-    setActiveChannel(channel);
-    window.localStorage.setItem('vendure-token', channel?.token || '');
-  };
-
   const matches = useMatches();
-  const removableCrumbs = ['draft'];
-  const crumbs = matches
-    .filter((match) => !!match.pathname)
-    .map((match) => match.pathname)
-    .flatMap((p) => p.split('/'))
-    .filter(Boolean)
-    .filter((crumb) => !removableCrumbs.includes(crumb));
+
+  const crumbs = useMemo(
+    () =>
+      matches
+        .filter((match) => !!match.pathname)
+        .map((match) => match.pathname)
+        .flatMap((p) => p.split('/'))
+        .filter(Boolean)
+        .filter((crumb) => !removableCrumbs.includes(crumb)),
+    [matches],
+  );
   const { theme, setTheme } = useTheme();
 
   return (
@@ -161,14 +148,8 @@ export const Menu: React.FC<{ children?: React.ReactNode }> = ({ children }) => 
                     isCollapsed ? '' : 'px-2',
                   )}
                 >
-                  <ChannelSwitcher
-                    isCollapsed={isCollapsed}
-                    activeChannel={activeChannel}
-                    channels={channels}
-                    onChannelChange={onChannelChange}
-                  />
+                  <ChannelSwitcher isCollapsed={isCollapsed} />
                 </div>
-                <Separator />
                 <Nav
                   isCollapsed={isCollapsed}
                   links={[
@@ -178,8 +159,8 @@ export const Menu: React.FC<{ children?: React.ReactNode }> = ({ children }) => 
                     { title: t('menu.collections'), href: '/collections', icon: Folder },
                     { title: t('menu.orders'), href: '/orders', icon: ShoppingCart },
                   ]}
+                  settings={[{ title: t('menu.channels'), href: '/channels', icon: Globe2 }]}
                 />
-                <Separator />
               </ResizablePanel>
               <ResizableHandle withHandle />
               <ResizablePanel>
@@ -221,19 +202,7 @@ export const Menu: React.FC<{ children?: React.ReactNode }> = ({ children }) => 
                   </div>
                   <div className="flex-1" />
                   <div className="flex items-center gap-2">
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button variant="outline" size="sm" className="h-10">
-                          Active administrators (1)
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="mr-4">
-                        <div className="flex flex-col gap-4 rounded-md">
-                          <Label className="select-none">Active administrators</Label>
-                          <span className="text-sm text-muted-foreground">No active administrators</span>
-                        </div>
-                      </PopoverContent>
-                    </Popover>
+                    <ActiveAdmins />
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button variant="outline" size="icon" className="h-10 w-10">
@@ -275,13 +244,11 @@ export const Menu: React.FC<{ children?: React.ReactNode }> = ({ children }) => 
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent className="mr-4 w-56">
-                        <DropdownMenuItem
-                          className="flex cursor-pointer items-center gap-2"
-                          onSelect={() => {
-                            setIsLoggedIn('no');
-                            logOut();
-                          }}
-                        >
+                        <DropdownMenuItem className="flex cursor-pointer items-center gap-2" onSelect={clearAllCache}>
+                          <Trash2Icon className="h-4 w-4" />
+                          Clear cache
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="flex cursor-pointer items-center gap-2" onSelect={() => logOut()}>
                           <LogOutIcon className="h-4 w-4" />
                           Log out
                         </DropdownMenuItem>

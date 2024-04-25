@@ -30,7 +30,7 @@ import React, { PropsWithChildren, useEffect, useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { PaginationInput } from '@/lists/models';
-import { Badge, EmptyState, Input, Search, ordersSearchProps } from '@/components';
+import { Badge, EmptyState, Input } from '@/components';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -38,12 +38,12 @@ import { OrderStateBadge } from './_components/OrderStateBadge';
 import { ColumnsVisibilityStoreType, columnsVisibilityStore } from '@/state';
 
 const SortButton: React.FC<
-  PropsWithChildren<{ key: string; currSort: PaginationInput['sort']; onClick: () => void }>
-> = ({ currSort, onClick, children, key }) => {
+  PropsWithChildren<{ sortKey: string; currSort: PaginationInput['sort']; onClick: () => void }>
+> = ({ currSort, onClick, children, sortKey }) => {
   return (
     <Button variant="ghost" onClick={onClick}>
       {children}
-      {currSort && currSort.key === key ? (
+      {currSort && currSort.key === sortKey ? (
         currSort.sortDir === SortOrder.ASC ? (
           <ArrowUp className="ml-2 h-4 w-4" />
         ) : (
@@ -123,7 +123,7 @@ export const OrderListPage = () => {
     {
       accessorKey: 'id',
       header: () => (
-        <SortButton currSort={optionInfo.sort} key="code" onClick={() => setSort('id')}>
+        <SortButton currSort={optionInfo.sort} sortKey="code" onClick={() => setSort('id')}>
           ID
         </SortButton>
       ),
@@ -141,7 +141,7 @@ export const OrderListPage = () => {
     {
       accessorKey: 'state',
       header: () => (
-        <SortButton currSort={optionInfo.sort} key="state" onClick={() => setSort('state')}>
+        <SortButton currSort={optionInfo.sort} sortKey="state" onClick={() => setSort('state')}>
           State
         </SortButton>
       ),
@@ -155,7 +155,7 @@ export const OrderListPage = () => {
     {
       accessorKey: 'lastName',
       header: () => (
-        <SortButton currSort={optionInfo.sort} key="code" onClick={() => setSort('customerLastName')}>
+        <SortButton currSort={optionInfo.sort} sortKey="code" onClick={() => setSort('customerLastName')}>
           Customer Last name
         </SortButton>
       ),
@@ -174,7 +174,7 @@ export const OrderListPage = () => {
     {
       accessorKey: 'code',
       header: () => (
-        <SortButton currSort={optionInfo.sort} key="code" onClick={() => setSort('code')}>
+        <SortButton currSort={optionInfo.sort} sortKey="code" onClick={() => setSort('code')}>
           Code
         </SortButton>
       ),
@@ -182,7 +182,7 @@ export const OrderListPage = () => {
     {
       accessorKey: 'createdAt',
       header: () => (
-        <SortButton currSort={optionInfo.sort} key="createdAt" onClick={() => setSort('createdAt')}>
+        <SortButton currSort={optionInfo.sort} sortKey="createdAt" onClick={() => setSort('createdAt')}>
           Created at
         </SortButton>
       ),
@@ -193,7 +193,7 @@ export const OrderListPage = () => {
     {
       accessorKey: 'orderPlacedAt',
       header: () => (
-        <SortButton currSort={optionInfo.sort} key="orderPlacedAt" onClick={() => setSort('orderPlacedAt')}>
+        <SortButton currSort={optionInfo.sort} sortKey="orderPlacedAt" onClick={() => setSort('orderPlacedAt')}>
           Order Placed At
         </SortButton>
       ),
@@ -206,7 +206,7 @@ export const OrderListPage = () => {
     {
       accessorKey: 'shipping',
       header: () => (
-        <SortButton currSort={optionInfo.sort} key="shipping" onClick={() => setSort('shipping')}>
+        <SortButton currSort={optionInfo.sort} sortKey="shipping" onClick={() => setSort('shipping')}>
           Shipping
         </SortButton>
       ),
@@ -221,7 +221,7 @@ export const OrderListPage = () => {
         <div className="text-nowrap">{format(new Date(row.original.updatedAt), 'dd.MM.yyyy hh:mm')}</div>
       ),
       header: () => (
-        <SortButton currSort={optionInfo.sort} key="updatedAt" onClick={() => setSort('updatedAt')}>
+        <SortButton currSort={optionInfo.sort} sortKey="updatedAt" onClick={() => setSort('updatedAt')}>
           Updated at
         </SortButton>
       ),
@@ -286,7 +286,7 @@ export const OrderListPage = () => {
 
   return (
     <Stack column className="gap-6">
-      <div className="w-full flex flex-col page-content-h">
+      <div className="page-content-h flex w-full flex-col">
         <div className="mb-4 flex flex-col items-end gap-4">
           <Button
             onClick={async () => {
@@ -321,7 +321,7 @@ export const OrderListPage = () => {
                 })}
             </DropdownMenuContent>
           </DropdownMenu>
-          <Search {...ordersSearchProps} />
+          {/* <Search {...ordersSearchProps} /> */}
           <div className="flex gap-2">
             <Input onChange={(e) => setFilterField('customerLastName', { contains: e.target.value })} />
             <Button onClick={() => removeFilterField('customerLastName')}>Reset Field</Button>
@@ -329,7 +329,7 @@ export const OrderListPage = () => {
             <Button onClick={() => setFilterField('code', { contains: 'dddddupa' })}>set filter</Button>
           </div>
         </div>
-        <div className={`h-full w-full rounded-md border overflow-auto`}>
+        <div className={`h-full w-full overflow-auto rounded-md border`}>
           <Table className="h-full w-full">
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (

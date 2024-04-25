@@ -37,7 +37,7 @@ export const Search: React.FC<SearchPropsI & { searchFilterField: () => void }> 
   });
 
   return (
-    <Stack className="gap-4 justify-end">
+    <Stack className="justify-end gap-4">
       {defaultSearch.param && (
         <Input
           placeholder={defaultSearch.placeholder}
