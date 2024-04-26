@@ -25,17 +25,20 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ArrowDown, ArrowUp, ArrowUpDown, ChevronDown, MoreHorizontal } from 'lucide-react';
-import React, { PropsWithChildren, useEffect, useState } from 'react';
+import { ArrowDown, ArrowUp, ArrowUpDown, ChevronDown, MoreHorizontal, ArrowRight } from 'lucide-react';
+import React, { PropsWithChildren, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { PaginationInput } from '@/lists/models';
-import { Badge, EmptyState, Input } from '@/components';
-import { Link } from 'react-router-dom';
+import { Badge, EmptyState, Search, ordersSearchProps } from '@/components';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { OrderStateBadge } from './_components/OrderStateBadge';
 import { ColumnsVisibilityStoreType, columnsVisibilityStore } from '@/state';
+import { OrdersSortOptions, ordersSortOptionsArray } from '@/lists/types';
+
+type ParamFilterFieldTuple = [OrdersSortOptions, Record<string, string>];
 
 const SortButton: React.FC<
   PropsWithChildren<{ sortKey: string; currSort: PaginationInput['sort']; onClick: () => void }>
@@ -86,9 +89,8 @@ export const OrderListPage = () => {
     Paginate,
     setSort,
     optionInfo,
-    removeFilterField,
-    resetFilter,
     setFilterField,
+    resetFilter,
     isFilterOn,
   } = useList({
     route: async ({ page, perPage, sort, filter }) => {
@@ -101,6 +103,18 @@ export const OrderListPage = () => {
     },
     listType: 'orders',
   });
+
+  const tableWrapperRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    const PADDING_X_VALUE = 64;
+    setTimeout(() => {
+      if (tableWrapperRef.current) {
+        const wrapperWidth = document.getElementById('scrollArea')?.getBoundingClientRect().width;
+        if (wrapperWidth) tableWrapperRef.current.style.maxWidth = wrapperWidth - PADDING_X_VALUE + 'px';
+      }
+    }, 0);
+  }, [tableWrapperRef]);
 
   //make and array of columns based on passed type
 
@@ -133,6 +147,7 @@ export const OrderListPage = () => {
           <Link to={to} className="text-primary-600">
             <Badge variant="outline" className="flex w-full items-center justify-center">
               {row.original.id}
+              <ArrowRight className="pl-1" size={16} />
             </Badge>
           </Link>
         );
@@ -248,6 +263,11 @@ export const OrderListPage = () => {
               <DropdownMenuSeparator />
               <DropdownMenuItem>View customer</DropdownMenuItem>
               <DropdownMenuItem>View payment details</DropdownMenuItem>
+              <DropdownMenuItem>
+                <Link to={`/orders/${row.original.id}`} className="text-primary-600">
+                  View order
+                </Link>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         );
@@ -284,53 +304,86 @@ export const OrderListPage = () => {
     },
   });
 
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    let filterObj = {};
+    const filters: Array<ParamFilterFieldTuple> = [];
+
+    ordersSortOptionsArray.forEach((p) => {
+      if (searchParams.has(p)) {
+        const param = searchParams.get(p);
+
+        if (param) {
+          const [paramVal, paramKey] = param.split(',');
+          const paramFilterField = { [paramKey]: paramVal };
+          const paramFilterTuple: ParamFilterFieldTuple = [p, paramFilterField];
+          filters.push(paramFilterTuple);
+        }
+
+        filterObj = {
+          ...filterObj,
+          [p]: searchParams.get(p),
+        };
+      }
+    });
+
+    filters.forEach((f) => setFilterField(f[0], f[1]));
+  }, [searchParams, setFilterField]);
+
+  const handleSearchChange = (value: string) => {
+    setFilterField('customerLastName', { contains: value });
+  };
+
   return (
     <Stack column className="gap-6">
       <div className="page-content-h flex w-full flex-col">
-        <div className="mb-4 flex flex-col items-end gap-4">
-          <Button
-            onClick={async () => {
-              const id = await createDraftOrder();
-              if (id) navigate(`/orders/${id}`);
-              else console.error('Failed to create order');
-            }}
-          >
-            {t('createOrder')}
-          </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="ml-auto">
-                Columns <ChevronDown className="ml-2 h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {table
-                .getAllColumns()
-                .filter((column) => column.getCanHide())
-                .map((column) => {
-                  return (
-                    <DropdownMenuCheckboxItem
-                      key={column.id}
-                      className="capitalize"
-                      checked={column.getIsVisible()}
-                      onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                    >
-                      {column.id}
-                    </DropdownMenuCheckboxItem>
-                  );
-                })}
-            </DropdownMenuContent>
-          </DropdownMenu>
-          {/* <Search {...ordersSearchProps} /> */}
+        <div className="mb-4 flex items-end justify-between gap-4">
           <div className="flex gap-2">
-            <Input onChange={(e) => setFilterField('customerLastName', { contains: e.target.value })} />
-            <Button onClick={() => removeFilterField('customerLastName')}>Reset Field</Button>
-            <Button onClick={() => resetFilter()}>reset filter</Button>
-            <Button onClick={() => setFilterField('code', { contains: 'aa' })}>set filter</Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="ml-auto">
+                  Columns <ChevronDown className="ml-2 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {table
+                  .getAllColumns()
+                  .filter((column) => column.getCanHide())
+                  .map((column) => {
+                    return (
+                      <DropdownMenuCheckboxItem
+                        key={column.id}
+                        className="capitalize"
+                        checked={column.getIsVisible()}
+                        onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                      >
+                        {column.id}
+                      </DropdownMenuCheckboxItem>
+                    );
+                  })}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Search {...ordersSearchProps} searchFilterField={handleSearchChange} />
+            <Button onClick={() => resetFilter()}>Reset filters</Button>
+            {/* <Input onChange={(e) => setFilterField('customerLastName', { contains: e.target.value })} /> */}
+            {/* <Button onClick={() => removeFilterField('customerLastName')}>Reset Field</Button>
+            <Button onClick={() => setFilterField('code', { contains: 'dddddupa' })}>set filter</Button> */}
+          </div>
+          <div>
+            <Button
+              onClick={async () => {
+                const id = await createDraftOrder();
+                if (id) navigate(`/orders/${id}`);
+                else console.error('Failed to create order');
+              }}
+            >
+              {t('createOrder')}
+            </Button>
           </div>
         </div>
-        <div className={`h-full w-full overflow-auto rounded-md border`}>
-          <Table className="h-full w-full">
+        <div ref={tableWrapperRef} className={`h-full overflow-auto rounded-md border`}>
+          <Table className="w-full" {...(!table.getRowModel().rows?.length && { containerClassName: 'flex' })}>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>

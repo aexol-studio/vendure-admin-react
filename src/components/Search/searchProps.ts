@@ -143,7 +143,7 @@ export const collectionSearchProps: SearchPropsI = {
 };
 
 export const ordersSearchProps: SearchPropsI = {
-  defaultSearch: { param: 'name', paramKey: 'eq', placeholder: 'Search by name..' },
+  defaultSearch: { param: 'customerLastName', paramKey: 'contains', placeholder: 'Search by last name..' },
   advancedSearch: {
     actionTitle: 'Advanced Search',
     title: 'Advanced orders search',

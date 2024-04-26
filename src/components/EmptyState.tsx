@@ -19,7 +19,7 @@ export const EmptyState: React.FC<Props> = ({ columnsLength, elementsType, filte
   return (
     <TableRow noHover>
       <TableCell colSpan={columnsLength} className="h-24 text-center">
-        <Card className="p-2">
+        <Card className="flex h-full flex-col items-center justify-center p-2">
           <CardHeader className="flex flex-col items-center">
             {filtered ? <SearchX size={30} className="mb-4" /> : <CircleOff size={30} className="mb-4" />}
             <CardTitle>{customTitle || t(`emptyState.${type}.${filteredKey}.title`)}</CardTitle>
