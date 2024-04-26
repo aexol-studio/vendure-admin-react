@@ -218,7 +218,7 @@ export const useList = <T extends PromisePaginated, K extends keyof ListType>({
   return {
     Paginate: (
       <Stack className="gap-4">
-        <div className="whitespace-nowrap text-center m-auto">
+        <div className="m-auto whitespace-nowrap text-center">
           {(searchParamValues.page - 1) * searchParamValues.perPage + 1} -{' '}
           {searchParamValues.page * searchParamValues.perPage} of {total}
         </div>

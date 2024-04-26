@@ -17,6 +17,7 @@ import {
   DialogClose,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -28,6 +29,7 @@ import { useTranslation } from 'react-i18next';
 import { useGFFLP } from '@/lists/useGflp';
 import { cn } from '@/lib/utils';
 import { emailRegExp, phoneNumberRegExp } from '@/utils/regExp';
+import { toast } from 'sonner';
 
 export const CustomerSelectCard: React.FC<{
   isDraft: boolean;
@@ -117,112 +119,102 @@ export const CustomerSelectCard: React.FC<{
         )}
       </CardHeader>
       <CardContent>
-        <div className="grid gap-6">
-          <Dialog open={open} onOpenChange={setOpen}>
-            <Tabs>
-              <DialogTrigger>
-                <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
-                  {t(customer ? 'create.selectCustomer.change' : 'create.selectCustomer.create')}
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>{t('create.selectCustomer.label')}</DialogTitle>
-                  <DialogDescription>{t('create.selectCustomer.description')}</DialogDescription>
-                </DialogHeader>
-                <Tabs value={tab} onValueChange={setTab}>
-                  <TabsList className="w-full">
-                    <TabsTrigger className="w-full" value="select">
-                      {t('create.selectCustomer.selectTab')}
-                    </TabsTrigger>
-                    <TabsTrigger className="w-full" value="create">
-                      {t('create.selectCustomer.createTab')}
-                    </TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="select">
-                    <CustomerSearch onSelect={(selected) => setSelected(selected)} />
-                    <DialogDescription className="pb-10 pl-2 pt-12">
-                      {t('create.selectCustomer.selectedCustomerText')}
-                      {selected ? `${selected.firstName} ${selected.lastName} ${selected.emailAddress}` : ' ---'}
-                    </DialogDescription>
-                  </TabsContent>
-                  <TabsContent value="create" className="pb-4">
-                    <div className="pt-2">
-                      <Input
-                        label="Title"
-                        name="title"
-                        value={state.title?.value}
-                        onChange={(e) => setField('title', e.target.value)}
-                      />
-                      <p className="mb-2 mt-1 min-h-5 border-orange-800 text-sm font-medium text-destructive">
-                        {(state.title?.errors || []).toString()}
-                      </p>
-                      <Input
-                        label="First Name"
-                        name="firstName"
-                        value={state.firstName?.value}
-                        onChange={(e) => setField('firstName', e.target.value)}
-                      />
-                      <p className="mb-2 mt-1  min-h-5 border-orange-800 text-sm font-medium text-destructive">
-                        {(state.firstName?.errors || []).toString()}
-                      </p>
-                      <Input
-                        label="Last Name"
-                        name="lastName"
-                        value={state.lastName?.value}
-                        onChange={(e) => setField('lastName', e.target.value)}
-                      />
-                      <p className="mb-2 mt-1  min-h-5 border-orange-800 text-sm font-medium text-destructive">
-                        {(state.lastName?.errors || []).toString()}
-                      </p>
-                      <Input
-                        label="Email"
-                        name="emailAddress"
-                        value={state.emailAddress?.value}
-                        onChange={(e) => setField('emailAddress', e.target.value)}
-                      />
-                      <p className="mb-2 mt-1  min-h-5 border-orange-800 text-sm font-medium text-destructive">
-                        {(state.emailAddress?.errors || []).toString()}
-                      </p>
-                      <Input
-                        label="Phone"
-                        name="phoneNumber"
-                        value={state.phoneNumber?.value}
-                        onChange={(e) => setField('phoneNumber', e.target.value)}
-                      />
-                      <p className="mb-2 mt-1 min-h-5 border-orange-800 text-sm font-medium text-destructive">
-                        {(state.phoneNumber?.errors || []).toString()}
-                      </p>
-                    </div>
-                  </TabsContent>
-                </Tabs>
-                <div className="flex w-full justify-between gap-2">
-                  <DialogClose asChild>
-                    <Button type="button" className="w-full" variant="secondary">
-                      {t('create.selectCustomer.close')}
-                    </Button>
-                  </DialogClose>
-                  {tab === 'create' ? (
-                    <Button className="w-full" variant="outline" onClick={validateAndSubmitIfCorrect}>
-                      {t('create.selectCustomer.create')}
-                    </Button>
-                  ) : (
-                    <DialogClose asChild>
-                      <Button
-                        type="button"
-                        disabled={!selected}
-                        onClick={async () => selected && (await handleCustomerEvent({ customerId: selected.id }))}
-                        className="w-full"
-                      >
-                        {t('create.selectCustomer.select')}
-                      </Button>
-                    </DialogClose>
-                  )}
-                </div>
-              </DialogContent>
-            </Tabs>
-          </Dialog>
-        </div>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <Tabs>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm">
+                {t(customer ? 'create.selectCustomer.change' : 'create.selectCustomer.create')}
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="h-max max-h-[80vh] min-w-max">
+              <DialogHeader>
+                <DialogTitle>{t('create.selectCustomer.label')}</DialogTitle>
+                <DialogDescription>{t('create.selectCustomer.description')}</DialogDescription>
+              </DialogHeader>
+              <Tabs value={tab} onValueChange={setTab}>
+                <TabsList className="w-full">
+                  <TabsTrigger className="w-full" value="select">
+                    {t('create.selectCustomer.selectTab')}
+                  </TabsTrigger>
+                  <TabsTrigger className="w-full" value="create">
+                    {t('create.selectCustomer.createTab')}
+                  </TabsTrigger>
+                </TabsList>
+                <TabsContent value="select">
+                  <CustomerSearch selectedCustomer={selected} onSelect={(selected) => setSelected(selected)} />
+                </TabsContent>
+                <TabsContent value="create" className="h-fit max-h-[calc(80vh-230px)] overflow-y-auto pt-2">
+                  <Input
+                    label={t('create.selectCustomer.titleLabel')}
+                    name="title"
+                    value={state.title?.value}
+                    onChange={(e) => setField('title', e.target.value)}
+                  />
+                  <p className="mb-2 mt-1 min-h-5 border-orange-800 text-sm font-medium text-destructive">
+                    {(state.title?.errors || []).toString()}
+                  </p>
+                  <Input
+                    label={t('create.selectCustomer.firstNameLabel')}
+                    name="firstName"
+                    value={state.firstName?.value}
+                    onChange={(e) => setField('firstName', e.target.value)}
+                  />
+                  <p className="mb-2 mt-1  min-h-5 border-orange-800 text-sm font-medium text-destructive">
+                    {(state.firstName?.errors || []).toString()}
+                  </p>
+                  <Input
+                    label={t('create.selectCustomer.lastNameLabel')}
+                    name="lastName"
+                    value={state.lastName?.value}
+                    onChange={(e) => setField('lastName', e.target.value)}
+                  />
+                  <p className="mb-2 mt-1  min-h-5 border-orange-800 text-sm font-medium text-destructive">
+                    {(state.lastName?.errors || []).toString()}
+                  </p>
+                  <Input
+                    label={t('create.selectCustomer.emailLabel')}
+                    name="emailAddress"
+                    value={state.emailAddress?.value}
+                    onChange={(e) => setField('emailAddress', e.target.value)}
+                  />
+                  <p className="mb-2 mt-1  min-h-5 border-orange-800 text-sm font-medium text-destructive">
+                    {(state.emailAddress?.errors || []).toString()}
+                  </p>
+                  <Input
+                    label={t('create.selectCustomer.phoneNumberLabel')}
+                    name="phoneNumber"
+                    value={state.phoneNumber?.value}
+                    onChange={(e) => setField('phoneNumber', e.target.value)}
+                  />
+                  <p className="mt-1 min-h-5 border-orange-800 text-sm font-medium text-destructive">
+                    {(state.phoneNumber?.errors || []).toString()}
+                  </p>
+                </TabsContent>
+              </Tabs>
+              <DialogFooter>
+                {tab === 'create' ? (
+                  <Button className="w-min place-self-end " onClick={validateAndSubmitIfCorrect}>
+                    {t('create.selectCustomer.create')}
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    disabled={!selected}
+                    onClick={async () =>
+                      selected &&
+                      (await handleCustomerEvent({ customerId: selected.id })
+                        .then((e) => setOpen(false))
+                        .catch(() => toast.error(t('create.selectCustomer.selectCustomerFailed'))))
+                    }
+                    className="w-min place-self-end"
+                  >
+                    {t('create.selectCustomer.select')}
+                  </Button>
+                )}
+              </DialogFooter>
+            </DialogContent>
+          </Tabs>
+        </Dialog>
       </CardContent>
     </Card>
   );

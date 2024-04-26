@@ -1,19 +1,20 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useDebounce } from 'use-debounce';
-import { Input } from '@/components';
+import { Input, ScrollArea, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components';
 import { adminApiQuery } from '@/common/client';
 import { useTranslation } from 'react-i18next';
 import { LogicalOperator } from '@/zeus';
 import { SearchCustomerType, searchCustomerSelector } from '@/graphql/draft_order';
+import { cn } from '@/lib/utils';
 
 interface Props {
   onSelect: (selected: SearchCustomerType) => void;
+  selectedCustomer?: SearchCustomerType;
 }
 
-export const CustomerSearch: React.FC<Props> = ({ onSelect }) => {
+export const CustomerSearch: React.FC<Props> = ({ onSelect, selectedCustomer }) => {
   const { t } = useTranslation('orders');
   const ref = useRef<HTMLInputElement>(null);
-  const [focused, setFocused] = useState(false);
   const [value, setValue] = useState('');
   const [debouncedValue] = useDebounce(value, 500);
   const [results, setResults] = useState<SearchCustomerType[]>([]);
@@ -45,43 +46,60 @@ export const CustomerSearch: React.FC<Props> = ({ onSelect }) => {
   }, [debouncedValue]);
 
   return (
-    <div className="relative w-full">
+    <div className="flex flex-col gap-4 py-2">
+      <div>{t('create.selectCustomer.inputLabel')}</div>
       <Input
+        placeholder={t('create.selectCustomer.placeholder')}
         ref={ref}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
-        placeholder="Type to search for customers..."
         value={value}
         className="min-w-full max-w-full"
         onChange={(e) => setValue(e.currentTarget.value)}
       />
-
-      {focused && (
-        <div
-          onMouseDown={(e) => e.preventDefault()}
-          className="absolute left-0 top-[100%+2] z-10  max-h-96 min-w-full max-w-full overflow-auto rounded-e border bg-black"
-        >
-          {results && results.length > 0 ? (
-            results.map((r) => (
-              <div
-                key={r.id}
-                onClick={() => {
-                  onSelect(r);
-                  ref.current?.blur();
-                }}
-                className="flex w-full flex-1 cursor-pointer flex-row items-center justify-between gap-6 p-4 dark:hover:bg-stone-800/50"
-              >
-                <div className="w-16">{r.id}</div>
-                <div className="flex-1">{r.firstName}</div>
-                <div className="flex-1">{r.lastName}</div>
-                <div className="flex-1">{r.emailAddress}</div>
-              </div>
-            ))
-          ) : (
-            <div className="p-4">{t('create.noItemsFound')}</div>
-          )}
-        </div>
-      )}
+      <Table className="w-full" containerClassName="h-fit max-h-[calc(80vh-330px)] overflow-y-auto relative">
+        <TableHeader className="sticky top-0 bg-primary-foreground">
+          <TableRow>
+            <TableHead>{t('create.selectCustomer.id')}</TableHead>
+            <TableHead>{t('create.selectCustomer.firstName')}</TableHead>
+            <TableHead>{t('create.selectCustomer.lastName')}</TableHead>
+            <TableHead>{t('create.selectCustomer.email')}</TableHead>
+            <TableHead>{t('create.selectCustomer.phoneNumber')}</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {results.map((r) => (
+            <TableRow
+              className={cn(
+                r.id === selectedCustomer?.id &&
+                  'bg-stone-300/50 font-semibold hover:bg-stone-300/50 dark:bg-stone-500/50 hover:dark:bg-stone-500/50',
+              )}
+              onClick={() => onSelect(r)}
+              key={r.id}
+            >
+              <TableCell>{r.id}</TableCell>
+              <TableCell>{r.firstName}</TableCell>
+              <TableCell>{r.lastName}</TableCell>
+              <TableCell>{r.emailAddress}</TableCell>
+              <TableCell>{r.phoneNumber}</TableCell>
+            </TableRow>
+          ))}
+          {results.map((r) => (
+            <TableRow
+              className={cn(
+                r.id === selectedCustomer?.id &&
+                  'bg-stone-300/50 font-semibold hover:bg-stone-300/50 dark:bg-stone-500/50 hover:dark:bg-stone-500/50',
+              )}
+              onClick={() => onSelect(r)}
+              key={r.id}
+            >
+              <TableCell>{r.id}</TableCell>
+              <TableCell>{r.firstName}</TableCell>
+              <TableCell>{r.lastName}</TableCell>
+              <TableCell>{r.emailAddress}</TableCell>
+              <TableCell>{r.phoneNumber}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   );
 };

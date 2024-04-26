@@ -39,18 +39,6 @@ export const ShippingMethodsSelector = Selector('ShippingMethodQuote')({
 
 export type ShippingMethodType = FromSelectorWithScalars<typeof ShippingMethodsSelector, 'ShippingMethodQuote'>;
 
-export const AvailablePaymentMethodsSelector = Selector('PaymentMethodQuote')({
-  id: true,
-  name: true,
-  description: true,
-  code: true,
-  isEligible: true,
-});
-
-export type AvailablePaymentMethodsType = FromSelectorWithScalars<
-  typeof AvailablePaymentMethodsSelector,
-  'PaymentMethodQuote'
->;
 
 export const ActiveOrderSelector = Selector('Order')({
   id: true,

@@ -31,15 +31,15 @@ export const SearchAccordion: React.FC<SearchAccordionProps> = ({ array, title, 
   return (
     <AccordionItem key={title} value={title}>
       <AccordionTrigger className="hover:no-underline">
-        <div className="grow flex justify-between pr-4">
+        <div className="flex grow justify-between pr-4">
           <span>{title}</span>
           <span className={cn('text-stone-700', activeCount > 0 && 'text-stone-100')}>{`(${activeCount})`}</span>
         </div>
       </AccordionTrigger>
       <AccordionContent className="gap-10">
-        <div className="flex flex-col pt-2 gap-4">
+        <div className="flex flex-col gap-4 pt-2">
           {array.map((pair) => (
-            <div key={pair[0].paramKey} className="flex gap-2 items-end">
+            <div key={pair[0].paramKey} className="flex items-end gap-2">
               {pair.map((param, i) => {
                 if (param.param || mainParam)
                   return <SearchAccordionInput key={`${param.paramKey}-${i}`} param={param} mainParam={mainParam} />;

@@ -55,17 +55,14 @@ import { useNavigate, useParams } from 'react-router-dom';
 import {
   CreateAddressBaseType,
   DraftOrderType,
-  PaymentMethodsType,
   EligibleShippingMethodsType,
   SearchProductVariantType,
   draftOrderSelector,
   eligibleShippingMethodsSelector,
   removeOrderItemsResultSelector,
   updatedDraftOrderSelector,
-  paymentMethodsSelector,
-  configurableOperationDefinitionSelector,
-  ConfigurableOperationDefinitionType,
-  countrySelector,
+  orderHistoryEntrySelector,
+  OrderHistoryEntryType,
 } from '@/graphql/draft_order';
 import { ResolverInputTypes, SortOrder } from '@/zeus';
 import { ShippingMethod } from './_components/ShippingMethod';
@@ -82,9 +79,9 @@ import {
   TimelineLine,
 } from '@/components/ui/timeline';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Price } from '@/components/Price';
 import { OrderStateBadge } from '@/pages/orders/_components';
 import { useServer } from '@/state/server';
+import { priceFormatter } from '@/utils';
 
 declare global {
   interface Window {
@@ -102,31 +99,9 @@ const registerComponents: {
 }[] = [];
 
 const TAKE = 100;
-const getAllPaginatedCountries = async () => {
-  let countries: { code: string; name: string }[] = [];
-  let totalItems = 0;
-  let skip = 0;
-  do {
-    const {
-      countries: { items, totalItems: total },
-    } = await adminApiQuery()({
-      countries: [{ options: { skip, take: TAKE } }, { items: countrySelector, totalItems: true }],
-    });
-    countries = [...countries, ...items];
-    totalItems = total;
-    skip += TAKE;
-  } while (countries.length < totalItems);
-  return { countries };
-};
 
 const getAllHistory = async (id: string) => {
-  let history: {
-    id: string;
-    administrator?: { id: string; firstName: string; lastName: string };
-    isPublic: boolean;
-    type: string;
-    data: any;
-  }[] = [];
+  let history: OrderHistoryEntryType[] = [];
   let totalItems = 0;
   let skip = 0;
   do {
@@ -136,16 +111,7 @@ const getAllHistory = async (id: string) => {
         {
           history: [
             { options: { skip, take: TAKE, sort: { createdAt: SortOrder.DESC } } },
-            {
-              items: {
-                id: true,
-                administrator: { id: true, firstName: true, lastName: true },
-                isPublic: true,
-                type: true,
-                data: true,
-              },
-              totalItems: true,
-            },
+            { items: orderHistoryEntrySelector, totalItems: true },
           ],
         },
       ],
@@ -157,44 +123,17 @@ const getAllHistory = async (id: string) => {
   return { history };
 };
 
-const getAllPaymentMethods = async () => {
-  let paymentMethods: PaymentMethodsType[] = [];
-  let totalItems = 0;
-  let skip = 0;
-  do {
-    const {
-      paymentMethods: { items, totalItems: total },
-    } = await adminApiQuery()({
-      paymentMethods: [
-        { options: { skip, take: TAKE, filter: { enabled: { eq: true } } } },
-        { items: paymentMethodsSelector, totalItems: true },
-      ],
-    });
-    paymentMethods = [...paymentMethods, ...items];
-    totalItems = total;
-    skip += TAKE;
-  } while (paymentMethods.length < totalItems);
-  return { paymentMethods };
-};
-
-const getFulfillmentHandlers = async () => {
-  const { fulfillmentHandlers } = await adminApiQuery()({
-    fulfillmentHandlers: configurableOperationDefinitionSelector,
-  });
-  return { fulfillmentHandlers };
-};
-
 export const OrderCreatePage = () => {
   const { t } = useTranslation('orders');
   const { id } = useParams();
-  const countries = useServer((p) => p.countries);
-  const setCountries = useServer((p) => p.setCountries);
+  const paymentMethodsType = useServer((p) => p.paymentMethodsType);
+  const serverConfig = useServer((p) => p.serverConfig);
   const { state, setField } = useGFFLP('AddItemToDraftOrderInput', 'customFields')({});
   const [eligibleShippingMethodsType, setEligibleShippingMethodsType] = useState<EligibleShippingMethodsType[]>([]);
-  const [paymentMethodsType, setPaymentMethodsType] = useState<PaymentMethodsType[]>([]);
+
   const [draftOrder, setDraftOrder] = useState<DraftOrderType | undefined>();
   const [variantToAdd, setVariantToAdd] = useState<SearchProductVariantType | undefined>(undefined);
-  const [customFields, setCustomFields] = useState<CustomFieldConfigType[]>([]);
+
   const [open, setOpen] = useState(false);
   const [orderHistory, setOrderHistory] = useState<
     {
@@ -206,7 +145,10 @@ export const OrderCreatePage = () => {
       data: any;
     }[]
   >([]);
-  const [fulfillmentHandlers, setFulfillmentHandlers] = useState<ConfigurableOperationDefinitionType[]>([]);
+  const orderLineCustomFields = useMemo(
+    () => serverConfig?.entityCustomFields.find((i) => i.entityName === 'OrderLine')?.customFields,
+    [serverConfig],
+  );
 
   useEffect(() => {
     const fetch = async () => {
@@ -224,28 +166,21 @@ export const OrderCreatePage = () => {
           });
         });
       });
-      const [{ globalSettings }, { order }, { eligibleShippingMethodsForDraftOrder }] = await Promise.all([
-        adminApiQuery()({
-          globalSettings: { serverConfig: { customFieldConfig: { OrderLine: CustomFieldConfigSelector } } },
-        }),
+      const [{ order }, { eligibleShippingMethodsForDraftOrder }] = await Promise.all([
         adminApiQuery()({ order: [{ id }, draftOrderSelector] }),
         adminApiQuery()({ eligibleShippingMethodsForDraftOrder: [{ orderId: id }, eligibleShippingMethodsSelector] }),
       ]);
-      const [{ countries }, { paymentMethods }, { history }, { fulfillmentHandlers }] = await Promise.all([
-        getAllPaginatedCountries(),
-        getAllPaymentMethods(),
-        getAllHistory(id),
-        getFulfillmentHandlers(),
-      ]);
-
+      const [{ history }] = await Promise.all([getAllHistory(id)]);
       setDraftOrder(order);
-      setCustomFields(globalSettings.serverConfig.customFieldConfig.OrderLine);
-      setCountries(countries);
       setOrderHistory(history);
       setEligibleShippingMethodsType(eligibleShippingMethodsForDraftOrder);
-      setPaymentMethodsType(paymentMethods);
-      setFulfillmentHandlers(fulfillmentHandlers);
-      Object.values(globalSettings.serverConfig.customFieldConfig.OrderLine).forEach((value) => {
+    };
+    fetch();
+  }, [id]);
+
+  useEffect(() => {
+    if (orderLineCustomFields) {
+      Object.values(orderLineCustomFields).forEach((value) => {
         let init;
         if (value.list) {
           init = [];
@@ -264,9 +199,8 @@ export const OrderCreatePage = () => {
         }
         setField('customFields', { ...state.customFields?.value, [value.name]: init });
       });
-    };
-    fetch();
-  }, []);
+    }
+  }, [orderLineCustomFields]);
 
   const selectShippingMethod = async (orderId: string, shippingMethodId: string) => {
     const { setDraftOrderShippingMethod } = await adminApiMutation()({
@@ -285,21 +219,25 @@ export const OrderCreatePage = () => {
     else toast.error(`${setDraftOrderShippingMethod.errorCode}: ${setDraftOrderShippingMethod.message}`);
   };
 
-  const rendered = useMemo(() => {
-    return generateCustomFields({
-      registerComponents,
-      customFields,
-      fieldsValue: state.customFields?.value || {},
-      setField: (name, value) => setField('customFields', { ...state.customFields?.value, [name]: value }),
-    }).reduce(
-      (acc, field) => {
-        if (!acc[field.tab]) acc[field.tab] = [];
-        acc[field.tab].push(field);
-        return acc;
-      },
-      {} as Record<string, { name: string; component: React.ReactElement }[]>,
-    );
-  }, [customFields, state]);
+  const rendered = useMemo(
+    () =>
+      orderLineCustomFields
+        ? generateCustomFields({
+            registerComponents,
+            customFields: orderLineCustomFields,
+            fieldsValue: state.customFields?.value || {},
+            setField: (name, value) => setField('customFields', { ...state.customFields?.value, [name]: value }),
+          }).reduce(
+            (acc, field) => {
+              if (!acc[field.tab]) acc[field.tab] = [];
+              acc[field.tab].push(field);
+              return acc;
+            },
+            {} as Record<string, { name: string; component: React.ReactElement }[]>,
+          )
+        : [],
+    [orderLineCustomFields, state],
+  );
 
   const addToOrder = async (productVariantId: string, quantity: number, customFields: Record<string, unknown>) => {
     const { addItemToDraftOrder } = await adminApiMutation()({
@@ -401,10 +339,10 @@ export const OrderCreatePage = () => {
       toast.error('Please fill all required fields', { position: 'top-center', closeButton: true });
       return;
     }
-
+    if (!id) return;
     const { transitionOrderToState } = await adminApiMutation()({
       transitionOrderToState: [
-        { id: id!, state: 'ArrangingPayment' },
+        { id: id, state: 'ArrangingPayment' },
         {
           __typename: true,
           '...on Order': draftOrderSelector,
@@ -659,22 +597,24 @@ export const OrderCreatePage = () => {
     } else toast.error('Something went wrong while deleting note from order', { position: 'top-center' });
   };
 
-  const isOrderValid = useMemo(() => {
-    const isVariantValid = draftOrder?.lines.every((line) => line.productVariant);
-    const isCustomerValid = draftOrder?.customer?.id;
-    const isBillingAddressValid = draftOrder?.billingAddress?.streetLine1;
-    const isShippingAddressValid = draftOrder?.shippingAddress?.streetLine1;
-    const isShippingMethodValid = draftOrder?.shippingLines?.length;
-    return {
-      valid:
-        isVariantValid && isCustomerValid && isBillingAddressValid && isShippingAddressValid && isShippingMethodValid,
-      isVariantValid,
-      isCustomerValid,
-      isBillingAddressValid,
-      isShippingAddressValid,
-      isShippingMethodValid,
-    };
-  }, [draftOrder]);
+  // const isOrderValid = useMemo(() => {
+  //   const isVariantValid = draftOrder?.lines.every((line) => line.productVariant);
+  //   const isCustomerValid = draftOrder?.customer?.id;
+  //   const isBillingAddressValid = draftOrder?.billingAddress?.streetLine1;
+  //   const isShippingAddressValid = draftOrder?.shippingAddress?.streetLine1;
+  //   const isShippingMethodValid = draftOrder?.shippingLines?.length;
+  //   return {
+  //     valid:
+  //       isVariantValid && isCustomerValid && isBillingAddressValid && isShippingAddressValid && isShippingMethodValid,
+  //     isVariantValid,
+  //     isCustomerValid,
+  //     isBillingAddressValid,
+  //     isShippingAddressValid,
+  //     isShippingMethodValid,
+  //   };
+  // }, [draftOrder]);
+
+  if (!orderLineCustomFields) return <div>No orderLineCustomFields</div>;
 
   return (
     <main>
@@ -729,11 +669,7 @@ export const OrderCreatePage = () => {
               </div>
             ) : draftOrder?.state === 'PaymentSettled' ? (
               <div className="hidden items-center gap-2 md:ml-auto md:flex">
-                <FulfillmentModal
-                  draftOrder={draftOrder}
-                  fulfillmentHandlers={fulfillmentHandlers}
-                  onSubmitted={fulfillOrder}
-                />
+                <FulfillmentModal draftOrder={draftOrder} onSubmitted={fulfillOrder} />
               </div>
             ) : (
               <div className="hidden items-center gap-2 md:ml-auto md:flex">
@@ -748,13 +684,13 @@ export const OrderCreatePage = () => {
                     <Dialog>
                       <DialogTrigger asChild>
                         <Button variant="secondary" size="sm">
-                          Add payment to order (<Price price={draftOrder?.totalWithTax || 0} />)
+                          {t('create.buttonAddPayment', { value: priceFormatter(draftOrder?.totalWithTax || 0) })}
                         </Button>
                       </DialogTrigger>
                       <DialogContent>
                         <DialogHeader>
-                          <DialogTitle>Add payment to order</DialogTitle>
-                          <DialogDescription>Please select a payment method to complete the order.</DialogDescription>
+                          <DialogTitle>{t('create.addPaymentTitle')}</DialogTitle>
+                          <DialogDescription>{t('create.addPaymentDescription')}</DialogDescription>
                         </DialogHeader>
                         <form
                           className="flex w-full flex-col gap-4"
@@ -895,11 +831,6 @@ export const OrderCreatePage = () => {
                               </Tabs>
                             </div>
                             <div className="float-end flex flex-row justify-end gap-4">
-                              <DialogClose asChild>
-                                <Button type="button" variant="secondary">
-                                  {t('create.cancel')}
-                                </Button>
-                              </DialogClose>
                               <Button type="submit">{t('create.add')}</Button>
                             </div>
                           </form>
@@ -970,12 +901,8 @@ export const OrderCreatePage = () => {
                         <TableRow key={description} noHover>
                           <TableCell className="capitalize">{description}</TableCell>
                           <TableCell>{taxRate}%</TableCell>
-                          <TableCell>
-                            <Price price={taxBase} />
-                          </TableCell>
-                          <TableCell>
-                            <Price price={taxTotal} />
-                          </TableCell>
+                          <TableCell>{priceFormatter(taxBase)}</TableCell>
+                          <TableCell>{priceFormatter(taxTotal)}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -1146,9 +1073,7 @@ export const OrderCreatePage = () => {
                           transition={{ duration: 0.4, ease: 'easeInOut' }}
                         >
                           <Label>Total: </Label>
-                          <Label>
-                            <Price price={draftOrder?.totalWithTax || 0} />
-                          </Label>
+                          <Label>{priceFormatter(draftOrder?.totalWithTax || 0)}</Label>
                         </motion.div>
                       ) : null}
                     </AnimatePresence>
@@ -1208,7 +1133,6 @@ export const OrderCreatePage = () => {
                 type="billing"
                 onSubmitted={handleMethodChange}
                 orderId={draftOrder?.id}
-                countries={countries}
                 defaultValue={draftOrder?.billingAddress}
                 customerAddresses={draftOrder?.customer?.addresses}
               />
@@ -1217,7 +1141,6 @@ export const OrderCreatePage = () => {
                 type="shipping"
                 onSubmitted={handleMethodChange}
                 orderId={draftOrder?.id}
-                countries={countries}
                 defaultValue={draftOrder?.shippingAddress}
                 customerAddresses={draftOrder?.customer?.addresses}
               />

@@ -250,3 +250,70 @@ export type HomePageSlidersType = FromSelectorWithScalars<typeof homePageSliders
 export const AdminSettingsSelector = Selector('GlobalSettings')({
   availableLanguages: true,
 });
+
+export const serverConfigSelector = Selector('ServerConfig')({
+  plugins: { name: true, version: true, path: true, active: true, status: true },
+  entityCustomFields: { customFields: CustomFieldConfigSelector, entityName: true },
+  orderProcess: { name: true, to: true },
+  moneyStrategyPrecision: true,
+  permissions: { assignable: true, description: true, name: true },
+  permittedAssetTypes: true,
+});
+
+export type ServerConfigType = FromSelectorWithScalars<typeof serverConfigSelector, 'ServerConfig'>;
+
+export const activeAdministratorSelector = Selector('Administrator')({
+  id: true,
+  emailAddress: true,
+  firstName: true,
+  lastName: true,
+});
+
+export type ActiveAdministratorType = FromSelectorWithScalars<typeof activeAdministratorSelector, 'Administrator'>;
+
+export const countrySelector = Selector('Country')({
+  code: true,
+  name: true,
+});
+
+export type CountryType = FromSelectorWithScalars<typeof countrySelector, 'Country'>;
+
+export const channelSelector = Selector('Channel')({
+  id: true,
+  code: true,
+  token: true,
+  currencyCode: true,
+  defaultLanguageCode: true,
+});
+
+export type ChannelType = FromSelectorWithScalars<typeof channelSelector, 'Channel'>;
+
+export const paymentMethodsSelector = Selector('PaymentMethod')({
+  id: true,
+  name: true,
+  description: true,
+  enabled: true,
+});
+
+export type PaymentMethodsType = FromSelectorWithScalars<typeof paymentMethodsSelector, 'PaymentMethod'>;
+
+export const configurableOperationDefinitionSelector = Selector('ConfigurableOperationDefinition')({
+  args: {
+    __typename: true,
+    defaultValue: true,
+    description: true,
+    label: true,
+    list: true,
+    name: true,
+    required: true,
+    type: true,
+    ui: true,
+  },
+  code: true,
+  description: true,
+});
+
+export type ConfigurableOperationDefinitionType = FromSelectorWithScalars<
+  typeof configurableOperationDefinitionSelector,
+  'ConfigurableOperationDefinition'
+>;
