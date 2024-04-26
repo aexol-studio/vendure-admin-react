@@ -36,6 +36,7 @@ import {
   Input,
   Checkbox,
   Textarea,
+  ScrollArea,
 } from '@/components';
 import { ChevronLeft, Grip, Trash } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -63,6 +64,7 @@ import {
   updatedDraftOrderSelector,
   orderHistoryEntrySelector,
   OrderHistoryEntryType,
+  addFulfillmentToOrderResultSelector,
 } from '@/graphql/draft_order';
 import { ResolverInputTypes, SortOrder } from '@/zeus';
 import { ShippingMethod } from './_components/ShippingMethod';
@@ -149,6 +151,13 @@ export const OrderCreatePage = () => {
     () => serverConfig?.entityCustomFields.find((i) => i.entityName === 'OrderLine')?.customFields,
     [serverConfig],
   );
+
+  ///alka
+
+  const [manualChange, setManualChange] = useState(false);
+  const currentPossibilities = useMemo(() => {
+    return serverConfig?.orderProcess?.find((state) => state.name === draftOrder?.state);
+  }, [serverConfig, draftOrder]);
 
   useEffect(() => {
     const fetch = async () => {
@@ -460,46 +469,7 @@ export const OrderCreatePage = () => {
   const fulfillOrder = async (input: ResolverInputTypes['FulfillOrderInput']) => {
     if (!id) return;
     const { addFulfillmentToOrder } = await adminApiMutation()({
-      addFulfillmentToOrder: [
-        { input },
-        {
-          __typename: true,
-          '...on Fulfillment': {
-            id: true,
-          },
-          '...on CreateFulfillmentError': {
-            message: true,
-            errorCode: true,
-            fulfillmentHandlerError: true,
-          },
-          '...on EmptyOrderLineSelectionError': {
-            message: true,
-            errorCode: true,
-          },
-          '...on FulfillmentStateTransitionError': {
-            errorCode: true,
-            fromState: true,
-            message: true,
-            toState: true,
-            transitionError: true,
-          },
-          '...on InsufficientStockOnHandError': {
-            errorCode: true,
-            message: true,
-            productVariantId: true,
-            productVariantName: true,
-            stockOnHand: true,
-          },
-          '...on InvalidFulfillmentHandlerError': {
-            message: true,
-            errorCode: true,
-          },
-          '...on ItemsAlreadyFulfilledError': {
-            message: true,
-            errorCode: true,
-          },
-        },
-      ],
+      addFulfillmentToOrder: [{ input }, addFulfillmentToOrderResultSelector],
     });
     if (addFulfillmentToOrder.__typename === 'Fulfillment') {
       const { transitionFulfillmentToState } = await adminApiMutation()({
@@ -663,6 +633,40 @@ export const OrderCreatePage = () => {
                 >
                   {t('create.discardButton')}
                 </Button>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button size="sm">Order states</Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-[40vw]">
+                    <DialogHeader>
+                      <DialogTitle>Order states</DialogTitle>
+                      <DialogDescription>
+                        Here you can see all possible states for the order, and the current state of the order.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <ScrollArea className="h-[80vh]">
+                      <Timeline>
+                        {serverConfig?.orderProcess?.map((state) => {
+                          const currentIndex = serverConfig?.orderProcess?.findIndex(
+                            (s) => s.name === draftOrder?.state,
+                          );
+                          const done =
+                            serverConfig?.orderProcess?.findIndex((s) => s.name === state.name) < currentIndex;
+                          return (
+                            <TimelineItem key={state.name} status={done ? 'done' : 'default'}>
+                              <TimelineLine done={done} />
+                              <TimelineDot status={done ? 'done' : 'default'} />
+                              <TimelineContent>
+                                <TimelineHeading>{state.name}</TimelineHeading>
+                                <p>{state.to.join(', ')}</p>
+                              </TimelineContent>
+                            </TimelineItem>
+                          );
+                        })}
+                      </Timeline>
+                    </ScrollArea>
+                  </DialogContent>
+                </Dialog>
                 <Button size="sm" onClick={onSubmit}>
                   {t('create.completeOrderButton')}
                 </Button>
@@ -770,13 +774,47 @@ export const OrderCreatePage = () => {
                   </Button>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
-                  <Button variant="ghost" className="w-full justify-start">
+                  <Button
+                    onClick={() => {
+                      setManualChange(true);
+                    }}
+                    variant="ghost"
+                    className="w-full justify-start"
+                  >
                     Manualnie zmień status
                   </Button>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
+          <Dialog open={manualChange} onOpenChange={(e) => setManualChange(e)}>
+            <DialogContent className="max-w-[40vw]">
+              <DialogHeader>
+                <DialogTitle>
+                  Zmiana statusu zamówienia
+                  <span className="text-xs text-neutral-500"> - {draftOrder?.state}</span>
+                </DialogTitle>
+                <DialogDescription>
+                  Wybierz nowy status zamówienia, który chcesz ustawić dla zamówienia.
+                </DialogDescription>
+                <Select
+                  name="orderState"
+                  defaultValue={currentPossibilities?.to.find((state) => state !== draftOrder?.state)}
+                >
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {currentPossibilities?.to.map((state) => (
+                      <SelectItem key={state} value={state} onSelect={() => {}}>
+                        {state}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </DialogHeader>
+            </DialogContent>
+          </Dialog>
           <div className="grid gap-4 md:grid-cols-[1fr_250px] lg:grid-cols-3 lg:gap-8">
             <div className="grid auto-rows-max items-start gap-4 lg:col-span-2 lg:gap-8">
               <Card>

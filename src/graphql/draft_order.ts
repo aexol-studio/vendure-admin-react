@@ -179,3 +179,42 @@ export const orderHistoryEntrySelector = Selector('HistoryEntry')({
 });
 
 export type OrderHistoryEntryType = FromSelectorWithScalars<typeof orderHistoryEntrySelector, 'HistoryEntry'>;
+
+export const addFulfillmentToOrderResultSelector = Selector('AddFulfillmentToOrderResult')({
+  __typename: true,
+  '...on Fulfillment': {
+    id: true,
+  },
+  '...on CreateFulfillmentError': {
+    message: true,
+    errorCode: true,
+    fulfillmentHandlerError: true,
+  },
+  '...on EmptyOrderLineSelectionError': {
+    message: true,
+    errorCode: true,
+  },
+  '...on FulfillmentStateTransitionError': {
+    errorCode: true,
+    fromState: true,
+    message: true,
+    toState: true,
+    transitionError: true,
+  },
+  '...on InsufficientStockOnHandError': {
+    errorCode: true,
+    message: true,
+    productVariantId: true,
+    productVariantName: true,
+    stockOnHand: true,
+  },
+  '...on InvalidFulfillmentHandlerError': {
+    message: true,
+    errorCode: true,
+  },
+  '...on ItemsAlreadyFulfilledError': {
+    message: true,
+    errorCode: true,
+  },
+});
+
