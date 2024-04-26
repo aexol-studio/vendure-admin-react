@@ -11,6 +11,11 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuPortal,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
   Label,
   ScrollArea,
@@ -19,16 +24,22 @@ import {
 import {
   BarChart,
   Bell,
+  Check,
   Globe2,
   GripVertical,
+  Languages,
   LogOutIcon,
+  Mail,
   MenuIcon,
+  MessageSquare,
   Moon,
   Package2,
+  PlusCircle,
   Slash,
   Store,
   Sun,
   Trash2Icon,
+  UserPlus,
 } from 'lucide-react';
 import * as ResizablePrimitive from 'react-resizable-panels';
 
@@ -38,13 +49,12 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { ShoppingCart, Folder, Barcode } from 'lucide-react';
 import { NavLink, useMatches } from 'react-router-dom';
 import { ChannelSwitcher } from './AwesomeMenu/ChannelSwitcher';
-import { useTheme } from '@/theme/useTheme';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ActiveAdmins } from './AwesomeMenu/ActiveAdmins';
 import { clearAllCache } from '@/lists/cache';
-import { channelSelector } from '@/graphql/draft_order';
+import { channelSelector } from '@/graphql/base';
 import { useServer } from '@/state/server';
-import { useSettings } from '@/state/settings';
+import { languages, useSettings } from '@/state/settings';
 
 const ResizablePanelGroup = ({ className, ...props }: React.ComponentProps<typeof ResizablePrimitive.PanelGroup>) => (
   <ResizablePrimitive.PanelGroup
@@ -81,9 +91,8 @@ const removableCrumbs = ['draft'];
 
 export const Menu: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   const linkPath: string[] = [];
-  const { t } = useTranslation(['common']);
+  const { t } = useTranslation('common');
   const [isCollapsed, setIsCollapsed] = React.useState<boolean>(false);
-
   const setSelectedChannel = useSettings((p) => p.setSelectedChannel);
   const logOut = useSettings((p) => p.logOut);
 
@@ -112,7 +121,10 @@ export const Menu: React.FC<{ children?: React.ReactNode }> = ({ children }) => 
         .filter((crumb) => !removableCrumbs.includes(crumb)),
     [matches],
   );
-  const { theme, setTheme } = useTheme();
+  const theme = useSettings((p) => p.theme);
+  const setTheme = useSettings((p) => p.setTheme);
+  const language = useSettings((p) => p.language);
+  const setLanguage = useSettings((p) => p.setLanguage);
 
   return (
     <div className="w-full border-r bg-muted/40">
@@ -193,7 +205,7 @@ export const Menu: React.FC<{ children?: React.ReactNode }> = ({ children }) => 
                         ) : (
                           <BreadcrumbItem>
                             <NavLink to="/">
-                              <p>Dashboard</p>
+                              <p>{t('dashboard')}</p>
                             </NavLink>
                           </BreadcrumbItem>
                         )}
@@ -207,15 +219,15 @@ export const Menu: React.FC<{ children?: React.ReactNode }> = ({ children }) => 
                       <PopoverTrigger asChild>
                         <Button variant="outline" size="icon" className="h-10 w-10">
                           <Bell className="h-4 w-4" />
-                          <span className="sr-only">Toggle notifications</span>
+                          <span className="sr-only">{t('toggleNotifications')}</span>
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="mr-4">
                         <div className="flex flex-col gap-4 rounded-md">
-                          <Label className="select-none">Notifications</Label>
+                          <Label className="select-none">{t('notifications')}</Label>
                           <div className="flex items-center gap-4 border border-dashed p-4">
                             <Bell className="h-4 w-4 text-accent" />
-                            <span className="text-sm text-muted-foreground">No new notifications</span>
+                            <span className="text-sm text-muted-foreground">{t('noNewNotifications')}</span>
                           </div>
                         </div>
                       </PopoverContent>
@@ -228,13 +240,13 @@ export const Menu: React.FC<{ children?: React.ReactNode }> = ({ children }) => 
                           ) : (
                             <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
                           )}
-                          <span className="sr-only">Toggle theme</span>
+                          <span className="sr-only">{t('toggleTheme')}</span>
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => setTheme('light')}>Light</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setTheme('dark')}>Dark</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setTheme('system')}>System</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setTheme('light')}>{t('themeLight')}</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setTheme('dark')}>{t('themeDark')}</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setTheme('system')}>{t('themeSystem')}</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                     <DropdownMenu>
@@ -246,11 +258,30 @@ export const Menu: React.FC<{ children?: React.ReactNode }> = ({ children }) => 
                       <DropdownMenuContent className="mr-4 w-56">
                         <DropdownMenuItem className="flex cursor-pointer items-center gap-2" onSelect={clearAllCache}>
                           <Trash2Icon className="h-4 w-4" />
-                          Clear cache
+                          {t('clearCache')}
                         </DropdownMenuItem>
+                        <DropdownMenuSub>
+                          <DropdownMenuSubTrigger>
+                            <Languages className="mr-2 h-4 w-4" />
+                            <span>{t('language')}</span>
+                          </DropdownMenuSubTrigger>
+                          <DropdownMenuPortal>
+                            <DropdownMenuSubContent>
+                              {languages.map((l) => (
+                                <DropdownMenuItem
+                                  key={l.language}
+                                  onClick={() => l.language !== language && setLanguage(l.language)}
+                                >
+                                  <span>{l.name}</span>
+                                  {l.language === language && <Check className="ml-auto h-4 w-4" />}
+                                </DropdownMenuItem>
+                              ))}
+                            </DropdownMenuSubContent>
+                          </DropdownMenuPortal>
+                        </DropdownMenuSub>
                         <DropdownMenuItem className="flex cursor-pointer items-center gap-2" onSelect={() => logOut()}>
                           <LogOutIcon className="h-4 w-4" />
-                          Log out
+                          {t('logOut')}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

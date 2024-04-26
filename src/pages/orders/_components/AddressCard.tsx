@@ -32,6 +32,7 @@ import {
 import { AddressBaseType, CreateAddressBaseType } from '@/graphql/draft_order';
 import { cn } from '@/lib/utils';
 import { useGFFLP } from '@/lists/useGflp';
+import { useServer } from '@/state/server';
 import { phoneNumberRegExp } from '@/utils/regExp';
 import { Edit } from 'lucide-react';
 import React, { PropsWithChildren, useState } from 'react';
@@ -53,7 +54,6 @@ export const AddressCard: React.FC<
   PropsWithChildren<{
     type: 'shipping' | 'billing';
     defaultValue?: DefaultAddressValue;
-    countries: { code: string; name: string }[];
     orderId?: string;
     isDraft?: boolean;
     customerAddresses?: DefaultAddress[];
@@ -69,8 +69,9 @@ export const AddressCard: React.FC<
       createForCustomer: boolean;
     }) => Promise<void>;
   }>
-> = ({ onSubmitted, isDraft, orderId, children, type, defaultValue, customerAddresses, countries }) => {
+> = ({ onSubmitted, isDraft, orderId, children, type, defaultValue, customerAddresses }) => {
   const { t } = useTranslation('orders');
+  const countries = useServer((p) => p.countries);
   const [submitting, setSubmitting] = useState(false);
   const [open, setOpen] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState<DefaultAddress | undefined>(
@@ -215,47 +216,47 @@ export const AddressCard: React.FC<
               <div className="flex flex-wrap">
                 {defaultValue.fullName && (
                   <div className="w-full text-sm">
-                    {t('selectAddress.fullName')}: <span className="text-gray-300">{defaultValue.fullName}</span>
+                    {t('fullName')}: <span className="text-gray-300">{defaultValue.fullName}</span>
                   </div>
                 )}
                 {defaultValue.company && (
                   <div className="w-full  text-sm">
-                    {t('selectAddress.company')}: {defaultValue.company}
+                    {t('company')}: {defaultValue.company}
                   </div>
                 )}
                 {defaultValue.streetLine1 && (
                   <div className="w-full text-sm">
-                    {t('selectAddress.street1')}: {defaultValue.streetLine1}
+                    {t('street1')}: {defaultValue.streetLine1}
                   </div>
                 )}
                 {defaultValue.streetLine2 && (
                   <div className="w-full text-sm">
-                    {t('selectAddress.street2')}: {defaultValue.streetLine2}
+                    {t('street2')}: {defaultValue.streetLine2}
                   </div>
                 )}
                 {defaultValue.city && (
                   <div className="w-full  text-sm">
-                    {t('selectAddress.city')}: {defaultValue.city}
+                    {t('city')}: {defaultValue.city}
                   </div>
                 )}
                 {defaultValue.province && (
                   <div className="w-full text-sm">
-                    {t('selectAddress.province')}: {defaultValue.province}
+                    {t('province')}: {defaultValue.province}
                   </div>
                 )}
                 {defaultValue.postalCode && (
                   <div className="w-full text-sm">
-                    {t('selectAddress.postalCode')}: {defaultValue.postalCode}
+                    {t('postalCode')}: {defaultValue.postalCode}
                   </div>
                 )}
                 {defaultValue.country && (
                   <div className="w-full  text-sm">
-                    {t('selectAddress.country')}: {defaultValue.country}
+                    {t('country')}: {defaultValue.country}
                   </div>
                 )}
                 {defaultValue.phoneNumber && (
                   <div className="w-full  text-sm">
-                    {t('selectAddress.phoneNumber')}: {defaultValue.phoneNumber}
+                    {t('phoneNumber')}: {defaultValue.phoneNumber}
                   </div>
                 )}
               </div>
@@ -509,21 +510,15 @@ export const AddressCard: React.FC<
                     </ScrollArea>
                   </TabsContent>
                 </Tabs>
-                <div className="flex w-full justify-between gap-2">
-                  <DialogClose asChild>
-                    <Button type="button" className="w-full" variant="secondary" disabled={submitting}>
-                      {t('selectAddress.close')}
-                    </Button>
-                  </DialogClose>
-                  <Button
-                    className="w-full"
-                    variant="outline"
-                    disabled={submitting || (tab === 'select' && !selectedAddress)}
-                    onClick={submitAddress}
-                  >
-                    {t(tab === 'select' ? 'selectAddress.selectAddress' : 'selectAddress.createAddress')}
-                  </Button>
-                </div>
+
+                <Button
+                  className="self-end"
+                  variant="outline"
+                  disabled={submitting || (tab === 'select' && !selectedAddress)}
+                  onClick={submitAddress}
+                >
+                  {t(tab === 'select' ? 'selectAddress.selectAddress' : 'selectAddress.createAddress')}
+                </Button>
               </DialogContent>
             </Dialog>
             {children}

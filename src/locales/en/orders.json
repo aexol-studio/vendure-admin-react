@@ -39,6 +39,11 @@
         "cancel": "Cancel",
         "add": "Add item to order",
         "selectCustomer": {
+            "titleLabel": "Title*",
+            "firstNameLabel": "First Name*",
+            "lastNameLabel": "Last Name",
+            "emailLabel": "Email*",
+            "phoneNumberLabel": "Phone Number*",
             "select": "Select Customer",
             "change": "Change Customer",
             "create": "Create Customer",
@@ -49,17 +54,19 @@
             "createTab": "Create New Customer",
             "selectedCustomerText": " Selected customer:  ",
             "close": "Close",
-            "": "",
-            "": ""
+            "placeholder": "Type to search for customers...",
+            "emptyState": "No customers found",
+            "firstName": "First Name",
+            "lastName": "Last Name",
+            "email": "Email",
+            "phoneNumber": "Phone Number",
+            "id": "Id",
+            "inputLabel": "To find specific customer use input below and select desired one from list below",
+            "selectCustomerFailed": "Failed to select customer"
         },
-        "": "",
-        "": "",
-        "": "",
-        "": "",
-        "": "",
-        "": "",
-        "": "",
-        "a": "a"
+        "buttonAddPayment": "Add payment to order {{value}}",
+        "addPaymentTitle": "Add payment to order",
+        "addPaymentDescription": "Please select a payment method to complete the order."
     },
     "form": {
         "userError": "Username must be at least 5 characters.",
@@ -81,15 +88,6 @@
         "billingHeader": "Billing address",
         "shippingDescription": "Here you can set shipping address",
         "billingDescription": "Here you can set billing address",
-        "fullName": "Full Name",
-        "company": "Company",
-        "street1": "Street Line 1",
-        "street2": "Street Line 2",
-        "city": "City",
-        "postalCode": "Postal Code",
-        "province": "Province",
-        "country": "Country",
-        "phoneNumber": "Phone Number",
         "changeShippingAddress": "Change shipping address",
         "selectShippingAddress": "Select shipping address",
         "createShippingAddress": "Create shipping address",
@@ -123,5 +121,28 @@
         "save": "Save",
         "setMethodTitle": "Set shipping method",
         "setMethodDescription": "Select a shipping method"
-    }
+    },
+    "inputs": {
+        "pickDate": "Pick a date"
+    },
+    "fulfillment": {
+        "completeOrderButton": "Complete order",
+        "completeDialogTitle": "Complete order",
+        "completeDialogDescription": "Fill fulfillment details",
+        "product": "Product",
+        "sku": "SKU",
+        "fulfilled": "Fulfilled",
+        "onStockValue": "on stock {{value}",
+        "emptyState": "No items in draft order",
+        "fulfill": "Fulfill"
+    },
+    "fullName": "Full Name",
+    "company": "Company",
+    "street1": "Street Line 1",
+    "street2": "Street Line 2",
+    "city": "City",
+    "postalCode": "Postal Code",
+    "country": "Country",
+    "phoneNumber": "Phone Number",
+    "province": "Province"
 }

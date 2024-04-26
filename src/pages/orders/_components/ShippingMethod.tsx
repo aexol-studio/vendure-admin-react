@@ -1,5 +1,4 @@
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components';
-import { Price } from '@/components/Price';
 import {
   Dialog,
   DialogClose,
@@ -11,6 +10,7 @@ import {
 } from '@/components/ui/dialog';
 import { DraftOrderType, EligibleShippingMethodsType } from '@/graphql/draft_order';
 import { cn } from '@/lib/utils';
+import { priceFormatter } from '@/utils';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -39,9 +39,7 @@ export const ShippingMethod: React.FC<{
             <div className="flex flex-col">
               <h3>{data.name}</h3>
               <p>{data.code}</p>
-              <p>
-                <Price price={order?.shipping || 0} />
-              </p>
+              <p>{priceFormatter(order?.shipping || 0)}</p>
             </div>
           ) : (
             <p>{t('selectShipmentMethod.noSelected')}</p>
@@ -87,15 +85,9 @@ export const ShippingMethod: React.FC<{
                 ))}
               </div>
             </div>
-            <div className="flex w-full justify-between gap-2">
-              <DialogClose asChild>
-                <Button type="button" className="w-full" variant="secondary">
-                  {t('selectShipmentMethod.close')}
-                </Button>
-              </DialogClose>
               <Button
                 disabled={!localSelectedShippingMethod || !order?.id}
-                className="w-full"
+                className="self-end"
                 variant="outline"
                 onClick={async () => {
                   const method = shippingMethods.find((method) => method.id === localSelectedShippingMethod);
@@ -106,7 +98,6 @@ export const ShippingMethod: React.FC<{
               >
                 {t('selectShipmentMethod.save')}
               </Button>
-            </div>
           </DialogContent>
         </Dialog>
       </CardContent>

@@ -16,7 +16,7 @@ import { adminApiQuery } from '@/common/client';
 import { useTranslation } from 'react-i18next';
 import { LogicalOperator } from '@/zeus';
 import { SearchProductVariantType, searchProductVariantSelector } from '@/graphql/draft_order';
-import { Price } from '../Price';
+import { priceFormatter } from '@/utils';
 
 interface Props {
   onSelectItem: (selected: SearchProductVariantType) => void;
@@ -94,9 +94,7 @@ export const ProductVariantSearch: React.FC<Props> = ({ onSelectItem }) => {
                           <p className="text-xs">{r.name}</p>
                         </div>
                       </TableCell>
-                      <TableCell>
-                        <Price price={r.priceWithTax} code={r.currencyCode} />
-                      </TableCell>
+                      <TableCell>{priceFormatter(r.priceWithTax, r.currencyCode)}</TableCell>
                       <TableCell>
                         <Button
                           variant="outline"

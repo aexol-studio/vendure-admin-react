@@ -1,44 +1,6 @@
 import { Selector } from '@/zeus';
 import { FromSelectorWithScalars } from './scalars';
 
-export const countrySelector = Selector('Country')({
-  code: true,
-  name: true,
-});
-
-export type CountryType = FromSelectorWithScalars<typeof countrySelector, 'Country'>;
-
-export const channelSelector = Selector('Channel')({
-  id: true,
-  code: true,
-  token: true,
-  currencyCode: true,
-  defaultLanguageCode: true,
-});
-
-export type ChannelType = FromSelectorWithScalars<typeof channelSelector, 'Channel'>;
-
-export const configurableOperationDefinitionSelector = Selector('ConfigurableOperationDefinition')({
-  args: {
-    __typename: true,
-    defaultValue: true,
-    description: true,
-    label: true,
-    list: true,
-    name: true,
-    required: true,
-    type: true,
-    ui: true,
-  },
-  code: true,
-  description: true,
-});
-
-export type ConfigurableOperationDefinitionType = FromSelectorWithScalars<
-  typeof configurableOperationDefinitionSelector,
-  'ConfigurableOperationDefinition'
->;
-
 export const eligibleShippingMethodsSelector = Selector('ShippingMethod')({
   id: true,
   description: true,
@@ -50,15 +12,6 @@ export type EligibleShippingMethodsType = FromSelectorWithScalars<
   typeof eligibleShippingMethodsSelector,
   'ShippingMethod'
 >;
-
-export const paymentMethodsSelector = Selector('PaymentMethod')({
-  id: true,
-  name: true,
-  description: true,
-  enabled: true,
-});
-
-export type PaymentMethodsType = FromSelectorWithScalars<typeof paymentMethodsSelector, 'PaymentMethod'>;
 
 export const addressBaseSelector = Selector('Address')({
   city: true,
@@ -217,17 +170,51 @@ export const removeOrderItemsResultSelector = Selector('RemoveOrderItemsResult')
   },
 });
 
-export const serverConfigSelector = Selector('ServerConfig')({
-  plugins: { name: true, version: true, path: true, active: true, status: true },
-});
-
-export type ServerConfigType = FromSelectorWithScalars<typeof serverConfigSelector, 'ServerConfig'>;
-
-export const activeAdministratorSelector = Selector('Administrator')({
+export const orderHistoryEntrySelector = Selector('HistoryEntry')({
   id: true,
-  emailAddress: true,
-  firstName: true,
-  lastName: true,
+  administrator: { id: true, firstName: true, lastName: true },
+  isPublic: true,
+  type: true,
+  data: true,
 });
 
-export type ActiveAdministratorType = FromSelectorWithScalars<typeof activeAdministratorSelector, 'Administrator'>;
+export type OrderHistoryEntryType = FromSelectorWithScalars<typeof orderHistoryEntrySelector, 'HistoryEntry'>;
+
+export const addFulfillmentToOrderResultSelector = Selector('AddFulfillmentToOrderResult')({
+  __typename: true,
+  '...on Fulfillment': {
+    id: true,
+  },
+  '...on CreateFulfillmentError': {
+    message: true,
+    errorCode: true,
+    fulfillmentHandlerError: true,
+  },
+  '...on EmptyOrderLineSelectionError': {
+    message: true,
+    errorCode: true,
+  },
+  '...on FulfillmentStateTransitionError': {
+    errorCode: true,
+    fromState: true,
+    message: true,
+    toState: true,
+    transitionError: true,
+  },
+  '...on InsufficientStockOnHandError': {
+    errorCode: true,
+    message: true,
+    productVariantId: true,
+    productVariantName: true,
+    stockOnHand: true,
+  },
+  '...on InvalidFulfillmentHandlerError': {
+    message: true,
+    errorCode: true,
+  },
+  '...on ItemsAlreadyFulfilledError': {
+    message: true,
+    errorCode: true,
+  },
+});
+

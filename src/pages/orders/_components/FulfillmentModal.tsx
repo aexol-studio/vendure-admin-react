@@ -22,26 +22,30 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { ConfigurableOperationDefinitionType, DraftOrderType } from '@/graphql/draft_order';
+import { DraftOrderType } from '@/graphql/draft_order';
 import { LineItem } from './LineItem';
 import { useGFFLP } from '@/lists/useGflp';
 import { ResolverInputTypes } from '@/zeus';
+import { useTranslation } from 'react-i18next';
+import { useServer } from '@/state/server';
 
 export const FulfillmentModal = ({
   draftOrder,
-  fulfillmentHandlers,
+
   onSubmitted,
 }: {
   draftOrder: DraftOrderType;
-  fulfillmentHandlers: ConfigurableOperationDefinitionType[];
   onSubmitted: (data: ResolverInputTypes['FulfillOrderInput']) => Promise<void>;
 }) => {
+  const { t } = useTranslation('orders');
   const neededFulfillmentHandlers = draftOrder?.shippingLines?.map(
     (line) => line.shippingMethod.fulfillmentHandlerCode,
   );
-  const filteredFulfillmentHandlers = fulfillmentHandlers.filter((handler) =>
-    neededFulfillmentHandlers?.includes(handler.code),
+
+  const filteredFulfillmentHandlers = useServer((p) =>
+    p.fulfillmentHandlers.filter((handler) => neededFulfillmentHandlers.includes(handler.code)),
   );
+
   const { state, setField } = useGFFLP('FulfillOrderInput')({
     lines: {
       initialValue: draftOrder.lines.map((line) => ({
@@ -55,7 +59,7 @@ export const FulfillmentModal = ({
         code: filteredFulfillmentHandlers[0].code,
         arguments: filteredFulfillmentHandlers[0].args.map((arg) => ({
           name: arg.name,
-          value: arg.defaultValue,
+          value: arg.defaultValue as string,
         })),
       },
     },
@@ -76,12 +80,12 @@ export const FulfillmentModal = ({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button size="sm">Zrealizuj zamówienie</Button>
+        <Button size="sm">{t('fulfillment.completeOrderButton')}</Button>
       </DialogTrigger>
       <DialogContent className="flex h-[70vh] max-w-[70vw] flex-col">
         <DialogHeader>
-          <DialogTitle>Zrealizuj zamówienie</DialogTitle>
-          <DialogDescription>Fill fulfillment details</DialogDescription>
+          <DialogTitle>{t('fulfillment.completeDialogTitle')}</DialogTitle>
+          <DialogDescription>{t('fulfillment.completeDialogDescription')}</DialogDescription>
         </DialogHeader>
         <div className="flex h-full w-full items-start gap-16">
           <div className="flex h-full w-full flex-col justify-between">
@@ -89,9 +93,9 @@ export const FulfillmentModal = ({
               <Table>
                 <TableHeader>
                   <TableRow noHover>
-                    <TableHead>Product</TableHead>
-                    <TableHead>SKU</TableHead>
-                    <TableHead>Fulfilled</TableHead>
+                    <TableHead>{t('fulfillment.product')}</TableHead>
+                    <TableHead>{t('fulfillment.sku')}</TableHead>
+                    <TableHead>{t('fulfillment.fulfilled')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody className="w-full">
@@ -123,7 +127,7 @@ export const FulfillmentModal = ({
                                   }}
                                 />
                                 / <span>{line.quantity} </span>
-                                <p className="whitespace-nowrap">on stock {onStock}</p>
+                                <p className="whitespace-nowrap">{t('fulfillment.onStockValue', { value: onStock })}</p>
                               </div>
                             </div>
                           </TableCell>
@@ -133,7 +137,7 @@ export const FulfillmentModal = ({
                   ) : (
                     <TableCell colSpan={4}>
                       <div className="mt-4 flex items-center justify-center">
-                        <span>No items in draft order</span>
+                        <span>{t('fulfillment.emptyState')}</span>
                       </div>
                     </TableCell>
                   )}
@@ -146,37 +150,37 @@ export const FulfillmentModal = ({
                   <div className="flex w-full">
                     <div className="flex w-full flex-col gap-2">
                       <div className="grid grid-rows-2">
-                        <p className="text-xs font-medium">Full Name</p>
+                        <p className="text-xs font-medium">{t('fullName')}</p>
                         <p className="text-sm font-medium">{draftOrder.shippingAddress?.fullName}</p>
                       </div>
                       <div className="grid grid-rows-2">
-                        <p className="text-xs font-medium">Company</p>
+                        <p className="text-xs font-medium">{t('company')}</p>
                         <p className="text-sm font-medium">{draftOrder.shippingAddress?.company}</p>
                       </div>
                       <div className="grid grid-rows-2">
-                        <p className="text-xs font-medium">Street Line 1</p>
+                        <p className="text-xs font-medium">{t('street1')}</p>
                         <p className="text-v font-medium">{draftOrder.shippingAddress?.streetLine1}</p>
                       </div>
                       <div className="grid grid-rows-2">
-                        <p className="text-xs font-medium">Street Line 2</p>
+                        <p className="text-xs font-medium">{t('street2')}</p>
                         <p className="text-sm font-medium">{draftOrder.shippingAddress?.streetLine2}</p>
                       </div>
                     </div>
                     <div className="flex w-full flex-col gap-2">
                       <div className="grid grid-rows-2">
-                        <p className="text-xs font-medium">City</p>
+                        <p className="text-xs font-medium">{t('city')}</p>
                         <p className="text-sm font-medium">{draftOrder.shippingAddress?.city}</p>
                       </div>
                       <div className="grid grid-rows-2">
-                        <p className="text-xs font-medium">Postal Code</p>
+                        <p className="text-xs font-medium">{t('postalCode')}</p>
                         <p className="text-sm font-medium">{draftOrder.shippingAddress?.postalCode}</p>
                       </div>
                       <div className="grid grid-rows-2">
-                        <p className="text-xs font-medium">Country</p>
+                        <p className="text-xs font-medium">{t('country')}</p>
                         <p className="text-sm font-medium">{draftOrder.shippingAddress?.country}</p>
                       </div>
                       <div className="grid grid-rows-2">
-                        <p className="text-xs font-medium">Phone Number</p>
+                        <p className="text-xs font-medium">{t('phoneNumber')}</p>
                         <p className="text-sm font-medium">{draftOrder.shippingAddress?.phoneNumber}</p>
                       </div>
                     </div>
@@ -229,7 +233,7 @@ export const FulfillmentModal = ({
                 <CardContent>
                   <div className="flex flex-col gap-4">
                     <Button type="submit" variant="outline">
-                      Fulfill
+                      {t('fulfillment.fulfill')}
                     </Button>
                   </div>
                 </CardContent>

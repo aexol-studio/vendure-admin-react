@@ -74,5 +74,24 @@
         "cardTitle": "Looking for plugins?",
         "cardDescription": "Visit our marketplace to find plugins that can help you customize your experience.",
         "cardButton": "Visit Marketplace"
-    }
+    },
+    "setup": {
+        "failedCountries": "Failed to load countries",
+        "failedServer": "Failed to load server settings",
+        "failedAdmin": "Failed to load active administrator",
+        "failedPayments": "Failed to load payments methods",
+        "failedFulfillments": "Failed to load fulfillments handlers",
+        "failed": "Failed to load "
+    },
+    "language": "Language",
+    "logOut": "Log out",
+    "clearCache": "Clear cache",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System",
+    "toggleTheme": "Toggle theme",
+    "notifications": "Notifications",
+    "noNewNotifications": "No new notifications",
+    "toggleNotifications": "Toggle notifications",
+    "dashboard": "Dashboard"
 }

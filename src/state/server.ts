@@ -1,4 +1,12 @@
-import { ActiveAdministratorType, ChannelType, ServerConfigType, CountryType } from '@/graphql/draft_order';
+import {
+  ActiveAdministratorType,
+  PaymentMethodsType,
+  ServerConfigType,
+  ChannelType,
+  CountryType,
+  ConfigurableOperationDefinitionType,
+} from '@/graphql/base';
+
 import { create } from 'zustand';
 
 type ActiveClient = {
@@ -12,6 +20,8 @@ type ActiveClient = {
 };
 
 interface Server {
+  paymentMethodsType: PaymentMethodsType[];
+  fulfillmentHandlers: ConfigurableOperationDefinitionType[];
   serverConfig: ServerConfigType | undefined;
   activeAdministrator: ActiveAdministratorType | undefined;
   channels: ChannelType[];
@@ -21,6 +31,8 @@ interface Server {
 }
 
 interface Actions {
+  setPaymentMethodsType(paymentMethodsType: PaymentMethodsType[]): void;
+  setFulfillmentHandlers(fulfillmentHandlers: ConfigurableOperationDefinitionType[]): void;
   setServerConfig(serverConfig: ServerConfigType | undefined): void;
   setActiveAdministrator(activeAdministrator: ActiveAdministratorType | undefined): void;
   setChannels(channels: ChannelType[]): void;
@@ -34,6 +46,8 @@ export const useServer = create<Server & Actions>()((set) => ({
   activeAdministrator: undefined,
   channels: [],
   countries: [],
+  paymentMethodsType: [],
+  fulfillmentHandlers: [],
   isConnected: false,
   activeClients: [],
   setServerConfig: (serverConfig) => set({ serverConfig }),
@@ -42,4 +56,6 @@ export const useServer = create<Server & Actions>()((set) => ({
   setCountries: (countries) => set({ countries }),
   setIsConnected: (isConnected) => set({ isConnected }),
   setActiveClients: (activeClients) => set({ activeClients }),
+  setPaymentMethodsType: (paymentMethodsType) => set({ paymentMethodsType }),
+  setFulfillmentHandlers: (fulfillmentHandlers) => set({ fulfillmentHandlers }),
 }));

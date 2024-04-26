@@ -39,7 +39,11 @@ export const OrderStateBadge: React.FC<{ fullWidth?: boolean; state?: string; cl
   return (
     <Badge
       noHover
-      className={cn(fullWidth && 'flex w-full items-center justify-center', labelAndStyles.className, className)}
+      className={cn(
+        fullWidth && 'flex w-full items-center justify-center text-center',
+        labelAndStyles.className,
+        className,
+      )}
     >
       {labelAndStyles.label}
     </Badge>
