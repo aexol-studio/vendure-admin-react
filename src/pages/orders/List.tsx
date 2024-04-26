@@ -326,7 +326,7 @@ export const OrderListPage = () => {
             <Input onChange={(e) => setFilterField('customerLastName', { contains: e.target.value })} />
             <Button onClick={() => removeFilterField('customerLastName')}>Reset Field</Button>
             <Button onClick={() => resetFilter()}>reset filter</Button>
-            <Button onClick={() => setFilterField('code', { contains: 'dddddupa' })}>set filter</Button>
+            <Button onClick={() => setFilterField('code', { contains: 'aa' })}>set filter</Button>
           </div>
         </div>
         <div className={`h-full w-full overflow-auto rounded-md border`}>

@@ -152,8 +152,6 @@ export const OrderCreatePage = () => {
     [serverConfig],
   );
 
-  ///alka
-
   const [manualChange, setManualChange] = useState(false);
   const currentPossibilities = useMemo(() => {
     return serverConfig?.orderProcess?.find((state) => state.name === draftOrder?.state);
@@ -774,13 +772,7 @@ export const OrderCreatePage = () => {
                   </Button>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
-                  <Button
-                    onClick={() => {
-                      setManualChange(true);
-                    }}
-                    variant="ghost"
-                    className="w-full justify-start"
-                  >
+                  <Button onClick={() => setManualChange(true)} variant="ghost" className="w-full justify-start">
                     Manualnie zmień status
                   </Button>
                 </DropdownMenuItem>
