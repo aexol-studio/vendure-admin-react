@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { DefaultProps } from '../types';
+import { useEffect, useState } from 'react';
 import {
   Dialog,
   DialogClose,
@@ -17,23 +16,24 @@ import { AssetType, assetsSelector } from '@/graphql/base';
 import { useList } from '@/lists/useList';
 import { cn } from '@/lib/utils';
 import { ImageUp } from 'lucide-react';
+import { useCustomFields } from '@/custom_fields';
 
 const getAssets = async (options: ResolverInputTypes['AssetListOptions']) => {
-  const response = await adminApiQuery()({
+  const response = await adminApiQuery({
     assets: [{ options }, { totalItems: true, items: assetsSelector }],
   });
   return response.assets;
 };
 
-export function AssetsRelationInput<T>(props: DefaultProps<T>) {
-  const { value, onChange } = props;
+export function AssetsRelationInput() {
+  const { value, setValue } = useCustomFields();
   const [selectedAsset, setSelectedAsset] = useState<AssetType | null>(null);
   const { objects: assets, Paginate } = useList({
     route: async ({ page, perPage }) => {
       const assets = await getAssets({ skip: (page - 1) * perPage, take: perPage });
       return { items: assets.items, totalItems: assets.totalItems };
     },
-    cacheKey: `modal-assets-list`,
+    listType: `modal-assets-list`,
   });
 
   useEffect(() => {
@@ -47,9 +47,11 @@ export function AssetsRelationInput<T>(props: DefaultProps<T>) {
   return (
     <Dialog>
       <div>
-        <Button variant="secondary" size="sm">
-          <DialogTrigger>Pick assets</DialogTrigger>
-        </Button>
+        <DialogTrigger asChild>
+          <Button variant="secondary" size="sm">
+            Pick assets
+          </Button>
+        </DialogTrigger>
         <div>
           {selectedAsset && (
             <div>
@@ -59,7 +61,7 @@ export function AssetsRelationInput<T>(props: DefaultProps<T>) {
                 size="sm"
                 onClick={() => {
                   setSelectedAsset(null);
-                  onChange('' as T);
+                  setValue('');
                 }}
               >
                 Remove
@@ -81,7 +83,7 @@ export function AssetsRelationInput<T>(props: DefaultProps<T>) {
                 className={cn('w-1/4 cursor-pointer border-2 p-2', selectedAsset?.id === asset.id && 'border-blue-500')}
                 onClick={() => {
                   setSelectedAsset(asset);
-                  onChange(asset.id as T);
+                  setValue(asset.id);
                 }}
               >
                 <img src={asset.preview} alt={asset.name} className="h-32 w-full object-contain" />

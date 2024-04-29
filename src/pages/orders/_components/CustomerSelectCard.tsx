@@ -14,7 +14,6 @@ import {
 import { CustomerSearch } from '@/components/AutoComplete/CustomerSearch';
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -200,12 +199,13 @@ export const CustomerSelectCard: React.FC<{
                   <Button
                     type="button"
                     disabled={!selected}
-                    onClick={async () =>
-                      selected &&
-                      (await handleCustomerEvent({ customerId: selected.id })
-                        .then((e) => setOpen(false))
-                        .catch(() => toast.error(t('create.selectCustomer.selectCustomerFailed'))))
-                    }
+                    onClick={async () => {
+                      if (!selected) {
+                        toast.error(t('create.selectCustomer.selectCustomerFailed'));
+                        return;
+                      }
+                      await handleCustomerEvent({ customerId: selected.id });
+                    }}
                     className="w-min place-self-end"
                   >
                     {t('create.selectCustomer.select')}

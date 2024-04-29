@@ -1,10 +1,5 @@
 import { adminApiMutation, adminApiQuery } from '@/common/client';
-import { CustomFieldConfigSelector, CustomFieldConfigType } from '@/graphql/base';
-import { useGFFLP } from '@/lists/useGflp';
-import React from 'react';
 import { useEffect, useMemo, useState } from 'react';
-import { registerCustomFieldComponent, generateCustomFields } from './logic';
-import { DefaultProps } from './DefaultInputs/types';
 import {
   Button,
   Card,
@@ -19,10 +14,6 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
@@ -34,13 +25,8 @@ import {
   SelectItem,
   SelectValue,
   Input,
-  Checkbox,
-  Textarea,
-  ScrollArea,
 } from '@/components';
-import { ChevronLeft, Grip, Trash } from 'lucide-react';
-import { AnimatePresence, motion } from 'framer-motion';
-import { CustomerSelectCard } from './_components/CustomerSelectCard';
+import { ChevronLeft, Grip } from 'lucide-react';
 import {
   Dialog,
   DialogClose,
@@ -51,7 +37,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { AddressCard } from './_components/AddressCard';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   CreateAddressBaseType,
@@ -67,47 +52,36 @@ import {
   addFulfillmentToOrderResultSelector,
 } from '@/graphql/draft_order';
 import { ResolverInputTypes, SortOrder } from '@/zeus';
-import { ShippingMethod } from './_components/ShippingMethod';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
-import { FulfillmentModal } from './_components/FulfillmentModal';
-import { LineItem } from './_components/LineItem';
 import {
-  Timeline,
-  TimelineContent,
-  TimelineDot,
-  TimelineHeading,
-  TimelineItem,
-  TimelineLine,
-} from '@/components/ui/timeline';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { OrderStateBadge } from '@/pages/orders/_components';
+  AddressCard,
+  CustomerSelectCard,
+  FulfillmentModal,
+  LineItem,
+  OrderStateBadge,
+  ShippingMethod,
+  RealizationCard,
+  SummaryCard,
+  OrderHistory,
+  TaxSummary,
+  PossibleOrderStates,
+  ManualOrderChangeModal,
+} from '@/pages/orders/_components';
 import { useServer } from '@/state/server';
 import { priceFormatter } from '@/utils';
-
-declare global {
-  interface Window {
-    __ADMIN_UI_CONFIG__: {
-      components: { where: string; name: string; componentPath?: string }[];
-    };
-  }
-}
-
-const registerComponents: {
-  name: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  component: React.ComponentType<DefaultProps<any>>;
-  where: string;
-}[] = [];
+import { CustomFieldConfigSelector, CustomFieldConfigType } from '@/graphql/base';
+import { CustomFieldsComponent } from '@/custom_fields/CustomFieldsComponent';
+import { useGFFLP } from '@/lists/useGflp';
 
 const TAKE = 100;
 
-const getAllHistory = async (id: string) => {
+const getAllOrderHistory = async (id: string) => {
   let history: OrderHistoryEntryType[] = [];
   let totalItems = 0;
   let skip = 0;
   do {
-    const { order } = await adminApiQuery()({
+    const { order } = await adminApiQuery({
       order: [
         { id },
         {
@@ -128,89 +102,78 @@ const getAllHistory = async (id: string) => {
 export const OrderCreatePage = () => {
   const { t } = useTranslation('orders');
   const { id } = useParams();
+  const navigate = useNavigate();
   const paymentMethodsType = useServer((p) => p.paymentMethodsType);
   const serverConfig = useServer((p) => p.serverConfig);
-  const { state, setField } = useGFFLP('AddItemToDraftOrderInput', 'customFields')({});
   const [eligibleShippingMethodsType, setEligibleShippingMethodsType] = useState<EligibleShippingMethodsType[]>([]);
-
   const [draftOrder, setDraftOrder] = useState<DraftOrderType | undefined>();
   const [variantToAdd, setVariantToAdd] = useState<SearchProductVariantType | undefined>(undefined);
-
   const [open, setOpen] = useState(false);
-  const [orderHistory, setOrderHistory] = useState<
-    {
-      id: string;
-      administrator?: { id: string; firstName: string; lastName: string };
-      isPublic: boolean;
-      type: string;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      data: any;
-    }[]
-  >([]);
-  const orderLineCustomFields = useMemo(
-    () => serverConfig?.entityCustomFields.find((i) => i.entityName === 'OrderLine')?.customFields,
-    [serverConfig],
-  );
-
+  const [orderHistory, setOrderHistory] = useState<OrderHistoryEntryType[]>([]);
   const [manualChange, setManualChange] = useState(false);
+
   const currentPossibilities = useMemo(() => {
     return serverConfig?.orderProcess?.find((state) => state.name === draftOrder?.state);
   }, [serverConfig, draftOrder]);
 
+  const { state, setField } = useGFFLP('AddItemToDraftOrderInput', 'customFields')({});
+  const [orderLineCustomFieldsConfig, setOrderLineCustomFieldsConfig] = useState<CustomFieldConfigType[]>();
+  // useEffect(() => {
+  // if (orderLineCustomFields) {
+  //   Object.values(orderLineCustomFields).forEach((value) => {
+  //     let init;
+  //     if (value.list) {
+  //       init = [];
+  //     } else {
+  //       switch (value.__typename) {
+  //         case 'BooleanCustomFieldConfig':
+  //           init = false;
+  //           break;
+  //         case 'FloatCustomFieldConfig':
+  //         case 'IntCustomFieldConfig':
+  //         case 'LocaleTextCustomFieldConfig':
+  //         case 'StringCustomFieldConfig':
+  //           init = '';
+  //           break;
+  //       }
+  //     }
+  //     setField('customFields', { ...state.customFields?.value, [value.name]: init });
+  //   });
+  // }
+  // }, [orderLineCustomFields]);
+
   useEffect(() => {
     const fetch = async () => {
       if (!id) return;
-      const { __ADMIN_UI_CONFIG__ } = window;
-      __ADMIN_UI_CONFIG__.components.map((c) => {
-        if (!c.componentPath) return;
-        if (c.where !== 'order-create') return;
-        import(c.componentPath).then((m) => {
-          registerCustomFieldComponent({
-            registerComponents,
-            name: c.name,
-            component: m.CustomComponent,
-            where: c.where,
-          });
-        });
-      });
-      const [{ order }, { eligibleShippingMethodsForDraftOrder }] = await Promise.all([
-        adminApiQuery()({ order: [{ id }, draftOrderSelector] }),
-        adminApiQuery()({ eligibleShippingMethodsForDraftOrder: [{ orderId: id }, eligibleShippingMethodsSelector] }),
+      const [
+        { order },
+        { eligibleShippingMethodsForDraftOrder },
+        { history },
+        {
+          globalSettings: {
+            serverConfig: {
+              customFieldConfig: { OrderLine },
+            },
+          },
+        },
+      ] = await Promise.all([
+        adminApiQuery({ order: [{ id }, draftOrderSelector] }),
+        adminApiQuery({ eligibleShippingMethodsForDraftOrder: [{ orderId: id }, eligibleShippingMethodsSelector] }),
+        getAllOrderHistory(id),
+        adminApiQuery({
+          globalSettings: { serverConfig: { customFieldConfig: { OrderLine: CustomFieldConfigSelector } } },
+        }),
       ]);
-      const [{ history }] = await Promise.all([getAllHistory(id)]);
       setDraftOrder(order);
-      setOrderHistory(history);
       setEligibleShippingMethodsType(eligibleShippingMethodsForDraftOrder);
+      setOrderHistory(history);
+      setOrderLineCustomFieldsConfig(OrderLine);
     };
     fetch();
   }, [id]);
 
-  useEffect(() => {
-    if (orderLineCustomFields) {
-      Object.values(orderLineCustomFields).forEach((value) => {
-        let init;
-        if (value.list) {
-          init = [];
-        } else {
-          switch (value.__typename) {
-            case 'BooleanCustomFieldConfig':
-              init = false;
-              break;
-            case 'FloatCustomFieldConfig':
-            case 'IntCustomFieldConfig':
-            case 'LocaleTextCustomFieldConfig':
-            case 'StringCustomFieldConfig':
-              init = '';
-              break;
-          }
-        }
-        setField('customFields', { ...state.customFields?.value, [value.name]: init });
-      });
-    }
-  }, [orderLineCustomFields]);
-
   const selectShippingMethod = async (orderId: string, shippingMethodId: string) => {
-    const { setDraftOrderShippingMethod } = await adminApiMutation()({
+    const { setDraftOrderShippingMethod } = await adminApiMutation({
       setDraftOrderShippingMethod: [
         { orderId, shippingMethodId },
         {
@@ -226,28 +189,8 @@ export const OrderCreatePage = () => {
     else toast.error(`${setDraftOrderShippingMethod.errorCode}: ${setDraftOrderShippingMethod.message}`);
   };
 
-  const rendered = useMemo(
-    () =>
-      orderLineCustomFields
-        ? generateCustomFields({
-            registerComponents,
-            customFields: orderLineCustomFields,
-            fieldsValue: state.customFields?.value || {},
-            setField: (name, value) => setField('customFields', { ...state.customFields?.value, [name]: value }),
-          }).reduce(
-            (acc, field) => {
-              if (!acc[field.tab]) acc[field.tab] = [];
-              acc[field.tab].push(field);
-              return acc;
-            },
-            {} as Record<string, { name: string; component: React.ReactElement }[]>,
-          )
-        : [],
-    [orderLineCustomFields, state],
-  );
-
   const addToOrder = async (productVariantId: string, quantity: number, customFields: Record<string, unknown>) => {
-    const { addItemToDraftOrder } = await adminApiMutation()({
+    const { addItemToDraftOrder } = await adminApiMutation({
       addItemToDraftOrder: [
         { input: { productVariantId, quantity, customFields }, orderId: id! },
         updatedDraftOrderSelector,
@@ -262,14 +205,14 @@ export const OrderCreatePage = () => {
   };
 
   const removeLineItem = async (orderLineId: string) => {
-    const { removeDraftOrderLine } = await adminApiMutation()({
+    const { removeDraftOrderLine } = await adminApiMutation({
       removeDraftOrderLine: [{ orderId: id!, orderLineId }, removeOrderItemsResultSelector],
     });
     if (removeDraftOrderLine.__typename === 'Order') setDraftOrder(removeDraftOrderLine);
   };
 
   const adjustLineItem = async (orderLineId: string, quantity: number) => {
-    const { adjustDraftOrderLine } = await adminApiMutation()({
+    const { adjustDraftOrderLine } = await adminApiMutation({
       adjustDraftOrderLine: [
         { orderId: id!, input: { orderLineId, quantity } },
         {
@@ -311,7 +254,7 @@ export const OrderCreatePage = () => {
     input?: ResolverInputTypes['CreateCustomerInput'];
   }) => {
     if (id) {
-      const { setCustomerForDraftOrder } = await adminApiMutation()({
+      const { setCustomerForDraftOrder } = await adminApiMutation({
         setCustomerForDraftOrder: [
           { orderId: id, customerId, input },
           {
@@ -324,7 +267,6 @@ export const OrderCreatePage = () => {
       if (setCustomerForDraftOrder.__typename === 'Order') setDraftOrder(setCustomerForDraftOrder);
     }
   };
-  const navigate = useNavigate();
 
   const openAddVariantDialog = (variant: SearchProductVariantType) => {
     setOpen(true);
@@ -347,7 +289,7 @@ export const OrderCreatePage = () => {
       return;
     }
     if (!id) return;
-    const { transitionOrderToState } = await adminApiMutation()({
+    const { transitionOrderToState } = await adminApiMutation({
       transitionOrderToState: [
         { id: id, state: 'ArrangingPayment' },
         {
@@ -365,7 +307,7 @@ export const OrderCreatePage = () => {
     });
     if (transitionOrderToState?.__typename === 'Order') {
       setDraftOrder(transitionOrderToState);
-      const data = await getAllHistory(id);
+      const data = await getAllOrderHistory(id);
       setOrderHistory(data.history);
     } else {
       const errorMessage = `
@@ -388,61 +330,36 @@ export const OrderCreatePage = () => {
     const orderId = draftOrder?.id;
     if (orderId && address) {
       if (createForCustomer && draftOrder?.customer?.id) {
-        await adminApiMutation()({
+        const { createCustomerAddress } = await adminApiMutation({
           createCustomerAddress: [{ customerId: draftOrder.customer.id, input: address }, { streetLine1: true }],
-        })
-          .then((e) => toast.success(t('selectAddress.newAddress', { address: e.createCustomerAddress.streetLine1 })))
-          .catch(() => toast.error(t('selectAddress.addressAddFailed')));
+        });
+        if (createCustomerAddress.streetLine1) {
+          toast.success(t('selectAddress.newAddress', { address: createCustomerAddress.streetLine1 }));
+        } else {
+          toast.error(t('selectAddress.addressAddFailed'));
+        }
       }
-      if (isShipping) {
-        await adminApiMutation()({
-          setDraftOrderShippingAddress: [{ orderId, input: address }, draftOrderSelector],
-        })
-          .then((e) => {
-            setDraftOrder(e.setDraftOrderShippingAddress);
-            toast(
-              t(
-                createForCustomer
-                  ? 'selectAddress.addressSuccessCreateToast'
-                  : 'selectAddress.addressSuccessSelectToast',
-              ),
-            );
-          })
-          .catch(() => {
-            toast.error(
-              t(
-                createForCustomer ? 'selectAddress.addressFailedCreateToast' : 'selectAddress.addressFailedSelectToast',
-              ),
-            );
-          });
+      const { setDraftOrderShippingAddress, setDraftOrderBillingAddress } = await adminApiMutation(
+        isShipping
+          ? { setDraftOrderShippingAddress: [{ orderId, input: address }, draftOrderSelector] }
+          : { setDraftOrderBillingAddress: [{ orderId, input: address }, draftOrderSelector] },
+      );
+      if (setDraftOrderShippingAddress || setDraftOrderBillingAddress) {
+        setDraftOrder(setDraftOrderShippingAddress || setDraftOrderBillingAddress);
+        toast(
+          t(createForCustomer ? 'selectAddress.addressSuccessCreateToast' : 'selectAddress.addressSuccessSelectToast'),
+        );
       } else {
-        await adminApiMutation()({
-          setDraftOrderBillingAddress: [{ orderId, input: address }, draftOrderSelector],
-        })
-          .then((e) => {
-            setDraftOrder(e.setDraftOrderBillingAddress);
-            toast(
-              t(
-                createForCustomer
-                  ? 'selectAddress.addressSuccessCreateToast'
-                  : 'selectAddress.addressSuccessSelectToast',
-              ),
-            );
-          })
-          .catch(() => {
-            toast.error(
-              t(
-                createForCustomer ? 'selectAddress.addressFailedCreateToast' : 'selectAddress.addressFailedSelectToast',
-              ),
-            );
-          });
+        toast.error(
+          t(createForCustomer ? 'selectAddress.addressFailedCreateToast' : 'selectAddress.addressFailedSelectToast'),
+        );
       }
     }
   };
 
   const addPaymentToOrder = async (input: ResolverInputTypes['ManualPaymentInput']) => {
     if (!id) return;
-    const { addManualPaymentToOrder } = await adminApiMutation()({
+    const { addManualPaymentToOrder } = await adminApiMutation({
       addManualPaymentToOrder: [
         { input },
         {
@@ -454,7 +371,7 @@ export const OrderCreatePage = () => {
     });
     if (addManualPaymentToOrder.__typename === 'Order') {
       setDraftOrder(addManualPaymentToOrder);
-      const data = await getAllHistory(id);
+      const data = await getAllOrderHistory(id);
       setOrderHistory(data.history);
     } else {
       const errorMessage = `
@@ -466,11 +383,11 @@ export const OrderCreatePage = () => {
 
   const fulfillOrder = async (input: ResolverInputTypes['FulfillOrderInput']) => {
     if (!id) return;
-    const { addFulfillmentToOrder } = await adminApiMutation()({
+    const { addFulfillmentToOrder } = await adminApiMutation({
       addFulfillmentToOrder: [{ input }, addFulfillmentToOrderResultSelector],
     });
     if (addFulfillmentToOrder.__typename === 'Fulfillment') {
-      const { transitionFulfillmentToState } = await adminApiMutation()({
+      const { transitionFulfillmentToState } = await adminApiMutation({
         transitionFulfillmentToState: [
           { id: addFulfillmentToOrder.id, state: 'Shipped' },
           {
@@ -489,9 +406,9 @@ export const OrderCreatePage = () => {
         ],
       });
       if (transitionFulfillmentToState.__typename === 'Fulfillment') {
-        const { order } = await adminApiQuery()({ order: [{ id }, draftOrderSelector] });
+        const { order } = await adminApiQuery({ order: [{ id }, draftOrderSelector] });
         setDraftOrder(order);
-        const data = await getAllHistory(id);
+        const data = await getAllOrderHistory(id);
         setOrderHistory(data.history);
         toast.success('Fulfillment added successfully', { position: 'top-center' });
         return;
@@ -511,7 +428,7 @@ export const OrderCreatePage = () => {
 
   const markAsDelivered = async (fulfillmentId: string) => {
     if (!id) return;
-    const { transitionFulfillmentToState } = await adminApiMutation()({
+    const { transitionFulfillmentToState } = await adminApiMutation({
       transitionFulfillmentToState: [
         { id: fulfillmentId, state: 'Delivered' },
         {
@@ -530,9 +447,9 @@ export const OrderCreatePage = () => {
       ],
     });
     if (transitionFulfillmentToState.__typename === 'Fulfillment') {
-      const { order } = await adminApiQuery()({ order: [{ id }, draftOrderSelector] });
+      const { order } = await adminApiQuery({ order: [{ id }, draftOrderSelector] });
       setDraftOrder(order);
-      const data = await getAllHistory(id);
+      const data = await getAllOrderHistory(id);
       setOrderHistory(data.history);
       toast.success('Fulfillment marked as delivered', { position: 'top-center' });
     } else {
@@ -544,48 +461,56 @@ export const OrderCreatePage = () => {
   };
 
   const addMessageToOrder = async (input: ResolverInputTypes['AddNoteToOrderInput']) => {
-    const { addNoteToOrder } = await adminApiMutation()({
+    const { addNoteToOrder } = await adminApiMutation({
       addNoteToOrder: [{ input }, { id: true }],
     });
-
     if (addNoteToOrder.id) {
-      const { history } = await getAllHistory(addNoteToOrder.id);
+      const { history } = await getAllOrderHistory(addNoteToOrder.id);
       setOrderHistory(history);
     } else toast.error('Something went wrong while adding note to order', { position: 'top-center' });
   };
 
   const deleteMessageFromOrder = async (id: string) => {
-    const { deleteOrderNote } = await adminApiMutation()({
+    const { deleteOrderNote } = await adminApiMutation({
       deleteOrderNote: [{ id }, { message: true, result: true }],
     });
-
     if (deleteOrderNote.result) {
-      const { history } = await getAllHistory(draftOrder?.id || '');
+      const { history } = await getAllOrderHistory(draftOrder?.id || '');
       setOrderHistory(history);
     } else toast.error('Something went wrong while deleting note from order', { position: 'top-center' });
   };
 
-  // const isOrderValid = useMemo(() => {
-  //   const isVariantValid = draftOrder?.lines.every((line) => line.productVariant);
-  //   const isCustomerValid = draftOrder?.customer?.id;
-  //   const isBillingAddressValid = draftOrder?.billingAddress?.streetLine1;
-  //   const isShippingAddressValid = draftOrder?.shippingAddress?.streetLine1;
-  //   const isShippingMethodValid = draftOrder?.shippingLines?.length;
-  //   return {
-  //     valid:
-  //       isVariantValid && isCustomerValid && isBillingAddressValid && isShippingAddressValid && isShippingMethodValid,
-  //     isVariantValid,
-  //     isCustomerValid,
-  //     isBillingAddressValid,
-  //     isShippingAddressValid,
-  //     isShippingMethodValid,
-  //   };
-  // }, [draftOrder]);
+  const isOrderValid = useMemo(() => {
+    const isVariantValid = draftOrder?.lines.every((line) => line.productVariant);
+    const isCustomerValid = draftOrder?.customer?.id;
+    const isBillingAddressValid = draftOrder?.billingAddress?.streetLine1;
+    const isShippingAddressValid = draftOrder?.shippingAddress?.streetLine1;
+    const isShippingMethodValid = draftOrder?.shippingLines?.length;
+    return {
+      valid:
+        isVariantValid && isCustomerValid && isBillingAddressValid && isShippingAddressValid && isShippingMethodValid,
+      isVariantValid,
+      isCustomerValid,
+      isBillingAddressValid,
+      isShippingAddressValid,
+      isShippingMethodValid,
+    };
+  }, [draftOrder]);
 
-  if (!orderLineCustomFields) return <div>No orderLineCustomFields</div>;
+  const SubmitOrderButton = (
+    <Button size="sm" onClick={onSubmit} disabled={!isOrderValid.valid}>
+      {t('create.completeOrderButton')}
+    </Button>
+  );
 
   return (
     <main>
+      <ManualOrderChangeModal
+        open={manualChange}
+        setOpen={setManualChange}
+        order={draftOrder}
+        currentPossibilities={currentPossibilities}
+      />
       <div className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
         <div className="mx-auto grid w-full max-w-[1200px] flex-1 auto-rows-max gap-4">
           <div className="flex items-center gap-4">
@@ -602,9 +527,7 @@ export const OrderCreatePage = () => {
                       onClick: () => navigate('/orders'),
                     },
                   });
-                } else {
-                  navigate('/orders');
-                }
+                } else navigate('/orders');
               }}
             >
               <ChevronLeft className="h-4 w-4" />
@@ -631,43 +554,7 @@ export const OrderCreatePage = () => {
                 >
                   {t('create.discardButton')}
                 </Button>
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button size="sm">Order states</Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-[40vw]">
-                    <DialogHeader>
-                      <DialogTitle>Order states</DialogTitle>
-                      <DialogDescription>
-                        Here you can see all possible states for the order, and the current state of the order.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <ScrollArea className="h-[80vh]">
-                      <Timeline>
-                        {serverConfig?.orderProcess?.map((state) => {
-                          const currentIndex = serverConfig?.orderProcess?.findIndex(
-                            (s) => s.name === draftOrder?.state,
-                          );
-                          const done =
-                            serverConfig?.orderProcess?.findIndex((s) => s.name === state.name) < currentIndex;
-                          return (
-                            <TimelineItem key={state.name} status={done ? 'done' : 'default'}>
-                              <TimelineLine done={done} />
-                              <TimelineDot status={done ? 'done' : 'default'} />
-                              <TimelineContent>
-                                <TimelineHeading>{state.name}</TimelineHeading>
-                                <p>{state.to.join(', ')}</p>
-                              </TimelineContent>
-                            </TimelineItem>
-                          );
-                        })}
-                      </Timeline>
-                    </ScrollArea>
-                  </DialogContent>
-                </Dialog>
-                <Button size="sm" onClick={onSubmit}>
-                  {t('create.completeOrderButton')}
-                </Button>
+                {SubmitOrderButton}
               </div>
             ) : draftOrder?.state === 'PaymentSettled' ? (
               <div className="hidden items-center gap-2 md:ml-auto md:flex">
@@ -752,6 +639,7 @@ export const OrderCreatePage = () => {
                 ) : null}
               </div>
             )}
+            <PossibleOrderStates orderProcess={serverConfig?.orderProcess || []} orderState={draftOrder?.state || ''} />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="icon">
@@ -766,12 +654,12 @@ export const OrderCreatePage = () => {
                     </Button>
                   </DropdownMenuItem>
                 ) : null}
-                <DropdownMenuItem>
+                <DropdownMenuItem asChild className="cursor-pointer">
                   <Button variant="ghost" className="w-full justify-start">
                     Anuluj zamówienie
                   </Button>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem asChild className="cursor-pointer">
                   <Button onClick={() => setManualChange(true)} variant="ghost" className="w-full justify-start">
                     Manualnie zmień status
                   </Button>
@@ -779,34 +667,7 @@ export const OrderCreatePage = () => {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-          <Dialog open={manualChange} onOpenChange={(e) => setManualChange(e)}>
-            <DialogContent className="max-w-[40vw]">
-              <DialogHeader>
-                <DialogTitle>
-                  Zmiana statusu zamówienia
-                  <span className="text-xs text-neutral-500"> - {draftOrder?.state}</span>
-                </DialogTitle>
-                <DialogDescription>
-                  Wybierz nowy status zamówienia, który chcesz ustawić dla zamówienia.
-                </DialogDescription>
-                <Select
-                  name="orderState"
-                  defaultValue={currentPossibilities?.to.find((state) => state !== draftOrder?.state)}
-                >
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {currentPossibilities?.to.map((state) => (
-                      <SelectItem key={state} value={state} onSelect={() => {}}>
-                        {state}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </DialogHeader>
-            </DialogContent>
-          </Dialog>
+
           <div className="grid gap-4 md:grid-cols-[1fr_250px] lg:grid-cols-3 lg:gap-8">
             <div className="grid auto-rows-max items-start gap-4 lg:col-span-2 lg:gap-8">
               <Card>
@@ -825,7 +686,7 @@ export const OrderCreatePage = () => {
                             className="flex h-full w-full flex-col"
                             onSubmit={async (e) => {
                               e.preventDefault();
-                              await addToOrder(variantToAdd.id, 1, {});
+                              await addToOrder(variantToAdd.id, 1, state.customFields?.value || {});
                             }}
                           >
                             <div className="flex w-full flex-col items-center gap-2">
@@ -837,29 +698,20 @@ export const OrderCreatePage = () => {
                                 </LineItem>
                               </div>
                             </div>
-                            <div className="text-primary-background my-4 flex h-full w-full flex-col gap-4 rounded-lg bg-primary-foreground p-4">
-                              <span className="text-lg font-semibold">Custom fields</span>
-                              <Tabs className="w-full" defaultValue="General">
-                                <TabsList className="w-full justify-start">
-                                  {Object.keys(rendered).map((tab) => (
-                                    <TabsTrigger key={tab} value={tab}>
-                                      {tab}
-                                    </TabsTrigger>
-                                  ))}
-                                </TabsList>
-                                {Object.entries(rendered).map(([tab, fields]) => (
-                                  <TabsContent key={tab} value={tab}>
-                                    <div className="flex flex-wrap">
-                                      {fields.map((field) => (
-                                        <div className="w-1/2" key={field.name}>
-                                          {field.component}
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </TabsContent>
-                                ))}
-                              </Tabs>
-                            </div>
+                            <CustomFieldsComponent
+                              getValue={(field) => {
+                                const value = state.customFields?.value
+                                  ? state.customFields?.value[field.name as never]
+                                  : '';
+                                return value;
+                              }}
+                              setValue={(field, data) => {
+                                setField('customFields', { ...state.customFields?.value, [field.name]: data });
+                              }}
+                              customFields={orderLineCustomFieldsConfig}
+                              data={{ variantToAdd }}
+                            />
+                            {/* HERE COMPONENT FOR CUSTOM FIELDS */}
                             <div className="float-end flex flex-row justify-end gap-4">
                               <Button type="submit">{t('create.add')}</Button>
                             </div>
@@ -913,246 +765,18 @@ export const OrderCreatePage = () => {
                   </div>
                 </CardContent>
               </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Tax summary</CardTitle>
-                  <CardDescription>Order tax summary</CardDescription>
-                  <Table>
-                    <TableHeader>
-                      <TableRow noHover>
-                        <TableHead>Description</TableHead>
-                        <TableHead>Tax rate</TableHead>
-                        <TableHead>Tax base</TableHead>
-                        <TableHead>Tax total</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {draftOrder?.taxSummary.map(({ description, taxRate, taxBase, taxTotal }) => (
-                        <TableRow key={description} noHover>
-                          <TableCell className="capitalize">{description}</TableCell>
-                          <TableCell>{taxRate}%</TableCell>
-                          <TableCell>{priceFormatter(taxBase)}</TableCell>
-                          <TableCell>{priceFormatter(taxTotal)}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </CardHeader>
-              </Card>
-              {orderHistory.length ? (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>History</CardTitle>
-                    <CardDescription>Order history</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <form
-                      className="flex flex-col gap-4"
-                      onSubmit={async (e) => {
-                        e.preventDefault();
-                        const form = e.currentTarget;
-                        const formData = new FormData(form);
-                        const comment = formData.get('comment') as string;
-                        const isPublic = formData.get('isPublic') === 'on';
-                        await addMessageToOrder({ id: id!, isPublic, note: comment });
-                      }}
-                    >
-                      <div className="flex flex-col gap-2">
-                        <Label htmlFor="comment">Add comment</Label>
-                        <Textarea id="comment" name="comment" className="h-24 w-full resize-none rounded-md p-2" />
-                        <div className="flex items-center gap-2">
-                          <Checkbox id="isPublic" name="isPublic" />
-                          <Label htmlFor="isPublic">
-                            Visible to customer
-                            <span className="ml-2 text-gray-500">(optional)</span>
-                          </Label>
-                        </div>
-                      </div>
-                      <div className="flex flex-row justify-end gap-4">
-                        <Button variant="outline" size="sm">
-                          Cancel
-                        </Button>
-                        <Button size="sm">Add comment</Button>
-                      </div>
-                    </form>
-                    <div>
-                      <Timeline positions="left" className="mt-4 w-full">
-                        {orderHistory.map((history) => {
-                          return (
-                            <TimelineItem key={history.id} status="done" className="w-full">
-                              <TimelineHeading side="right" className="w-full">
-                                <div className="flex">
-                                  <div className="flex w-full items-center justify-between">
-                                    <p>
-                                      {history.administrator?.firstName} {history.administrator?.lastName}&nbsp;
-                                    </p>
-                                    <div className="flex items-center gap-2">
-                                      <div className="flex items-center gap-2">
-                                        {Object.entries(history.data).map(([key, value]) => {
-                                          if (key === 'from' || key === 'to') {
-                                            return (
-                                              <div key={key} className="flex items-center gap-1">
-                                                <div>{key}:</div>
-                                                <OrderStateBadge state={value as string} />
-                                              </div>
-                                            );
-                                          }
-                                          return null;
-                                        })}
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </TimelineHeading>
-                              <TimelineDot status="done" />
-                              <TimelineLine done />
-                              <TimelineContent side="right" className="relative">
-                                <div className="flex flex-col">
-                                  <div>{history.type}</div>
-                                  <div>{history.isPublic ? 'Visible to customer' : 'Not visible to customer'}</div>
-                                  {!history.isPublic ? (
-                                    <div>
-                                      <Popover>
-                                        <PopoverTrigger asChild>
-                                          <Button size="sm" variant="ghost">
-                                            <Trash className="h-4 w-4" />
-                                          </Button>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-42">
-                                          <div className="flex flex-col gap-2">
-                                            <p>Are you sure?</p>
-                                            <Button
-                                              size="sm"
-                                              variant="outline"
-                                              onClick={() => deleteMessageFromOrder(history.id)}
-                                            >
-                                              Delete
-                                            </Button>
-                                          </div>
-                                        </PopoverContent>
-                                      </Popover>
-                                    </div>
-                                  ) : null}
-                                  {'paymentId' in history.data ? (
-                                    <Dialog>
-                                      <DialogTrigger asChild>
-                                        <Button variant="outline" size="sm">
-                                          Show payment
-                                        </Button>
-                                      </DialogTrigger>
-                                      <DialogContent>
-                                        <div className="flex flex-col gap-2">
-                                          <Label>Payment ID: {history.data.paymentId}</Label>
-                                        </div>
-                                      </DialogContent>
-                                    </Dialog>
-                                  ) : null}
-                                  {'fulfillmentId' in history.data ? (
-                                    <Dialog>
-                                      <DialogTrigger asChild>
-                                        <Button variant="outline" size="sm">
-                                          Show fulfillment
-                                        </Button>
-                                      </DialogTrigger>
-                                      <DialogContent>
-                                        <div className="flex flex-col gap-2">
-                                          <Label>Fulfillment ID: {history.data.fulfillmentId}</Label>
-                                        </div>
-                                      </DialogContent>
-                                    </Dialog>
-                                  ) : null}
-                                </div>
-                              </TimelineContent>
-                            </TimelineItem>
-                          );
-                        })}
-                      </Timeline>
-                    </div>
-                  </CardContent>
-                </Card>
+              <TaxSummary order={draftOrder} />
+              {draftOrder && orderHistory.length ? (
+                <OrderHistory
+                  orderHistory={orderHistory}
+                  addMessageToOrder={(data) => addMessageToOrder({ id: draftOrder.id, ...data })}
+                  deleteMessageFromOrder={deleteMessageFromOrder}
+                />
               ) : null}
             </div>
             <div className="grid auto-rows-max items-start gap-4 lg:gap-8">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Information</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-col gap-1">
-                    <div>
-                      <Label>ID: {draftOrder?.id}</Label>
-                    </div>
-                    <div>
-                      <Label>Create date: {draftOrder?.createdAt}</Label>
-                    </div>
-                    <div>
-                      <Label>Update date: {draftOrder?.updatedAt}</Label>
-                    </div>
-                    <div>
-                      <Label>Order code: {draftOrder?.code}</Label>
-                    </div>
-                    <div>
-                      <Label>State: {draftOrder?.state}</Label>
-                    </div>
-                    <AnimatePresence>
-                      {draftOrder?.total ? (
-                        <motion.div
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          transition={{ duration: 0.4, ease: 'easeInOut' }}
-                        >
-                          <Label>Total: </Label>
-                          <Label>{priceFormatter(draftOrder?.totalWithTax || 0)}</Label>
-                        </motion.div>
-                      ) : null}
-                    </AnimatePresence>
-                  </div>
-                </CardContent>
-              </Card>
-              <AnimatePresence>
-                {draftOrder?.fulfillments && draftOrder.fulfillments.length ? (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.4, ease: 'easeInOut' }}
-                  >
-                    <Card className="border-primary">
-                      <CardHeader>
-                        <CardTitle>Realization</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <Table>
-                          <TableHeader>
-                            <TableRow noHover>
-                              <TableHead>Method</TableHead>
-                              <TableHead>State</TableHead>
-                              <TableHead>Tracking code</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {draftOrder.fulfillments.map((fulfillment) => (
-                              <React.Fragment key={fulfillment.id}>
-                                <TableRow>
-                                  <TableCell>{fulfillment.method}</TableCell>
-                                  <TableCell>{fulfillment.state}</TableCell>
-                                  <TableCell>{fulfillment.trackingCode}</TableCell>
-                                  {fulfillment.state === 'Shipped' ? (
-                                    <Button size="sm" variant="outline" onClick={() => markAsDelivered(fulfillment.id)}>
-                                      Mark as delivered
-                                    </Button>
-                                  ) : null}
-                                </TableRow>
-                              </React.Fragment>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                ) : null}
-              </AnimatePresence>
+              <SummaryCard order={draftOrder} />
+              <RealizationCard order={draftOrder} markAsDelivered={markAsDelivered} />
               <CustomerSelectCard
                 isDraft={draftOrder?.state === 'Draft'}
                 customer={draftOrder?.customer}
@@ -1177,16 +801,31 @@ export const OrderCreatePage = () => {
               <ShippingMethod
                 order={draftOrder}
                 shippingMethods={eligibleShippingMethodsType}
-                shippingLines={draftOrder?.shippingLines}
                 onSelectShippingMethod={selectShippingMethod}
               />
             </div>
           </div>
           <div className="flex items-center justify-end gap-2 md:hidden">
-            <Button variant="outline" size="sm">
-              Discard
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                if (draftOrder?.state === 'Draft') {
+                  toast.error(t('create.leaveToastMessage'), {
+                    position: 'top-center',
+                    action: {
+                      label: t('create.leaveToastButton'),
+                      onClick: () => navigate('/orders'),
+                    },
+                  });
+                } else {
+                  navigate('/orders');
+                }
+              }}
+            >
+              {t('create.back')}
             </Button>
-            <Button size="sm">Complete draft order</Button>
+            {SubmitOrderButton}
           </div>
         </div>
       </div>

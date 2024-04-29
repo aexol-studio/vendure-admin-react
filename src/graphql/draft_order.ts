@@ -132,6 +132,11 @@ export const draftOrderSelector = Selector('Order')({
     id: true,
     quantity: true,
     productVariant: searchProductVariantSelector,
+    customFields: {
+      attributes: true,
+      discountBy: true,
+      selectedImage: { id: true, preview: true },
+    },
   },
 });
 
@@ -217,4 +222,3 @@ export const addFulfillmentToOrderResultSelector = Selector('AddFulfillmentToOrd
     errorCode: true,
   },
 });
-

@@ -14,8 +14,8 @@ export const AdminUIConfig = {
     },
     {
       where: 'order-create',
-      name: 'custom-text-form-input',
-      componentPath: '../../../src/pages/orders/_components/CustomComponent.tsx',
+      name: 'attributes-input',
+      componentPath: '../../src/pages/orders/_components/CustomComponent.tsx',
     },
   ],
 };

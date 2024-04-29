@@ -60,14 +60,14 @@ const SortButton: React.FC<
 };
 
 const createDraftOrder = async () => {
-  const response = await adminApiMutation()({
+  const response = await adminApiMutation({
     createDraftOrder: { id: true },
   });
   return response.createDraftOrder.id;
 };
 
 const getOrders = async (options: ResolverInputTypes['OrderListOptions']) => {
-  const response = await adminApiQuery()({
+  const response = await adminApiQuery({
     orders: [
       { options },
       {
@@ -160,7 +160,7 @@ export const OrderListPage = () => {
           State
         </SortButton>
       ),
-      cell: ({ row }) => <OrderStateBadge fullWidth state={row.original.state} />,
+      cell: ({ row }) => <OrderStateBadge state={row.original.state} />,
     },
     {
       accessorKey: 'firstName',
@@ -328,7 +328,8 @@ export const OrderListPage = () => {
       }
     });
 
-    filters.forEach((f) => setFilterField(f[0], f[1]));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    filters.forEach((f) => setFilterField(f[0] as any, f[1]));
   }, [searchParams, setFilterField]);
 
   const handleSearchChange = (value: string) => {

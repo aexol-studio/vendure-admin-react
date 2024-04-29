@@ -1,4 +1,3 @@
-import { DefaultProps } from './types';
 import { cn } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components';
@@ -6,13 +5,14 @@ import { CalendarIcon } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
+import { useCustomFields } from '..';
 
-export const DefaultTimeSelect = <T,>(props: DefaultProps<T>) => {
-  const { value, onChange } = props;
+export const DefaultTimeSelect: React.FC = () => {
+  const { value, setValue } = useCustomFields();
   const { t } = useTranslation('orders');
   const date = value ? new Date(value as string) : undefined;
   const setDate = (date: Date | undefined) => {
-    if (date) onChange(date.toISOString() as T);
+    if (date) setValue(date.toISOString());
   };
 
   return (

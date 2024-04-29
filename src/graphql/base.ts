@@ -252,10 +252,10 @@ export const AdminSettingsSelector = Selector('GlobalSettings')({
 });
 
 export const serverConfigSelector = Selector('ServerConfig')({
-  plugins: { name: true, version: true, path: true, active: true, status: true },
-  entityCustomFields: { customFields: CustomFieldConfigSelector, entityName: true },
+  // plugins: { name: true, version: true, path: true, active: true, status: true },
+  // entityCustomFields: { customFields: CustomFieldConfigSelector, entityName: true },
+  // moneyStrategyPrecision: true,
   orderProcess: { name: true, to: true },
-  moneyStrategyPrecision: true,
   permissions: { assignable: true, description: true, name: true },
   permittedAssetTypes: true,
 });

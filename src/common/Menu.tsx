@@ -12,7 +12,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuPortal,
-  DropdownMenuSeparator,
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
@@ -29,17 +28,13 @@ import {
   GripVertical,
   Languages,
   LogOutIcon,
-  Mail,
   MenuIcon,
-  MessageSquare,
   Moon,
   Package2,
-  PlusCircle,
   Slash,
   Store,
   Sun,
   Trash2Icon,
-  UserPlus,
 } from 'lucide-react';
 import * as ResizablePrimitive from 'react-resizable-panels';
 
@@ -99,7 +94,7 @@ export const Menu: React.FC<{ children?: React.ReactNode }> = ({ children }) => 
   const setChannels = useServer((p) => p.setChannels);
 
   useEffect(() => {
-    adminApiQuery()({
+    adminApiQuery({
       channels: [{ options: { take: 10 } }, { items: channelSelector, totalItems: true }],
       activeChannel: channelSelector,
     }).then(({ activeChannel, channels }) => {

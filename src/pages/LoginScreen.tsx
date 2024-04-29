@@ -34,7 +34,7 @@ export const LoginScreen = () => {
     const username = (e.currentTarget.elements.namedItem('username') as HTMLInputElement).value;
     const password = (e.currentTarget.elements.namedItem('password') as HTMLInputElement).value;
     const rememberMe = (e.currentTarget.elements.namedItem('rememberMe') as HTMLInputElement).checked;
-    const data = await adminApiMutation()({
+    const data = await adminApiMutation({
       login: [
         { username, password, rememberMe },
         {

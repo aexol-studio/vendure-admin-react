@@ -8,6 +8,9 @@ export const scalars = ZeusScalars({
     decode: (e: unknown) => new Date(e as string).toISOString(),
     encode: (e: unknown) => (e as Date).toISOString(),
   },
+  JSON: {
+    decode: (e) => e as Record<string, unknown>,
+  },
 });
 export type ScalarsType = typeof scalars;
 

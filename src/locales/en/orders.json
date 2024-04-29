@@ -113,6 +113,7 @@
         "createForCustomer": "Create for customer"
     },
     "selectShipmentMethod": {
+        "noLines": "At least one line item is required",
         "cardTitle": "Select shipping method",
         "cardDescription": "Select a shipping method",
         "noSelected": "No shipping method selected",

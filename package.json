@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "zeus": "zeus http://localhost:3000/admin-api ./src/",
+    "zeus": "zeus http://localhost:3000/admin-api  ./src/",
     "preview": "vite preview",
     "toc": "i18next-resources-for-ts toc -i ./src/locales/en -o ./src/@types/resources.ts",
     "interface": "i18next-resources-for-ts interface -i ./src/locales/en -o ./src/@types/resources.d.ts"
