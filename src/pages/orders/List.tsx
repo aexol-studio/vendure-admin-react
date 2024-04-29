@@ -3,7 +3,7 @@ import { Stack } from '@/components/Stack';
 import { Button } from '@/components/ui/button';
 import { OrderListSelector, OrderListType } from '@/graphql/orders';
 import { useList } from '@/lists/useList';
-import { ResolverInputTypes, SortOrder } from '@/zeus';
+import { DeletionResult, ResolverInputTypes, SortOrder } from '@/zeus';
 import { format } from 'date-fns';
 import {
   ColumnDef,
@@ -30,12 +30,22 @@ import React, { PropsWithChildren, useEffect, useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { PaginationInput } from '@/lists/models';
-import { Badge, EmptyState, Input } from '@/components';
+import { Badge, EmptyState, Input, Label } from '@/components';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { OrderStateBadge } from './_components/OrderStateBadge';
 import { ColumnsVisibilityStoreType, columnsVisibilityStore } from '@/state';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { toast } from 'sonner';
 
 const SortButton: React.FC<
   PropsWithChildren<{ sortKey: string; currSort: PaginationInput['sort']; onClick: () => void }>
@@ -90,6 +100,7 @@ export const OrderListPage = () => {
     resetFilter,
     setFilterField,
     isFilterOn,
+    refetch: refetchOrders,
   } = useList({
     route: async ({ page, perPage, sort, filter }) => {
       return getOrders({
@@ -101,8 +112,25 @@ export const OrderListPage = () => {
     },
     listType: 'orders',
   });
-
+  const [ordersToDelete, setOrdersToDelete] = useState<OrderListType[]>([]);
+  const [deleteDialogOpened, setDeleteDialogOpened] = useState(false);
   //make and array of columns based on passed type
+
+  const deleteOrdersToDelete = async () => {
+    const resp = await Promise.all(
+      ordersToDelete.map((i) =>
+        adminApiMutation()({ deleteDraftOrder: [{ orderId: i.id }, { message: true, result: true }] }),
+      ),
+    );
+    resp.forEach((i) =>
+      i.deleteDraftOrder.result === DeletionResult.NOT_DELETED
+        ? toast.error(i.deleteDraftOrder.message)
+        : toast(i.deleteDraftOrder.message || 'Order deleted'),
+    );
+    refetchOrders();
+    setDeleteDialogOpened(false);
+    setOrdersToDelete([]);
+  };
 
   const columns: ColumnDef<OrderListType>[] = [
     {
@@ -231,7 +259,6 @@ export const OrderListPage = () => {
       enableHiding: false,
       cell: ({ row }) => {
         const payment = row.original;
-
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -246,6 +273,14 @@ export const OrderListPage = () => {
                 Copy payment ID
               </DropdownMenuItem>
               <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => {
+                  setDeleteDialogOpened(true);
+                  setOrdersToDelete([payment]);
+                }}
+              >
+                Delete draft order
+              </DropdownMenuItem>
               <DropdownMenuItem>View customer</DropdownMenuItem>
               <DropdownMenuItem>View payment details</DropdownMenuItem>
             </DropdownMenuContent>
@@ -367,6 +402,28 @@ export const OrderListPage = () => {
           <div className="space-x-2">{Paginate}</div>
         </div>
       </div>
+      <Dialog open={deleteDialogOpened} onOpenChange={setDeleteDialogOpened}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Do you want to delete following draft orders?</DialogTitle>
+            <DialogDescription>
+              {ordersToDelete.map((i) => (
+                <div>
+                  {i.id} {i.code} {i.customer?.firstName} {i.customer?.firstName} {i.customer?.emailAddress}
+                </div>
+              ))}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button>Cancel</Button>
+            </DialogClose>
+            <Button variant="destructive" onClick={deleteOrdersToDelete}>
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Stack>
   );
 };

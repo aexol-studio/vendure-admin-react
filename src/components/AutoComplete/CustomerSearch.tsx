@@ -82,22 +82,6 @@ export const CustomerSearch: React.FC<Props> = ({ onSelect, selectedCustomer }) 
               <TableCell>{r.phoneNumber}</TableCell>
             </TableRow>
           ))}
-          {results.map((r) => (
-            <TableRow
-              className={cn(
-                r.id === selectedCustomer?.id &&
-                  'bg-stone-300/50 font-semibold hover:bg-stone-300/50 dark:bg-stone-500/50 hover:dark:bg-stone-500/50',
-              )}
-              onClick={() => onSelect(r)}
-              key={r.id}
-            >
-              <TableCell>{r.id}</TableCell>
-              <TableCell>{r.firstName}</TableCell>
-              <TableCell>{r.lastName}</TableCell>
-              <TableCell>{r.emailAddress}</TableCell>
-              <TableCell>{r.phoneNumber}</TableCell>
-            </TableRow>
-          ))}
         </TableBody>
       </Table>
     </div>

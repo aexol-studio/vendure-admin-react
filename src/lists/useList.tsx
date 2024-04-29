@@ -58,6 +58,7 @@ export const useList = <T extends PromisePaginated, K extends keyof ListType>({
   total: number;
   setSort: (sort: string) => void;
   optionInfo: PaginationInput;
+  refetch: () => void;
   resetFilter: () => void;
   setFilterField: (
     filterField: keyof ModelTypes[ListType[K]],
@@ -215,6 +216,19 @@ export const useList = <T extends PromisePaginated, K extends keyof ListType>({
     setSearchParams(searchParams);
   };
 
+  const refetch = () => {
+    const c = cache<{
+      items: GenericReturn<T>;
+      totalItems: number;
+    }>(listType);
+    const key = searchParams.toString();
+    route(searchParamValues).then((r) => {
+      setObjects(r.items);
+      setTotal(r.totalItems);
+      c.set(key, r);
+    });
+  };
+
   return {
     Paginate: (
       <Stack className="gap-4">
@@ -291,5 +305,6 @@ export const useList = <T extends PromisePaginated, K extends keyof ListType>({
     removeFilterField,
     optionInfo: searchParamValues,
     isFilterOn,
+    refetch,
   };
 };
