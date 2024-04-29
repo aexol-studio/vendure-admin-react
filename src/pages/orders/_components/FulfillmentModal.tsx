@@ -59,7 +59,7 @@ export const FulfillmentModal = ({
         code: filteredFulfillmentHandlers[0].code,
         arguments: filteredFulfillmentHandlers[0].args.map((arg) => ({
           name: arg.name,
-          value: arg.defaultValue as string,
+          value: JSON.stringify(arg.defaultValue),
         })),
       },
     },

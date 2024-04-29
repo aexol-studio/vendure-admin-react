@@ -1,7 +1,6 @@
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useDebounce } from '@/hooks';
-import { ValueTypes } from '@/zeus';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -39,7 +38,7 @@ export const FieldFilter: React.FC<Props> = ({
     [selectedOptionKey, selectOptions],
   );
 
-  const [optionValueString, setOptionValueString] = useState(optionValue || '');
+  const [optionValueString] = useState(optionValue || '');
   const debouncedOptionStringValue = useDebounce(optionValueString);
 
   useEffect(() => {

@@ -34,7 +34,7 @@ export const ProductVariantSearch: React.FC<Props> = ({ onSelectItem }) => {
 
   useEffect(() => {
     const search = async () => {
-      const data = await adminApiQuery()({
+      const data = await adminApiQuery({
         productVariants: [
           {
             options: {

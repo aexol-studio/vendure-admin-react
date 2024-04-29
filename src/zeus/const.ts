@@ -173,6 +173,48 @@ export const AllTypesProps: Record<string,any> = {
 		},
 		metricSummary:{
 			input:"MetricSummaryInput"
+		},
+		page:{
+
+		},
+		pages:{
+			options:"PageListOptions"
+		},
+		announcementBar:{
+
+		},
+		announcementBars:{
+			options:"AnnouncementBarListOptions"
+		},
+		wishlist:{
+
+		},
+		wishlists:{
+			options:"WishlistListOptions"
+		},
+		mostWishedProducts:{
+			options:"ProductListOptions"
+		},
+		getRealizationURL:{
+
+		},
+		getProformaURL:{
+
+		},
+		newsletterSubscribers:{
+			options:"NewsletterSubscriberListOptions"
+		},
+		backInStockSubscribers:{
+			options:"BackInStockSubscriberListOptions"
+		},
+		b2bSubscribers:{
+			options:"B2BSubscriberListOptions"
+		},
+		model:{
+
+		},
+		models:{
+			options:"ModelListOptions"
 		}
 	},
 	Mutation:{
@@ -308,9 +350,6 @@ export const AllTypesProps: Record<string,any> = {
 		deleteCustomerNote:{
 
 		},
-		duplicateEntity:{
-			input:"DuplicateEntityInput"
-		},
 		createFacet:{
 			input:"CreateFacetInput"
 		},
@@ -391,9 +430,6 @@ export const AllTypesProps: Record<string,any> = {
 		},
 		setOrderCustomFields:{
 			input:"UpdateOrderInput"
-		},
-		setOrderCustomer:{
-			input:"SetOrderCustomerInput"
 		},
 		modifyOrder:{
 			input:"ModifyOrderInput"
@@ -649,6 +685,60 @@ export const AllTypesProps: Record<string,any> = {
 		},
 		removeMembersFromZone:{
 
+		},
+		updatePage:{
+			input:"UpdatePageInput"
+		},
+		createPage:{
+			input:"CreatePageInput"
+		},
+		deletePage:{
+			input:"DeletePageInput"
+		},
+		updateAnnouncementBar:{
+			input:"UpdateAnnouncementBarInput"
+		},
+		createAnnouncementBar:{
+			input:"CreateAnnouncementBarInput"
+		},
+		deleteAnnouncementBar:{
+			input:"DeleteAnnouncementBarInput"
+		},
+		changeStatusAnnouncementBar:{
+			input:"ChangeStatusAnnouncementBarInput"
+		},
+		registerRealization:{
+			input:"OrderRealizationInput"
+		},
+		registerProforma:{
+			input:"RegisterProformaInput"
+		},
+		deleteNewsletterSubscriber:{
+
+		},
+		markNewsletterAsSeen:{
+
+		},
+		deleteBackInStockSubscriber:{
+
+		},
+		markBackInStockAsSeen:{
+
+		},
+		deleteB2BSubscriber:{
+
+		},
+		markB2BAsSeen:{
+
+		},
+		updateModel:{
+			input:"UpdateModelInput"
+		},
+		createModel:{
+			input:"CreateModelInput"
+		},
+		deleteModel:{
+			input:"DeleteModelInput"
 		}
 	},
 	AdministratorListOptions:{
@@ -728,16 +818,16 @@ export const AllTypesProps: Record<string,any> = {
 	},
 	CreateCollectionTranslationInput:{
 		languageCode:"LanguageCode",
-		customFields:"JSON"
+		customFields:"CreateCollectionTranslationInputCustomFields"
 	},
 	UpdateCollectionTranslationInput:{
 		languageCode:"LanguageCode",
-		customFields:"JSON"
+		customFields:"UpdateCollectionTranslationInputCustomFields"
 	},
 	CreateCollectionInput:{
 		filters:"ConfigurableOperationInput",
 		translations:"CreateCollectionTranslationInput",
-		customFields:"JSON"
+		customFields:"CreateCollectionCustomFieldsInput"
 	},
 	PreviewCollectionVariantsInput:{
 		filters:"ConfigurableOperationInput"
@@ -745,7 +835,7 @@ export const AllTypesProps: Record<string,any> = {
 	UpdateCollectionInput:{
 		filters:"ConfigurableOperationInput",
 		translations:"UpdateCollectionTranslationInput",
-		customFields:"JSON"
+		customFields:"UpdateCollectionCustomFieldsInput"
 	},
 	AssignCollectionsToChannelInput:{
 
@@ -801,9 +891,7 @@ export const AllTypesProps: Record<string,any> = {
 		firstName:"StringOperators",
 		lastName:"StringOperators",
 		phoneNumber:"StringOperators",
-		emailAddress:"StringOperators",
-		_and:"CustomerFilterParameter",
-		_or:"CustomerFilterParameter"
+		emailAddress:"StringOperators"
 	},
 	CustomerListOptions:{
 		sort:"CustomerSortParameter",
@@ -815,9 +903,6 @@ export const AllTypesProps: Record<string,any> = {
 	},
 	UpdateCustomerNoteInput:{
 
-	},
-	DuplicateEntityInput:{
-		duplicatorInput:"ConfigurableOperationInput"
 	},
 	Facet:{
 		valueList:{
@@ -836,11 +921,11 @@ export const AllTypesProps: Record<string,any> = {
 	CreateFacetInput:{
 		translations:"FacetTranslationInput",
 		values:"CreateFacetValueWithFacetInput",
-		customFields:"JSON"
+		customFields:"CreateFacetCustomFieldsInput"
 	},
 	UpdateFacetInput:{
 		translations:"FacetTranslationInput",
-		customFields:"JSON"
+		customFields:"UpdateFacetCustomFieldsInput"
 	},
 	FacetValueTranslationInput:{
 		languageCode:"LanguageCode",
@@ -851,11 +936,11 @@ export const AllTypesProps: Record<string,any> = {
 	},
 	CreateFacetValueInput:{
 		translations:"FacetValueTranslationInput",
-		customFields:"JSON"
+		customFields:"CreateFacetValueCustomFieldsInput"
 	},
 	UpdateFacetValueInput:{
 		translations:"FacetValueTranslationInput",
-		customFields:"JSON"
+		customFields:"UpdateFacetValueCustomFieldsInput"
 	},
 	AssignFacetsToChannelInput:{
 
@@ -898,8 +983,9 @@ export const AllTypesProps: Record<string,any> = {
 		shippingWithTax:"NumberOperators",
 		total:"NumberOperators",
 		totalWithTax:"NumberOperators",
-		_and:"OrderFilterParameter",
-		_or:"OrderFilterParameter"
+		getProforma:"StringOperators",
+		registeredOnCheckout:"BooleanOperators",
+		additionalInformation:"StringOperators"
 	},
 	OrderSortParameter:{
 		customerLastName:"SortOrder",
@@ -917,18 +1003,19 @@ export const AllTypesProps: Record<string,any> = {
 		shipping:"SortOrder",
 		shippingWithTax:"SortOrder",
 		total:"SortOrder",
-		totalWithTax:"SortOrder"
+		totalWithTax:"SortOrder",
+		getProforma:"SortOrder",
+		registeredOnCheckout:"SortOrder",
+		selectedPaymentMethod:"SortOrder",
+		additionalInformation:"SortOrder"
 	},
 	OrderListOptions:{
 		sort:"OrderSortParameter",
 		filter:"OrderFilterParameter",
 		filterOperator:"LogicalOperator"
 	},
-	SetOrderCustomerInput:{
-
-	},
 	UpdateOrderInput:{
-		customFields:"JSON"
+		customFields:"UpdateOrderCustomFieldsInput"
 	},
 	FulfillOrderInput:{
 		lines:"OrderLineInput",
@@ -940,8 +1027,7 @@ export const AllTypesProps: Record<string,any> = {
 	RefundOrderInput:{
 		lines:"OrderLineInput",
 		shipping:"Money",
-		adjustment:"Money",
-		amount:"Money"
+		adjustment:"Money"
 	},
 	OrderLineInput:{
 		customFields:"OrderLineCustomFieldsInput"
@@ -959,13 +1045,13 @@ export const AllTypesProps: Record<string,any> = {
 		metadata:"JSON"
 	},
 	AdministratorRefundInput:{
-		amount:"Money"
+
 	},
 	ModifyOrderOptions:{
 
 	},
 	UpdateOrderAddressInput:{
-
+		customFields:"UpdateAddressCustomFieldsInput"
 	},
 	ModifyOrderInput:{
 		addItems:"AddItemInput",
@@ -974,8 +1060,8 @@ export const AllTypesProps: Record<string,any> = {
 		updateShippingAddress:"UpdateOrderAddressInput",
 		updateBillingAddress:"UpdateOrderAddressInput",
 		refund:"AdministratorRefundInput",
-		refunds:"AdministratorRefundInput",
-		options:"ModifyOrderOptions"
+		options:"ModifyOrderOptions",
+		customFields:"UpdateOrderCustomFieldsInput"
 	},
 	AddItemInput:{
 		customFields:"OrderLineCustomFieldsInput"
@@ -999,7 +1085,7 @@ export const AllTypesProps: Record<string,any> = {
 	},
 	PaymentMethodTranslationInput:{
 		languageCode:"LanguageCode",
-		customFields:"JSON"
+		customFields:"PaymentMethodTranslationInputCustomFields"
 	},
 	CreatePaymentMethodInput:{
 		checker:"ConfigurableOperationInput",
@@ -1051,11 +1137,11 @@ export const AllTypesProps: Record<string,any> = {
 	},
 	CreateProductOptionInput:{
 		translations:"ProductOptionGroupTranslationInput",
-		customFields:"JSON"
+		customFields:"CreateProductOptionCustomFieldsInput"
 	},
 	UpdateProductOptionInput:{
 		translations:"ProductOptionGroupTranslationInput",
-		customFields:"JSON"
+		customFields:"UpdateProductOptionCustomFieldsInput"
 	},
 	StockMovementListOptions:{
 		type:"StockMovementType"
@@ -1067,7 +1153,7 @@ export const AllTypesProps: Record<string,any> = {
 	},
 	ProductFilterParameter:{
 		facetValueId:"IDOperators",
-		sku:"StringOperators",
+		enabled:"BooleanOperators",
 		id:"IDOperators",
 		createdAt:"DateOperators",
 		updatedAt:"DateOperators",
@@ -1075,9 +1161,16 @@ export const AllTypesProps: Record<string,any> = {
 		name:"StringOperators",
 		slug:"StringOperators",
 		description:"StringOperators",
-		enabled:"BooleanOperators",
-		_and:"ProductFilterParameter",
-		_or:"ProductFilterParameter"
+		seoTitle:"StringOperators",
+		seoDescription:"StringOperators",
+		optionsOrder:"StringOperators",
+		sizes:"StringOperators",
+		finish:"StringOperators",
+		materials:"StringOperators",
+		payment:"StringOperators",
+		delivery:"StringOperators",
+		realization:"StringOperators",
+		discountBy:"NumberOperators"
 	},
 	ProductVariantListOptions:{
 		sort:"ProductVariantSortParameter",
@@ -1103,20 +1196,19 @@ export const AllTypesProps: Record<string,any> = {
 		currencyCode:"StringOperators",
 		priceWithTax:"NumberOperators",
 		stockLevel:"StringOperators",
-		_and:"ProductVariantFilterParameter",
-		_or:"ProductVariantFilterParameter"
+		omnibusPrice:"NumberOperators"
 	},
 	ProductTranslationInput:{
 		languageCode:"LanguageCode",
-		customFields:"JSON"
+		customFields:"ProductTranslationInputCustomFields"
 	},
 	CreateProductInput:{
 		translations:"ProductTranslationInput",
-		customFields:"JSON"
+		customFields:"CreateProductCustomFieldsInput"
 	},
 	UpdateProductInput:{
 		translations:"ProductTranslationInput",
-		customFields:"JSON"
+		customFields:"UpdateProductCustomFieldsInput"
 	},
 	ProductVariantTranslationInput:{
 		languageCode:"LanguageCode",
@@ -1236,7 +1328,7 @@ export const AllTypesProps: Record<string,any> = {
 	},
 	ShippingMethodTranslationInput:{
 		languageCode:"LanguageCode",
-		customFields:"JSON"
+		customFields:"ShippingMethodTranslationInputCustomFields"
 	},
 	CreateShippingMethodInput:{
 		checker:"ConfigurableOperationInput",
@@ -1407,10 +1499,10 @@ export const AllTypesProps: Record<string,any> = {
 		customFields:"JSON"
 	},
 	CreateAddressInput:{
-		customFields:"JSON"
+		customFields:"CreateAddressCustomFieldsInput"
 	},
 	UpdateAddressInput:{
-		customFields:"JSON"
+		customFields:"UpdateAddressCustomFieldsInput"
 	},
 	CurrencyCode: "enum" as const,
 	CustomerGroup:{
@@ -1437,15 +1529,126 @@ export const AllTypesProps: Record<string,any> = {
 		interval:"MetricInterval",
 		types:"MetricType"
 	},
+	PageType: "enum" as const,
+	Page:{
+		translations:{
+			languageCode:"LanguageCode"
+		}
+	},
+	PageListOptions:{
+		sort:"PageSortParameter",
+		filter:"PageFilterParameter",
+		filterOperator:"LogicalOperator"
+	},
+	PageTranslationInput:{
+		languageCode:"LanguageCode"
+	},
+	UpdatePageInput:{
+		translations:"PageTranslationInput"
+	},
+	CreatePageInput:{
+		type:"PageType",
+		translations:"PageTranslationInput"
+	},
+	DeletePageInput:{
+
+	},
+	AnnouncementBarEntry:{
+		translations:{
+			languageCode:"LanguageCode"
+		}
+	},
+	AnnouncementBarListOptions:{
+		sort:"AnnouncementBarSortParameter",
+		filter:"AnnouncementBarFilterParameter",
+		filterOperator:"LogicalOperator"
+	},
+	AnnouncementBarEntryTranslationInput:{
+		languageCode:"LanguageCode"
+	},
+	AnnouncementBarEntryInput:{
+		translations:"AnnouncementBarEntryTranslationInput"
+	},
+	UpdateAnnouncementBarInput:{
+		startDate:"DateTime",
+		endDate:"DateTime",
+		entries:"AnnouncementBarEntryInput"
+	},
+	CreateAnnouncementBarInput:{
+		startDate:"DateTime",
+		endDate:"DateTime",
+		entries:"AnnouncementBarEntryInput"
+	},
+	DeleteAnnouncementBarInput:{
+
+	},
+	ChangeStatusAnnouncementBarInput:{
+
+	},
+	WishlistListOptions:{
+		sort:"WishlistSortParameter",
+		filter:"WishlistFilterParameter",
+		filterOperator:"LogicalOperator"
+	},
+	Wishlist:{
+		entries:{
+			options:"WishlistListOptions"
+		}
+	},
+	RealizationAssetInput:{
+
+	},
+	OrderRealizationInput:{
+		assets:"RealizationAssetInput"
+	},
+	RegisterProformaInput:{
+
+	},
+	NewsletterSubscriberListOptions:{
+		sort:"NewsletterSubscriberSortParameter",
+		filter:"NewsletterSubscriberFilterParameter",
+		filterOperator:"LogicalOperator"
+	},
+	BackInStockSubscriberListOptions:{
+		sort:"BackInStockSubscriberSortParameter",
+		filter:"BackInStockSubscriberFilterParameter",
+		filterOperator:"LogicalOperator"
+	},
+	B2BSubscriberListOptions:{
+		sort:"B2BSubscriberSortParameter",
+		filter:"B2BSubscriberFilterParameter",
+		filterOperator:"LogicalOperator"
+	},
+	Model:{
+		translations:{
+			languageCode:"LanguageCode"
+		}
+	},
+	ModelListOptions:{
+		sort:"ModelSortParameter",
+		filter:"ModelFilterParameter",
+		filterOperator:"LogicalOperator"
+	},
+	ModelTranslationInput:{
+		languageCode:"LanguageCode"
+	},
+	UpdateModelInput:{
+		translations:"ModelTranslationInput"
+	},
+	CreateModelInput:{
+		file:"Upload",
+		translations:"ModelTranslationInput"
+	},
+	DeleteModelInput:{
+
+	},
 	AdministratorFilterParameter:{
 		id:"IDOperators",
 		createdAt:"DateOperators",
 		updatedAt:"DateOperators",
 		firstName:"StringOperators",
 		lastName:"StringOperators",
-		emailAddress:"StringOperators",
-		_and:"AdministratorFilterParameter",
-		_or:"AdministratorFilterParameter"
+		emailAddress:"StringOperators"
 	},
 	AdministratorSortParameter:{
 		id:"SortOrder",
@@ -1466,9 +1669,7 @@ export const AllTypesProps: Record<string,any> = {
 		width:"NumberOperators",
 		height:"NumberOperators",
 		source:"StringOperators",
-		preview:"StringOperators",
-		_and:"AssetFilterParameter",
-		_or:"AssetFilterParameter"
+		preview:"StringOperators"
 	},
 	AssetSortParameter:{
 		id:"SortOrder",
@@ -1493,9 +1694,7 @@ export const AllTypesProps: Record<string,any> = {
 		defaultCurrencyCode:"StringOperators",
 		trackInventory:"BooleanOperators",
 		outOfStockThreshold:"NumberOperators",
-		pricesIncludeTax:"BooleanOperators",
-		_and:"ChannelFilterParameter",
-		_or:"ChannelFilterParameter"
+		pricesIncludeTax:"BooleanOperators"
 	},
 	ChannelSortParameter:{
 		id:"SortOrder",
@@ -1517,8 +1716,8 @@ export const AllTypesProps: Record<string,any> = {
 		position:"NumberOperators",
 		description:"StringOperators",
 		parentId:"IDOperators",
-		_and:"CollectionFilterParameter",
-		_or:"CollectionFilterParameter"
+		seoTitle:"StringOperators",
+		seoDescription:"StringOperators"
 	},
 	CollectionSortParameter:{
 		id:"SortOrder",
@@ -1528,7 +1727,11 @@ export const AllTypesProps: Record<string,any> = {
 		slug:"SortOrder",
 		position:"SortOrder",
 		description:"SortOrder",
-		parentId:"SortOrder"
+		parentId:"SortOrder",
+		seoTitle:"SortOrder",
+		seoDescription:"SortOrder",
+		facebookImage:"SortOrder",
+		twitterImage:"SortOrder"
 	},
 	ProductVariantSortParameter:{
 		stockOnHand:"SortOrder",
@@ -1542,7 +1745,8 @@ export const AllTypesProps: Record<string,any> = {
 		name:"SortOrder",
 		price:"SortOrder",
 		priceWithTax:"SortOrder",
-		stockLevel:"SortOrder"
+		stockLevel:"SortOrder",
+		omnibusPrice:"SortOrder"
 	},
 	CountryFilterParameter:{
 		id:"IDOperators",
@@ -1553,9 +1757,7 @@ export const AllTypesProps: Record<string,any> = {
 		type:"StringOperators",
 		name:"StringOperators",
 		enabled:"BooleanOperators",
-		parentId:"IDOperators",
-		_and:"CountryFilterParameter",
-		_or:"CountryFilterParameter"
+		parentId:"IDOperators"
 	},
 	CountrySortParameter:{
 		id:"SortOrder",
@@ -1570,9 +1772,7 @@ export const AllTypesProps: Record<string,any> = {
 		id:"IDOperators",
 		createdAt:"DateOperators",
 		updatedAt:"DateOperators",
-		name:"StringOperators",
-		_and:"CustomerGroupFilterParameter",
-		_or:"CustomerGroupFilterParameter"
+		name:"StringOperators"
 	},
 	CustomerGroupSortParameter:{
 		id:"SortOrder",
@@ -1598,15 +1798,19 @@ export const AllTypesProps: Record<string,any> = {
 		languageCode:"StringOperators",
 		name:"StringOperators",
 		code:"StringOperators",
-		_and:"FacetFilterParameter",
-		_or:"FacetFilterParameter"
+		usedForColors:"BooleanOperators",
+		usedForProductCreations:"BooleanOperators",
+		colorsCollection:"BooleanOperators"
 	},
 	FacetSortParameter:{
 		id:"SortOrder",
 		createdAt:"SortOrder",
 		updatedAt:"SortOrder",
 		name:"SortOrder",
-		code:"SortOrder"
+		code:"SortOrder",
+		usedForColors:"SortOrder",
+		usedForProductCreations:"SortOrder",
+		colorsCollection:"SortOrder"
 	},
 	FacetValueFilterParameter:{
 		id:"IDOperators",
@@ -1616,8 +1820,8 @@ export const AllTypesProps: Record<string,any> = {
 		facetId:"IDOperators",
 		name:"StringOperators",
 		code:"StringOperators",
-		_and:"FacetValueFilterParameter",
-		_or:"FacetValueFilterParameter"
+		hexColor:"StringOperators",
+		isNew:"BooleanOperators"
 	},
 	FacetValueSortParameter:{
 		id:"SortOrder",
@@ -1625,7 +1829,10 @@ export const AllTypesProps: Record<string,any> = {
 		updatedAt:"SortOrder",
 		facetId:"SortOrder",
 		name:"SortOrder",
-		code:"SortOrder"
+		code:"SortOrder",
+		image:"SortOrder",
+		hexColor:"SortOrder",
+		isNew:"SortOrder"
 	},
 	JobFilterParameter:{
 		id:"IDOperators",
@@ -1638,9 +1845,7 @@ export const AllTypesProps: Record<string,any> = {
 		isSettled:"BooleanOperators",
 		duration:"NumberOperators",
 		retries:"NumberOperators",
-		attempts:"NumberOperators",
-		_and:"JobFilterParameter",
-		_or:"JobFilterParameter"
+		attempts:"NumberOperators"
 	},
 	JobSortParameter:{
 		id:"SortOrder",
@@ -1661,8 +1866,9 @@ export const AllTypesProps: Record<string,any> = {
 		code:"StringOperators",
 		description:"StringOperators",
 		enabled:"BooleanOperators",
-		_and:"PaymentMethodFilterParameter",
-		_or:"PaymentMethodFilterParameter"
+		modalTitle:"StringOperators",
+		modalDescription:"StringOperators",
+		modalAdditionalDescription:"StringOperators"
 	},
 	PaymentMethodSortParameter:{
 		id:"SortOrder",
@@ -1670,7 +1876,10 @@ export const AllTypesProps: Record<string,any> = {
 		updatedAt:"SortOrder",
 		name:"SortOrder",
 		code:"SortOrder",
-		description:"SortOrder"
+		description:"SortOrder",
+		modalTitle:"SortOrder",
+		modalDescription:"SortOrder",
+		modalAdditionalDescription:"SortOrder"
 	},
 	ProductSortParameter:{
 		id:"SortOrder",
@@ -1678,7 +1887,19 @@ export const AllTypesProps: Record<string,any> = {
 		updatedAt:"SortOrder",
 		name:"SortOrder",
 		slug:"SortOrder",
-		description:"SortOrder"
+		description:"SortOrder",
+		seoTitle:"SortOrder",
+		seoDescription:"SortOrder",
+		facebookImage:"SortOrder",
+		twitterImage:"SortOrder",
+		optionsOrder:"SortOrder",
+		sizes:"SortOrder",
+		finish:"SortOrder",
+		materials:"SortOrder",
+		payment:"SortOrder",
+		delivery:"SortOrder",
+		realization:"SortOrder",
+		discountBy:"SortOrder"
 	},
 	PromotionFilterParameter:{
 		id:"IDOperators",
@@ -1691,9 +1912,7 @@ export const AllTypesProps: Record<string,any> = {
 		usageLimit:"NumberOperators",
 		name:"StringOperators",
 		description:"StringOperators",
-		enabled:"BooleanOperators",
-		_and:"PromotionFilterParameter",
-		_or:"PromotionFilterParameter"
+		enabled:"BooleanOperators"
 	},
 	PromotionSortParameter:{
 		id:"SortOrder",
@@ -1716,9 +1935,7 @@ export const AllTypesProps: Record<string,any> = {
 		type:"StringOperators",
 		name:"StringOperators",
 		enabled:"BooleanOperators",
-		parentId:"IDOperators",
-		_and:"ProvinceFilterParameter",
-		_or:"ProvinceFilterParameter"
+		parentId:"IDOperators"
 	},
 	ProvinceSortParameter:{
 		id:"SortOrder",
@@ -1734,9 +1951,7 @@ export const AllTypesProps: Record<string,any> = {
 		createdAt:"DateOperators",
 		updatedAt:"DateOperators",
 		code:"StringOperators",
-		description:"StringOperators",
-		_and:"RoleFilterParameter",
-		_or:"RoleFilterParameter"
+		description:"StringOperators"
 	},
 	RoleSortParameter:{
 		id:"SortOrder",
@@ -1749,9 +1964,7 @@ export const AllTypesProps: Record<string,any> = {
 		id:"IDOperators",
 		createdAt:"DateOperators",
 		updatedAt:"DateOperators",
-		name:"StringOperators",
-		_and:"SellerFilterParameter",
-		_or:"SellerFilterParameter"
+		name:"StringOperators"
 	},
 	SellerSortParameter:{
 		id:"SortOrder",
@@ -1768,8 +1981,9 @@ export const AllTypesProps: Record<string,any> = {
 		name:"StringOperators",
 		description:"StringOperators",
 		fulfillmentHandlerCode:"StringOperators",
-		_and:"ShippingMethodFilterParameter",
-		_or:"ShippingMethodFilterParameter"
+		modalTitle:"StringOperators",
+		modalDescription:"StringOperators",
+		modalAdditionalDescription:"StringOperators"
 	},
 	ShippingMethodSortParameter:{
 		id:"SortOrder",
@@ -1778,16 +1992,17 @@ export const AllTypesProps: Record<string,any> = {
 		code:"SortOrder",
 		name:"SortOrder",
 		description:"SortOrder",
-		fulfillmentHandlerCode:"SortOrder"
+		fulfillmentHandlerCode:"SortOrder",
+		modalTitle:"SortOrder",
+		modalDescription:"SortOrder",
+		modalAdditionalDescription:"SortOrder"
 	},
 	StockLocationFilterParameter:{
 		id:"IDOperators",
 		createdAt:"DateOperators",
 		updatedAt:"DateOperators",
 		name:"StringOperators",
-		description:"StringOperators",
-		_and:"StockLocationFilterParameter",
-		_or:"StockLocationFilterParameter"
+		description:"StringOperators"
 	},
 	StockLocationSortParameter:{
 		id:"SortOrder",
@@ -1800,9 +2015,7 @@ export const AllTypesProps: Record<string,any> = {
 		id:"IDOperators",
 		createdAt:"DateOperators",
 		updatedAt:"DateOperators",
-		value:"StringOperators",
-		_and:"TagFilterParameter",
-		_or:"TagFilterParameter"
+		value:"StringOperators"
 	},
 	TagSortParameter:{
 		id:"SortOrder",
@@ -1815,9 +2028,7 @@ export const AllTypesProps: Record<string,any> = {
 		createdAt:"DateOperators",
 		updatedAt:"DateOperators",
 		name:"StringOperators",
-		isDefault:"BooleanOperators",
-		_and:"TaxCategoryFilterParameter",
-		_or:"TaxCategoryFilterParameter"
+		isDefault:"BooleanOperators"
 	},
 	TaxCategorySortParameter:{
 		id:"SortOrder",
@@ -1831,9 +2042,7 @@ export const AllTypesProps: Record<string,any> = {
 		updatedAt:"DateOperators",
 		name:"StringOperators",
 		enabled:"BooleanOperators",
-		value:"NumberOperators",
-		_and:"TaxRateFilterParameter",
-		_or:"TaxRateFilterParameter"
+		value:"NumberOperators"
 	},
 	TaxRateSortParameter:{
 		id:"SortOrder",
@@ -1846,9 +2055,7 @@ export const AllTypesProps: Record<string,any> = {
 		id:"IDOperators",
 		createdAt:"DateOperators",
 		updatedAt:"DateOperators",
-		name:"StringOperators",
-		_and:"ZoneFilterParameter",
-		_or:"ZoneFilterParameter"
+		name:"StringOperators"
 	},
 	ZoneSortParameter:{
 		id:"SortOrder",
@@ -1856,23 +2063,209 @@ export const AllTypesProps: Record<string,any> = {
 		updatedAt:"SortOrder",
 		name:"SortOrder"
 	},
+	PageFilterParameter:{
+		id:"IDOperators",
+		createdAt:"DateOperators",
+		updatedAt:"DateOperators",
+		type:"StringOperators",
+		content:"StringOperators",
+		title:"StringOperators",
+		description:"StringOperators",
+		slug:"StringOperators",
+		position:"NumberOperators",
+		enabled:"BooleanOperators"
+	},
+	PageSortParameter:{
+		id:"SortOrder",
+		createdAt:"SortOrder",
+		updatedAt:"SortOrder",
+		content:"SortOrder",
+		title:"SortOrder",
+		description:"SortOrder",
+		slug:"SortOrder",
+		position:"SortOrder"
+	},
+	AnnouncementBarFilterParameter:{
+		id:"IDOperators",
+		createdAt:"DateOperators",
+		updatedAt:"DateOperators",
+		title:"StringOperators",
+		enabled:"BooleanOperators",
+		startDate:"DateOperators",
+		endDate:"DateOperators",
+		speed:"NumberOperators",
+		spaceBetween:"NumberOperators",
+		colorBackground:"StringOperators",
+		nowActive:"BooleanOperators"
+	},
+	AnnouncementBarSortParameter:{
+		id:"SortOrder",
+		createdAt:"SortOrder",
+		updatedAt:"SortOrder",
+		title:"SortOrder",
+		startDate:"SortOrder",
+		endDate:"SortOrder",
+		speed:"SortOrder",
+		spaceBetween:"SortOrder",
+		colorBackground:"SortOrder"
+	},
+	WishlistFilterParameter:{
+		id:"IDOperators",
+		createdAt:"DateOperators",
+		updatedAt:"DateOperators",
+		currencyCode:"StringOperators"
+	},
+	WishlistSortParameter:{
+		id:"SortOrder",
+		createdAt:"SortOrder",
+		updatedAt:"SortOrder"
+	},
+	NewsletterSubscriberFilterParameter:{
+		id:"IDOperators",
+		createdAt:"DateOperators",
+		updatedAt:"DateOperators",
+		email:"StringOperators",
+		type:"StringOperators",
+		data:"StringOperators",
+		seen:"BooleanOperators"
+	},
+	NewsletterSubscriberSortParameter:{
+		id:"SortOrder",
+		createdAt:"SortOrder",
+		updatedAt:"SortOrder",
+		email:"SortOrder",
+		type:"SortOrder",
+		data:"SortOrder"
+	},
+	BackInStockSubscriberFilterParameter:{
+		id:"IDOperators",
+		createdAt:"DateOperators",
+		updatedAt:"DateOperators",
+		name:"StringOperators",
+		email:"StringOperators",
+		data:"StringOperators",
+		registerToNewsletter:"BooleanOperators",
+		options:"StringOperators",
+		seen:"BooleanOperators"
+	},
+	BackInStockSubscriberSortParameter:{
+		id:"SortOrder",
+		createdAt:"SortOrder",
+		updatedAt:"SortOrder",
+		name:"SortOrder",
+		email:"SortOrder",
+		data:"SortOrder",
+		options:"SortOrder"
+	},
+	B2BSubscriberFilterParameter:{
+		id:"IDOperators",
+		createdAt:"DateOperators",
+		updatedAt:"DateOperators",
+		name:"StringOperators",
+		email:"StringOperators",
+		NIP:"StringOperators",
+		city:"StringOperators",
+		number:"StringOperators",
+		message:"StringOperators",
+		seen:"BooleanOperators"
+	},
+	B2BSubscriberSortParameter:{
+		id:"SortOrder",
+		createdAt:"SortOrder",
+		updatedAt:"SortOrder",
+		name:"SortOrder",
+		email:"SortOrder",
+		NIP:"SortOrder",
+		city:"SortOrder",
+		number:"SortOrder",
+		message:"SortOrder"
+	},
+	ModelFilterParameter:{
+		id:"IDOperators",
+		createdAt:"DateOperators",
+		updatedAt:"DateOperators",
+		title:"StringOperators",
+		content:"StringOperators",
+		url:"StringOperators",
+		key:"StringOperators"
+	},
+	ModelSortParameter:{
+		id:"SortOrder",
+		createdAt:"SortOrder",
+		updatedAt:"SortOrder",
+		title:"SortOrder",
+		content:"SortOrder",
+		url:"SortOrder",
+		key:"SortOrder"
+	},
 	HistoryEntryFilterParameter:{
 		isPublic:"BooleanOperators",
 		id:"IDOperators",
 		createdAt:"DateOperators",
 		updatedAt:"DateOperators",
-		type:"StringOperators",
-		_and:"HistoryEntryFilterParameter",
-		_or:"HistoryEntryFilterParameter"
+		type:"StringOperators"
 	},
 	HistoryEntrySortParameter:{
 		id:"SortOrder",
 		createdAt:"SortOrder",
 		updatedAt:"SortOrder"
 	},
+	CreateAddressCustomFieldsInput:{
+
+	},
+	UpdateAddressCustomFieldsInput:{
+
+	},
+	CreateCollectionCustomFieldsInput:{
+
+	},
+	UpdateCollectionCustomFieldsInput:{
+
+	},
+	CreateCollectionTranslationInputCustomFields:{
+
+	},
+	UpdateCollectionTranslationInputCustomFields:{
+
+	},
+	CreateFacetCustomFieldsInput:{
+
+	},
+	UpdateFacetCustomFieldsInput:{
+
+	},
+	CreateFacetValueCustomFieldsInput:{
+
+	},
+	UpdateFacetValueCustomFieldsInput:{
+
+	},
+	UpdateOrderCustomFieldsInput:{
+
+	},
+	PaymentMethodTranslationInputCustomFields:{
+
+	},
+	CreateProductCustomFieldsInput:{
+
+	},
+	UpdateProductCustomFieldsInput:{
+
+	},
+	ProductTranslationInputCustomFields:{
+
+	},
+	CreateProductOptionCustomFieldsInput:{
+
+	},
+	UpdateProductOptionCustomFieldsInput:{
+
+	},
+	ShippingMethodTranslationInputCustomFields:{
+
+	},
 	OrderLineCustomFieldsInput:{
-		datetimeExample:"DateTime",
-		datetimeExampleList:"DateTime"
+
 	},
 	NativeAuthInput:{
 
@@ -1900,7 +2293,6 @@ export const ReturnTypes: Record<string,any> = {
 		customerGroup:"CustomerGroup",
 		customers:"CustomerList",
 		customer:"Customer",
-		entityDuplicators:"EntityDuplicatorDefinition",
 		facets:"FacetList",
 		facet:"Facet",
 		facetValues:"FacetValueList",
@@ -1952,7 +2344,25 @@ export const ReturnTypes: Record<string,any> = {
 		taxRate:"TaxRate",
 		zones:"ZoneList",
 		zone:"Zone",
-		metricSummary:"MetricSummary"
+		metricSummary:"MetricSummary",
+		page:"Page",
+		pages:"PageList",
+		announcementBar:"AnnouncementBar",
+		announcementBars:"AnnouncementBarList",
+		getActiveAnnouncementBar:"AnnouncementBar",
+		wishlist:"Wishlist",
+		wishlists:"WishlistList",
+		mostWishedProducts:"ProductList",
+		getRealizationURL:"String",
+		getProformaURL:"String",
+		newsletterSubscribers:"NewsletterSubscriberList",
+		backInStockSubscribers:"BackInStockSubscriberList",
+		b2bSubscribers:"B2BSubscriberList",
+		haveNotSeenNewsletterSubscribers:"Boolean",
+		haveNotSeenBackInStockSubscribers:"Boolean",
+		haveNotSeenB2BSubscribers:"Boolean",
+		model:"Model",
+		models:"ModelList"
 	},
 	Mutation:{
 		createAdministrator:"Administrator",
@@ -2000,7 +2410,6 @@ export const ReturnTypes: Record<string,any> = {
 		addNoteToCustomer:"Customer",
 		updateCustomerNote:"HistoryEntry",
 		deleteCustomerNote:"DeletionResponse",
-		duplicateEntity:"DuplicateEntityResult",
 		createFacet:"Facet",
 		updateFacet:"Facet",
 		deleteFacet:"DeletionResponse",
@@ -2028,7 +2437,6 @@ export const ReturnTypes: Record<string,any> = {
 		transitionFulfillmentToState:"TransitionFulfillmentToStateResult",
 		transitionPaymentToState:"TransitionPaymentToStateResult",
 		setOrderCustomFields:"Order",
-		setOrderCustomer:"Order",
 		modifyOrder:"ModifyOrderResult",
 		addManualPaymentToOrder:"AddManualPaymentToOrderResult",
 		createDraftOrder:"Order",
@@ -2116,7 +2524,25 @@ export const ReturnTypes: Record<string,any> = {
 		deleteZone:"DeletionResponse",
 		deleteZones:"DeletionResponse",
 		addMembersToZone:"Zone",
-		removeMembersFromZone:"Zone"
+		removeMembersFromZone:"Zone",
+		updatePage:"Page",
+		createPage:"Page",
+		deletePage:"Boolean",
+		updateAnnouncementBar:"AnnouncementBar",
+		createAnnouncementBar:"AnnouncementBar",
+		deleteAnnouncementBar:"Boolean",
+		changeStatusAnnouncementBar:"Boolean",
+		registerRealization:"OrderRealization",
+		registerProforma:"String",
+		deleteNewsletterSubscriber:"Boolean",
+		markNewsletterAsSeen:"Boolean",
+		deleteBackInStockSubscriber:"Boolean",
+		markBackInStockAsSeen:"Boolean",
+		deleteB2BSubscriber:"Boolean",
+		markB2BAsSeen:"Boolean",
+		updateModel:"Model",
+		createModel:"Model",
+		deleteModel:"Boolean"
 	},
 	Administrator:{
 		id:"ID",
@@ -2188,7 +2614,7 @@ export const ReturnTypes: Record<string,any> = {
 		filters:"ConfigurableOperation",
 		translations:"CollectionTranslation",
 		productVariants:"ProductVariantList",
-		customFields:"JSON"
+		customFields:"CollectionCustomFields"
 	},
 	Customer:{
 		groups:"CustomerGroup",
@@ -2218,25 +2644,6 @@ export const ReturnTypes: Record<string,any> = {
 		"...on Customer":"Customer",
 		"...on EmailAddressConflictError":"EmailAddressConflictError"
 	},
-	EntityDuplicatorDefinition:{
-		code:"String",
-		args:"ConfigArgDefinition",
-		description:"String",
-		forEntities:"String",
-		requiresPermission:"Permission"
-	},
-	DuplicateEntitySuccess:{
-		newEntityId:"ID"
-	},
-	DuplicateEntityError:{
-		errorCode:"ErrorCode",
-		message:"String",
-		duplicationError:"String"
-	},
-	DuplicateEntityResult:{
-		"...on DuplicateEntitySuccess":"DuplicateEntitySuccess",
-		"...on DuplicateEntityError":"DuplicateEntityError"
-	},
 	Facet:{
 		isPrivate:"Boolean",
 		id:"ID",
@@ -2248,7 +2655,7 @@ export const ReturnTypes: Record<string,any> = {
 		values:"FacetValue",
 		valueList:"FacetValueList",
 		translations:"FacetTranslation",
-		customFields:"JSON"
+		customFields:"FacetCustomFields"
 	},
 	FacetInUseError:{
 		errorCode:"ErrorCode",
@@ -2294,10 +2701,7 @@ export const ReturnTypes: Record<string,any> = {
 		orderProcess:"OrderProcessState",
 		permittedAssetTypes:"String",
 		permissions:"PermissionDefinition",
-		moneyStrategyPrecision:"Int",
-		plugins:"Plugin",
-		customFieldConfig:"CustomFields",
-		entityCustomFields:"EntityCustomFields"
+		customFieldConfig:"CustomFields"
 	},
 	HistoryEntry:{
 		isPublic:"Boolean",
@@ -2377,7 +2781,9 @@ export const ReturnTypes: Record<string,any> = {
 		totalWithTax:"Money",
 		taxSummary:"OrderTaxSummary",
 		history:"HistoryEntryList",
-		customFields:"JSON"
+		getRealization:"OrderRealization",
+		getProforma:"String",
+		customFields:"OrderCustomFields"
 	},
 	Fulfillment:{
 		nextStates:"String",
@@ -2488,11 +2894,6 @@ export const ReturnTypes: Record<string,any> = {
 		errorCode:"ErrorCode",
 		message:"String"
 	},
-	RefundAmountError:{
-		errorCode:"ErrorCode",
-		message:"String",
-		maximumRefundable:"Int"
-	},
 	RefundStateTransitionError:{
 		errorCode:"ErrorCode",
 		message:"String",
@@ -2575,8 +2976,7 @@ export const ReturnTypes: Record<string,any> = {
 		"...on PaymentOrderMismatchError":"PaymentOrderMismatchError",
 		"...on RefundOrderStateError":"RefundOrderStateError",
 		"...on AlreadyRefundedError":"AlreadyRefundedError",
-		"...on RefundStateTransitionError":"RefundStateTransitionError",
-		"...on RefundAmountError":"RefundAmountError"
+		"...on RefundStateTransitionError":"RefundStateTransitionError"
 	},
 	SettleRefundResult:{
 		"...on Refund":"Refund",
@@ -2601,8 +3001,7 @@ export const ReturnTypes: Record<string,any> = {
 		"...on InsufficientStockError":"InsufficientStockError",
 		"...on CouponCodeExpiredError":"CouponCodeExpiredError",
 		"...on CouponCodeInvalidError":"CouponCodeInvalidError",
-		"...on CouponCodeLimitError":"CouponCodeLimitError",
-		"...on IneligibleShippingMethodError":"IneligibleShippingMethodError"
+		"...on CouponCodeLimitError":"CouponCodeLimitError"
 	},
 	AddManualPaymentToOrderResult:{
 		"...on Order":"Order",
@@ -2617,6 +3016,7 @@ export const ReturnTypes: Record<string,any> = {
 		totalItems:"Int"
 	},
 	Product:{
+		enabled:"Boolean",
 		channels:"Channel",
 		id:"ID",
 		createdAt:"DateTime",
@@ -2625,7 +3025,6 @@ export const ReturnTypes: Record<string,any> = {
 		name:"String",
 		slug:"String",
 		description:"String",
-		enabled:"Boolean",
 		featuredAsset:"Asset",
 		assets:"Asset",
 		variants:"ProductVariant",
@@ -2634,12 +3033,11 @@ export const ReturnTypes: Record<string,any> = {
 		facetValues:"FacetValue",
 		translations:"ProductTranslation",
 		collections:"Collection",
-		customFields:"JSON"
+		customFields:"ProductCustomFields"
 	},
 	ProductVariantPrice:{
 		currencyCode:"CurrencyCode",
-		price:"Money",
-		customFields:"JSON"
+		price:"Money"
 	},
 	ProductVariant:{
 		enabled:"Boolean",
@@ -2671,6 +3069,7 @@ export const ReturnTypes: Record<string,any> = {
 		options:"ProductOption",
 		facetValues:"FacetValue",
 		translations:"ProductVariantTranslation",
+		omnibusPrice:"Int",
 		customFields:"JSON"
 	},
 	SearchResult:{
@@ -2692,7 +3091,8 @@ export const ReturnTypes: Record<string,any> = {
 		facetValueIds:"ID",
 		collectionIds:"ID",
 		score:"Float",
-		inStock:"Boolean"
+		inStock:"Boolean",
+		omnibusPrice:"Int"
 	},
 	ProductOptionInUseError:{
 		errorCode:"ErrorCode",
@@ -2849,7 +3249,7 @@ export const ReturnTypes: Record<string,any> = {
 		phoneNumber:"String",
 		defaultShippingAddress:"Boolean",
 		defaultBillingAddress:"Boolean",
-		customFields:"JSON"
+		customFields:"AddressCustomFields"
 	},
 	Asset:{
 		id:"ID",
@@ -2917,7 +3317,8 @@ export const ReturnTypes: Record<string,any> = {
 		languageCode:"LanguageCode",
 		name:"String",
 		slug:"String",
-		description:"String"
+		description:"String",
+		customFields:"CollectionTranslationCustomFields"
 	},
 	CollectionList:{
 		items:"Collection",
@@ -3021,6 +3422,13 @@ export const ReturnTypes: Record<string,any> = {
 		"...on ShippingMethodList": "ShippingMethodList",
 		"...on TagList": "TagList",
 		"...on TaxRateList": "TaxRateList",
+		"...on PageList": "PageList",
+		"...on AnnouncementBarList": "AnnouncementBarList",
+		"...on WishlistList": "WishlistList",
+		"...on NewsletterSubscriberList": "NewsletterSubscriberList",
+		"...on BackInStockSubscriberList": "BackInStockSubscriberList",
+		"...on B2BSubscriberList": "B2BSubscriberList",
+		"...on ModelList": "ModelList",
 		items:"Node",
 		totalItems:"Int"
 	},
@@ -3069,12 +3477,19 @@ export const ReturnTypes: Record<string,any> = {
 		"...on User": "User",
 		"...on AuthenticationMethod": "AuthenticationMethod",
 		"...on Zone": "Zone",
+		"...on Page": "Page",
+		"...on AnnouncementBar": "AnnouncementBar",
+		"...on WishlistItem": "WishlistItem",
+		"...on Wishlist": "Wishlist",
+		"...on NewsletterSubscriber": "NewsletterSubscriber",
+		"...on BackInStockSubscriber": "BackInStockSubscriber",
+		"...on B2BSubscriber": "B2BSubscriber",
+		"...on Model": "Model",
 		id:"ID"
 	},
 	ErrorResult:{
 		"...on MimeTypeError": "MimeTypeError",
 		"...on LanguageNotAvailableError": "LanguageNotAvailableError",
-		"...on DuplicateEntityError": "DuplicateEntityError",
 		"...on FacetInUseError": "FacetInUseError",
 		"...on ChannelDefaultLanguageError": "ChannelDefaultLanguageError",
 		"...on SettlePaymentError": "SettlePaymentError",
@@ -3091,7 +3506,6 @@ export const ReturnTypes: Record<string,any> = {
 		"...on NothingToRefundError": "NothingToRefundError",
 		"...on AlreadyRefundedError": "AlreadyRefundedError",
 		"...on QuantityTooGreatError": "QuantityTooGreatError",
-		"...on RefundAmountError": "RefundAmountError",
 		"...on RefundStateTransitionError": "RefundStateTransitionError",
 		"...on PaymentStateTransitionError": "PaymentStateTransitionError",
 		"...on FulfillmentStateTransitionError": "FulfillmentStateTransitionError",
@@ -3168,7 +3582,7 @@ export const ReturnTypes: Record<string,any> = {
 		name:"String",
 		description:"String",
 		metadata:"JSON",
-		customFields:"JSON"
+		customFields:"ShippingMethodCustomFields"
 	},
 	PaymentMethodQuote:{
 		id:"ID",
@@ -3177,7 +3591,7 @@ export const ReturnTypes: Record<string,any> = {
 		description:"String",
 		isEligible:"Boolean",
 		eligibilityMessage:"String",
-		customFields:"JSON"
+		customFields:"PaymentMethodCustomFields"
 	},
 	UpdateOrderItemsResult:{
 		"...on Order":"Order",
@@ -3220,7 +3634,6 @@ export const ReturnTypes: Record<string,any> = {
 		readonly:"Boolean",
 		internal:"Boolean",
 		nullable:"Boolean",
-		requiresPermission:"Permission",
 		ui:"JSON"
 	},
 	StringCustomFieldConfig:{
@@ -3233,7 +3646,6 @@ export const ReturnTypes: Record<string,any> = {
 		readonly:"Boolean",
 		internal:"Boolean",
 		nullable:"Boolean",
-		requiresPermission:"Permission",
 		pattern:"String",
 		options:"StringFieldOption",
 		ui:"JSON"
@@ -3252,7 +3664,6 @@ export const ReturnTypes: Record<string,any> = {
 		readonly:"Boolean",
 		internal:"Boolean",
 		nullable:"Boolean",
-		requiresPermission:"Permission",
 		pattern:"String",
 		ui:"JSON"
 	},
@@ -3265,7 +3676,6 @@ export const ReturnTypes: Record<string,any> = {
 		readonly:"Boolean",
 		internal:"Boolean",
 		nullable:"Boolean",
-		requiresPermission:"Permission",
 		min:"Int",
 		max:"Int",
 		step:"Int",
@@ -3280,7 +3690,6 @@ export const ReturnTypes: Record<string,any> = {
 		readonly:"Boolean",
 		internal:"Boolean",
 		nullable:"Boolean",
-		requiresPermission:"Permission",
 		min:"Float",
 		max:"Float",
 		step:"Float",
@@ -3295,7 +3704,6 @@ export const ReturnTypes: Record<string,any> = {
 		readonly:"Boolean",
 		internal:"Boolean",
 		nullable:"Boolean",
-		requiresPermission:"Permission",
 		ui:"JSON"
 	},
 	DateTimeCustomFieldConfig:{
@@ -3307,7 +3715,6 @@ export const ReturnTypes: Record<string,any> = {
 		readonly:"Boolean",
 		internal:"Boolean",
 		nullable:"Boolean",
-		requiresPermission:"Permission",
 		min:"String",
 		max:"String",
 		step:"Int",
@@ -3322,7 +3729,6 @@ export const ReturnTypes: Record<string,any> = {
 		readonly:"Boolean",
 		internal:"Boolean",
 		nullable:"Boolean",
-		requiresPermission:"Permission",
 		entity:"String",
 		scalarFields:"String",
 		ui:"JSON"
@@ -3336,7 +3742,6 @@ export const ReturnTypes: Record<string,any> = {
 		readonly:"Boolean",
 		internal:"Boolean",
 		nullable:"Boolean",
-		requiresPermission:"Permission",
 		ui:"JSON"
 	},
 	LocaleTextCustomFieldConfig:{
@@ -3348,7 +3753,6 @@ export const ReturnTypes: Record<string,any> = {
 		readonly:"Boolean",
 		internal:"Boolean",
 		nullable:"Boolean",
-		requiresPermission:"Permission",
 		ui:"JSON"
 	},
 	LocalizedString:{
@@ -3388,7 +3792,7 @@ export const ReturnTypes: Record<string,any> = {
 		name:"String",
 		code:"String",
 		translations:"FacetValueTranslation",
-		customFields:"JSON"
+		customFields:"FacetValueCustomFields"
 	},
 	FacetValueTranslation:{
 		id:"ID",
@@ -3433,7 +3837,7 @@ export const ReturnTypes: Record<string,any> = {
 		country:"String",
 		countryCode:"String",
 		phoneNumber:"String",
-		customFields:"JSON"
+		customFields:"AddressCustomFields"
 	},
 	OrderList:{
 		items:"Order",
@@ -3537,7 +3941,7 @@ export const ReturnTypes: Record<string,any> = {
 		checker:"ConfigurableOperation",
 		handler:"ConfigurableOperation",
 		translations:"PaymentMethodTranslation",
-		customFields:"JSON"
+		customFields:"PaymentMethodCustomFields"
 	},
 	PaymentMethodTranslation:{
 		id:"ID",
@@ -3545,7 +3949,8 @@ export const ReturnTypes: Record<string,any> = {
 		updatedAt:"DateTime",
 		languageCode:"LanguageCode",
 		name:"String",
-		description:"String"
+		description:"String",
+		customFields:"PaymentMethodTranslationCustomFields"
 	},
 	ProductOptionGroup:{
 		id:"ID",
@@ -3575,7 +3980,7 @@ export const ReturnTypes: Record<string,any> = {
 		groupId:"ID",
 		group:"ProductOptionGroup",
 		translations:"ProductOptionTranslation",
-		customFields:"JSON"
+		customFields:"ProductOptionCustomFields"
 	},
 	ProductOptionTranslation:{
 		id:"ID",
@@ -3591,7 +3996,9 @@ export const ReturnTypes: Record<string,any> = {
 		items:"SearchResult",
 		totalItems:"Int",
 		facetValues:"FacetValueResult",
-		collections:"CollectionResult"
+		collections:"CollectionResult",
+		minPrice:"Int",
+		maxPrice:"Int"
 	},
 	FacetValueResult:{
 		facetValue:"FacetValue",
@@ -3624,7 +4031,8 @@ export const ReturnTypes: Record<string,any> = {
 		languageCode:"LanguageCode",
 		name:"String",
 		slug:"String",
-		description:"String"
+		description:"String",
+		customFields:"ProductTranslationCustomFields"
 	},
 	ProductList:{
 		items:"Product",
@@ -3760,7 +4168,7 @@ export const ReturnTypes: Record<string,any> = {
 		checker:"ConfigurableOperation",
 		calculator:"ConfigurableOperation",
 		translations:"ShippingMethodTranslation",
-		customFields:"JSON"
+		customFields:"ShippingMethodCustomFields"
 	},
 	ShippingMethodTranslation:{
 		id:"ID",
@@ -3768,7 +4176,8 @@ export const ReturnTypes: Record<string,any> = {
 		updatedAt:"DateTime",
 		languageCode:"LanguageCode",
 		name:"String",
-		description:"String"
+		description:"String",
+		customFields:"ShippingMethodTranslationCustomFields"
 	},
 	ShippingMethodList:{
 		items:"ShippingMethod",
@@ -3833,14 +4242,6 @@ export const ReturnTypes: Record<string,any> = {
 		members:"Region",
 		customFields:"JSON"
 	},
-	Plugin:{
-		name:"String",
-		path:"String",
-		version:"String",
-		mounted:"Boolean",
-		active:"Boolean",
-		status:"String"
-	},
 	MetricSummary:{
 		interval:"MetricInterval",
 		type:"MetricType",
@@ -3851,24 +4252,287 @@ export const ReturnTypes: Record<string,any> = {
 		label:"String",
 		value:"Float"
 	},
+	Author:{
+		firstName:"String",
+		lastName:"String",
+		emailAddress:"String"
+	},
+	Page:{
+		id:"ID",
+		createdAt:"DateTime",
+		updatedAt:"DateTime",
+		type:"PageType",
+		content:"String",
+		title:"String",
+		description:"String",
+		slug:"String",
+		asset:"Asset",
+		position:"Int",
+		enabled:"Boolean",
+		author:"Author",
+		translations:"PageTranslation"
+	},
+	PageTranslation:{
+		id:"ID",
+		createdAt:"DateTime",
+		updatedAt:"DateTime",
+		languageCode:"LanguageCode",
+		content:"String",
+		description:"String",
+		title:"String",
+		slug:"String",
+		tags:"String"
+	},
+	PageList:{
+		items:"Page",
+		totalItems:"Int"
+	},
+	AnnouncementBarEntryTranslation:{
+		id:"ID",
+		createdAt:"DateTime",
+		updatedAt:"DateTime",
+		languageCode:"LanguageCode",
+		text:"String",
+		redirectUrl:"String",
+		icon:"String"
+	},
+	AnnouncementBarEntry:{
+		id:"ID",
+		createdAt:"DateTime",
+		updatedAt:"DateTime",
+		text:"String",
+		redirectUrl:"String",
+		icon:"String",
+		colorIcon:"String",
+		colorText:"String",
+		translations:"AnnouncementBarEntryTranslation"
+	},
+	AnnouncementBar:{
+		id:"ID",
+		createdAt:"DateTime",
+		updatedAt:"DateTime",
+		title:"String",
+		enabled:"Boolean",
+		startDate:"DateTime",
+		endDate:"DateTime",
+		speed:"Int",
+		spaceBetween:"Int",
+		colorBackground:"String",
+		nowActive:"Boolean",
+		entries:"AnnouncementBarEntry"
+	},
+	AnnouncementBarList:{
+		items:"AnnouncementBar",
+		totalItems:"Int"
+	},
+	WishlistItem:{
+		id:"ID",
+		createdAt:"DateTime",
+		updatedAt:"DateTime",
+		product:"Product",
+		wishlistId:"ID",
+		productId:"ID",
+		minVariantPrice:"Money",
+		maxVariantPrice:"Money"
+	},
+	WishlistList:{
+		items:"WishlistItem",
+		totalItems:"Int"
+	},
+	Wishlist:{
+		id:"ID",
+		createdAt:"DateTime",
+		updatedAt:"DateTime",
+		currencyCode:"CurrencyCode",
+		entries:"WishlistList"
+	},
+	WishlistEntryID:{
+		id:"ID",
+		productId:"ID"
+	},
+	WishlistIDs:{
+		id:"ID",
+		entries:"WishlistEntryID"
+	},
+	OrderRealization:{
+		orderID:"ID",
+		assetID:"ID",
+		plannedAt:"String",
+		finalPlannedAt:"String",
+		note:"String",
+		color:"String",
+		key:"String",
+		url:"String"
+	},
+	DiscountedPriceMetadata:{
+		price:"Int",
+		name:"String",
+		description:"String",
+		isCustomerGroup:"Boolean"
+	},
+	DiscountedPrice:{
+		value:"Int",
+		metadata:"DiscountedPriceMetadata"
+	},
+	ShopOrderRealization:{
+		note:"String",
+		plannedAt:"String",
+		finalPlannedAt:"String"
+	},
+	NewsletterSubscriber:{
+		id:"ID",
+		createdAt:"DateTime",
+		updatedAt:"DateTime",
+		email:"String",
+		type:"String",
+		data:"String",
+		customer:"Customer",
+		seen:"Boolean"
+	},
+	BackInStockSubscriber:{
+		id:"ID",
+		createdAt:"DateTime",
+		updatedAt:"DateTime",
+		name:"String",
+		email:"String",
+		data:"String",
+		registerToNewsletter:"Boolean",
+		options:"String",
+		customer:"Customer",
+		variant:"ProductVariant",
+		product:"Product",
+		images:"String",
+		seen:"Boolean"
+	},
+	B2BSubscriber:{
+		id:"ID",
+		createdAt:"DateTime",
+		updatedAt:"DateTime",
+		name:"String",
+		email:"String",
+		NIP:"String",
+		city:"String",
+		number:"String",
+		message:"String",
+		seen:"Boolean"
+	},
+	NewsletterSubscriberList:{
+		items:"NewsletterSubscriber",
+		totalItems:"Int"
+	},
+	BackInStockSubscriberList:{
+		items:"BackInStockSubscriber",
+		totalItems:"Int"
+	},
+	B2BSubscriberList:{
+		items:"B2BSubscriber",
+		totalItems:"Int"
+	},
+	Model:{
+		id:"ID",
+		createdAt:"DateTime",
+		updatedAt:"DateTime",
+		title:"String",
+		content:"String",
+		url:"String",
+		key:"String",
+		product:"Product",
+		translations:"ModelTranslation"
+	},
+	ModelTranslation:{
+		id:"ID",
+		createdAt:"DateTime",
+		updatedAt:"DateTime",
+		languageCode:"LanguageCode",
+		title:"String",
+		content:"String"
+	},
+	ModelList:{
+		items:"Model",
+		totalItems:"Int"
+	},
+	AddressCustomFields:{
+		companyName:"String",
+		companyTaxId:"String"
+	},
+	CollectionCustomFields:{
+		seoTitle:"String",
+		seoDescription:"String",
+		facebookImage:"Asset",
+		twitterImage:"Asset"
+	},
+	CollectionTranslationCustomFields:{
+		seoTitle:"String",
+		seoDescription:"String"
+	},
+	FacetCustomFields:{
+		usedForColors:"Boolean",
+		usedForProductCreations:"Boolean",
+		colorsCollection:"Boolean"
+	},
+	FacetValueCustomFields:{
+		image:"Asset",
+		hexColor:"String",
+		isNew:"Boolean"
+	},
+	OrderCustomFields:{
+		registeredOnCheckout:"Boolean",
+		selectedPaymentMethod:"PaymentMethod",
+		additionalInformation:"String"
+	},
 	OrderLineCustomFields:{
-		booleanExample:"Boolean",
-		booleanExampleCustom:"Boolean",
-		datetimeExample:"DateTime",
-		floatExample:"Float",
-		intExample:"Int",
-		stringExample:"String",
-		textExample:"String",
-		relationExample:"Asset",
-		productRelationExample:"Product",
-		productVariantRelationExample:"ProductVariant",
-		booleanExampleList:"Boolean",
-		datetimeExampleList:"DateTime",
-		floatExampleList:"Float",
-		intExampleList:"Int",
-		stringExampleList:"String",
-		textExampleList:"String",
-		relationExampleList:"Asset"
+		attributes:"String",
+		discountBy:"Int",
+		selectedImage:"Asset"
+	},
+	PaymentMethodCustomFields:{
+		modalTitle:"String",
+		modalDescription:"String",
+		modalAdditionalDescription:"String"
+	},
+	PaymentMethodTranslationCustomFields:{
+		modalTitle:"String",
+		modalDescription:"String",
+		modalAdditionalDescription:"String"
+	},
+	ProductCustomFields:{
+		seoTitle:"String",
+		seoDescription:"String",
+		facebookImage:"Asset",
+		twitterImage:"Asset",
+		optionsOrder:"String",
+		sizes:"String",
+		finish:"String",
+		materials:"String",
+		payment:"String",
+		delivery:"String",
+		realization:"String",
+		discountBy:"Int"
+	},
+	ProductTranslationCustomFields:{
+		seoTitle:"String",
+		seoDescription:"String",
+		sizes:"String",
+		finish:"String",
+		materials:"String",
+		payment:"String",
+		delivery:"String",
+		realization:"String"
+	},
+	ProductOptionCustomFields:{
+		image:"Asset",
+		hexColor:"String",
+		isNew:"Boolean"
+	},
+	ShippingMethodCustomFields:{
+		modalTitle:"String",
+		modalDescription:"String",
+		modalAdditionalDescription:"String"
+	},
+	ShippingMethodTranslationCustomFields:{
+		modalTitle:"String",
+		modalDescription:"String",
+		modalAdditionalDescription:"String"
 	},
 	CustomFields:{
 		Address:"CustomFieldConfig",
@@ -3889,7 +4553,6 @@ export const ReturnTypes: Record<string,any> = {
 		ProductOption:"CustomFieldConfig",
 		ProductOptionGroup:"CustomFieldConfig",
 		ProductVariant:"CustomFieldConfig",
-		ProductVariantPrice:"CustomFieldConfig",
 		Promotion:"CustomFieldConfig",
 		Region:"CustomFieldConfig",
 		Seller:"CustomFieldConfig",
@@ -3899,10 +4562,6 @@ export const ReturnTypes: Record<string,any> = {
 		TaxRate:"CustomFieldConfig",
 		User:"CustomFieldConfig",
 		Zone:"CustomFieldConfig"
-	},
-	EntityCustomFields:{
-		entityName:"String",
-		customFields:"CustomFieldConfig"
 	}
 }
 

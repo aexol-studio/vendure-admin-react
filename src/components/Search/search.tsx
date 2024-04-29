@@ -1,7 +1,4 @@
 import React from 'react';
-
-import { useSearchParams } from 'react-router-dom';
-import { manageSearchParam } from '@/lib/utils';
 import {
   Accordion,
   Button,
@@ -18,12 +15,11 @@ import {
 } from '@/components';
 import { SearchAccordion } from './searchAccordion';
 
-export const Search: React.FC<SearchPropsI & { searchFilterField: () => void }> = ({
+export const Search: React.FC<SearchPropsI & { searchFilterField: (filterField: string) => void }> = ({
   advancedSearch,
   defaultSearch,
+  searchFilterField,
 }) => {
-  const [searchParams, setSearchParams] = useSearchParams();
-
   const groupedAdvancedParams = advancedSearch?.paramsArray.map((p) => {
     const array = p.array.reduce((acc, cur) => {
       if (acc[acc.length - 1] && acc[acc.length - 1].length == 1) {
@@ -39,18 +35,7 @@ export const Search: React.FC<SearchPropsI & { searchFilterField: () => void }> 
   return (
     <Stack className="justify-end gap-4">
       {defaultSearch.param && (
-        <Input
-          placeholder={defaultSearch.placeholder}
-          onChange={(e) =>
-            manageSearchParam({
-              param: defaultSearch.param,
-              paramKey: defaultSearch.paramKey,
-              paramKeyValue: e.currentTarget.value,
-              searchParams,
-              setSearchParams,
-            })
-          }
-        />
+        <Input placeholder={defaultSearch.placeholder} onChange={(e) => searchFilterField(e.currentTarget.value)} />
       )}
       {groupedAdvancedParams && (
         <Sheet>

@@ -1,6 +1,6 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { Root } from '@/pages/Root';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { adminApiQuery } from '@/common/client';
 import { ProductListPage } from '@/pages/products/List';
 import { CollectionsListPage } from '@/pages/collections/List';
@@ -10,7 +10,6 @@ import { OrderCreatePage } from './pages/orders/Create';
 import { LoginScreen } from './pages/LoginScreen';
 import { Dashboard } from './pages/Dashboard';
 import { MarketPlaceListPage } from './pages/marketplace/List';
-import { io } from 'socket.io-client';
 import { AnimatePresence } from 'framer-motion';
 import { useSettings } from '@/state/settings';
 import {
@@ -34,7 +33,7 @@ const getAllPaginatedCountries = async () => {
   do {
     const {
       countries: { items, totalItems: total },
-    } = await adminApiQuery()({
+    } = await adminApiQuery({
       countries: [{ options: { skip, take: TAKE } }, { items: countrySelector, totalItems: true }],
     });
     countries = [...countries, ...items];
@@ -51,7 +50,7 @@ const getAllPaymentMethods = async () => {
   do {
     const {
       paymentMethods: { items, totalItems: total },
-    } = await adminApiQuery()({
+    } = await adminApiQuery({
       paymentMethods: [
         { options: { skip, take: TAKE, filter: { enabled: { eq: true } } } },
         { items: paymentMethodsSelector, totalItems: true },
@@ -66,7 +65,7 @@ const getAllPaymentMethods = async () => {
 
 const router = createBrowserRouter([
   {
-    path: '/',
+    path: '',
     element: <Root />,
     children: [
       {
@@ -111,37 +110,37 @@ function App() {
   const theme = useSettings((p) => p.theme);
 
   const { t } = useTranslation('common');
-  const [needSocket, setNeedSocket] = useState(false);
+  // const [needSocket, setNeedSocket] = useState(false);
   const setActiveAdministrator = useServer((p) => p.setActiveAdministrator);
-  const setActiveClients = useServer((p) => p.setActiveClients);
   const setServerConfig = useServer((p) => p.setServerConfig);
   const setCountries = useServer((p) => p.setCountries);
-  const setIsConnected = useServer((p) => p.setIsConnected);
   const setFulfillmentHandlers = useServer((p) => p.setFulfillmentHandlers);
   const setPaymentMethodsType = useServer((p) => p.setPaymentMethodsType);
-  const activeAdministrator = useServer((p) => p.activeAdministrator);
+  // const activeAdministrator = useServer((p) => p.activeAdministrator);
+  // const setIsConnected = useServer((p) => p.setIsConnected);
+  // const setActiveClients = useServer((p) => p.setActiveClients);
 
-  function onConnect() {
-    setIsConnected(true);
-  }
+  // function onConnect() {
+  //   setIsConnected(true);
+  // }
 
-  function onDisconnect() {
-    setIsConnected(false);
-  }
+  // function onDisconnect() {
+  //   setIsConnected(false);
+  // }
 
-  function onClients(clients) {
-    setActiveClients(
-      clients
-        .sort((a, b) => {
-          const aMe = a.id === activeAdministrator?.id;
-          const bMe = b.id === activeAdministrator?.id;
-          if (aMe && !bMe) return -1;
-          if (bMe && !aMe) return 1;
-          return new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime();
-        })
-        .map((client) => ({ ...client, me: client.id === activeAdministrator?.id })),
-    );
-  }
+  // function onClients(clients) {
+  //   setActiveClients(
+  //     clients
+  //       .sort((a, b) => {
+  //         const aMe = a.id === activeAdministrator?.id;
+  //         const bMe = b.id === activeAdministrator?.id;
+  //         if (aMe && !bMe) return -1;
+  //         if (bMe && !aMe) return 1;
+  //         return new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime();
+  //       })
+  //       .map((client) => ({ ...client, me: client.id === activeAdministrator?.id })),
+  //   );
+  // }
 
   useEffect(() => {
     const init = async () => {
@@ -153,20 +152,20 @@ function App() {
           paymentsResponse,
           fulfillmentsResponse,
         ] = await Promise.allSettled([
-          adminApiQuery()({ globalSettings: { serverConfig: serverConfigSelector } }),
-          adminApiQuery()({ activeAdministrator: activeAdministratorSelector }),
+          adminApiQuery({ globalSettings: { serverConfig: serverConfigSelector } }),
+          adminApiQuery({ activeAdministrator: activeAdministratorSelector }),
           getAllPaginatedCountries(),
           getAllPaymentMethods(),
-          adminApiQuery()({ fulfillmentHandlers: configurableOperationDefinitionSelector }),
+          adminApiQuery({ fulfillmentHandlers: configurableOperationDefinitionSelector }),
         ]);
         if (serverConfigResponse.status === 'rejected') {
           toast.error(t('setup.failedServer'));
         } else {
           setServerConfig(serverConfigResponse.value.globalSettings.serverConfig);
-          const socket = serverConfigResponse.value.globalSettings.serverConfig.plugins?.find(
-            (plugin) => plugin.name === 'AexolAdminsPlugin',
-          );
-          if (socket && socket.active) setNeedSocket(true);
+          // const socket = serverConfigResponse.value.globalSettings.serverConfig.plugins?.find(
+          //   (plugin) => plugin.name === 'AexolAdminsPlugin',
+          // );
+          // if (socket && socket.active) setNeedSocket(true);
         }
         if (activeAdministratorResponse.status === 'rejected') {
           toast.error(t('setup.failedAdmin'));
@@ -193,19 +192,19 @@ function App() {
     init();
   }, [isLoggedIn]);
 
-  useEffect(() => {
-    if (!needSocket) return;
-    const socket = io('localhost:3000');
-    socket.emit('events', { ...activeAdministrator, location: window.location.href, lastActive: new Date() });
-    socket.on('connect', onConnect);
-    socket.on('disconnect', onDisconnect);
-    socket.on('events', onClients);
-    return () => {
-      socket.off('connect', onConnect);
-      socket.off('disconnect', onDisconnect);
-      socket.off('events', onClients);
-    };
-  }, [needSocket]);
+  // useEffect(() => {
+  //   if (!needSocket) return;
+  //   const socket = io('localhost:3000');
+  //   socket.emit('events', { ...activeAdministrator, location: window.location.href, lastActive: new Date() });
+  //   socket.on('connect', onConnect);
+  //   socket.on('disconnect', onDisconnect);
+  //   socket.on('events', onClients);
+  //   return () => {
+  //     socket.off('connect', onConnect);
+  //     socket.off('disconnect', onDisconnect);
+  //     socket.off('events', onClients);
+  //   };
+  // }, [needSocket]);
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -220,7 +219,7 @@ function App() {
 
   return (
     <I18nextProvider i18n={i18n} defaultNS={'translation'}>
-      <AnimatePresence>{isLoggedIn ? <RouterProvider router={router} /> : <LoginScreen />}</AnimatePresence>;
+      <AnimatePresence>{isLoggedIn ? <RouterProvider router={router} /> : <LoginScreen />}</AnimatePresence>
     </I18nextProvider>
   );
 }

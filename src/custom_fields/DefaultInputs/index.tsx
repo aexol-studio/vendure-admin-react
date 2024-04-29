@@ -6,3 +6,4 @@ export * from './DefaultTextarea';
 export * from './DefaultTimeSelect';
 export * from './Relations';
 export * from './Lists';
+export * from './types';

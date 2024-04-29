@@ -1,7 +1,7 @@
 import { adminApiQuery } from '@/common/client';
 import { ProductTileSelector } from '@/graphql/products';
 import { useList } from '@/lists/useList';
-import { ResolverInputTypes, SortOrder } from '@/zeus';
+import { ResolverInputTypes } from '@/zeus';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import {
@@ -24,7 +24,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 const getProducts = async (paginate: ResolverInputTypes['ProductListOptions']) => {
-  const response = await adminApiQuery()({
+  const response = await adminApiQuery({
     products: [{ options: paginate }, { items: ProductTileSelector, totalItems: true }],
   });
   return response.products;
@@ -57,7 +57,7 @@ export const ProductListPage = () => {
       <TableHeader>
         <TableRow>
           <TableHead>{t('image')}</TableHead>
-          <TableHead onClick={() => sort('name')}>{t('name')}</TableHead>
+          {/* <TableHead onClick={() => sort('name')}>{t('name')}</TableHead> */}
           <TableHead>{t('slug')}</TableHead>
           <TableHead>{t('variants')}</TableHead>
           <TableHead />

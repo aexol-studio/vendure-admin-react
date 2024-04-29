@@ -1,14 +1,6 @@
+import { scalars } from '@/graphql/scalars';
 import { useSettings } from '@/state/settings';
-import { GraphQLError, GraphQLResponse, Thunder, ZeusScalars, chainOptions, fetchOptions } from '@/zeus';
-
-export const scalars = ZeusScalars({
-  Money: {
-    decode: (e) => e as number,
-  },
-  DateTime: {
-    decode: (e: unknown) => new Date(e as string).toISOString(),
-  },
-});
+import { GraphQLError, GraphQLResponse, Thunder, chainOptions, fetchOptions } from '@/zeus';
 
 //use 'http://localhost:3000/shop-api/' in local .env file for localhost development and provide env to use on prod/dev envs
 
@@ -81,22 +73,14 @@ const buildHeaders = (): Parameters<typeof VendureChain>[1] => {
         },
       };
 };
+const buildURL = (language: string): string => `${VENDURE_HOST}?languageCode=${language}`;
 
-export const adminApiQuery = () => {
-  const locale = useSettings.getState().language;
-  const HOST = `${VENDURE_HOST}?languageCode=${locale}`;
-  return VendureChain(HOST, {
-    ...buildHeaders(),
-  })('query', { scalars });
-};
-
-export const adminApiMutation = () => {
-  const locale = useSettings.getState().language;
-  const HOST = `${VENDURE_HOST}?languageCode=${locale}`;
-  return VendureChain(HOST, {
-    ...buildHeaders(),
-  })('mutation', { scalars });
-};
+export const adminApiQuery = VendureChain(buildURL(useSettings.getState().language), {
+  ...buildHeaders(),
+})('query', { scalars });
+export const adminApiMutation = VendureChain(buildURL(useSettings.getState().language), {
+  ...buildHeaders(),
+})('mutation', { scalars });
 
 const handleFetchResponse = (response: Response): Promise<GraphQLResponse> => {
   if (!response.ok) {
@@ -106,7 +90,7 @@ const handleFetchResponse = (response: Response): Promise<GraphQLResponse> => {
         .then((text) => {
           try {
             reject(JSON.parse(text));
-          } catch (err) {
+          } catch {
             reject(text);
           }
         })

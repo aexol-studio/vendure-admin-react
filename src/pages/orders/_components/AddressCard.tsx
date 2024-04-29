@@ -22,7 +22,6 @@ import {
 } from '@/components';
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
   DialogHeader,

@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { DefaultProps } from '../types';
+import { useEffect, useState } from 'react';
 import {
   Dialog,
   DialogClose,
@@ -15,23 +14,24 @@ import { adminApiQuery } from '@/common/client';
 import { ResolverInputTypes } from '@/zeus';
 import { useList } from '@/lists/useList';
 import { cn } from '@/lib/utils';
+import { useCustomFields } from '@/custom_fields';
 
 const getProductsVariants = async (options: ResolverInputTypes['ProductVariantListOptions']) => {
-  const response = await adminApiQuery()({
+  const response = await adminApiQuery({
     productVariants: [{ options }, { totalItems: true, items: { id: true } }],
   });
   return response.productVariants;
 };
 
-export function ProductVariantRelationInput<T>(props: DefaultProps<T>) {
-  const { value, onChange } = props;
+export function ProductVariantRelationInput() {
+  const { value, setValue } = useCustomFields();
   const [selectedVariant, setSelectedVariant] = useState<{ id: string } | null>(null);
   const { objects: variants, Paginate } = useList({
     route: async ({ page, perPage }) => {
       const variants = await getProductsVariants({ skip: (page - 1) * perPage, take: perPage });
       return { items: variants.items, totalItems: variants.totalItems };
     },
-    cacheKey: `modal-product-variants-list`,
+    listType: 'modal-product-variants-list',
   });
 
   useEffect(() => {
@@ -56,7 +56,7 @@ export function ProductVariantRelationInput<T>(props: DefaultProps<T>) {
                 size="sm"
                 onClick={() => {
                   setSelectedVariant(null);
-                  onChange('' as T);
+                  setValue('');
                 }}
               >
                 Remove
@@ -81,7 +81,7 @@ export function ProductVariantRelationInput<T>(props: DefaultProps<T>) {
                 )}
                 onClick={() => {
                   setSelectedVariant(variant);
-                  onChange(variant.id as T);
+                  setValue(variant.id);
                 }}
               >
                 <span>{variant.id}</span>

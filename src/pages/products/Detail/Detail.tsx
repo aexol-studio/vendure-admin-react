@@ -2,7 +2,7 @@ import { adminApiMutation, adminApiQuery } from '@/common/client';
 import { Stack } from '@/components/Stack';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -19,19 +19,19 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
 const getProduct = async ({ slug }: { slug: string }) => {
-  const response = await adminApiQuery()({
+  const response = await adminApiQuery({
     product: [{ slug }, ProductDetailSelector],
   });
   return response.product;
 };
 const updateProduct = async (props: ModelTypes['UpdateProductInput']) => {
-  const response = await adminApiMutation()({
+  const response = await adminApiMutation({
     updateProduct: [{ input: props }, { id: true }],
   });
   return response.updateProduct.id;
 };
 const updateProductVariant = async (props: ModelTypes['UpdateProductVariantInput']) => {
-  const response = await adminApiMutation()({
+  const response = await adminApiMutation({
     updateProduct: [{ input: props }, { id: true }],
   });
   return response.updateProduct.id;
@@ -41,17 +41,12 @@ export const ProductDetailPage = () => {
   const { t } = useTranslation('products');
 
   const { object, reset } = useDetail({
-    cacheKey: 'productDetail-v2',
+    cacheKey: 'productDetail',
     route: getProduct,
   });
 
   const { state, setField } = useGFFLP('UpdateProductInput', 'translations', 'featuredAssetId', 'enabled')({});
-  const { state: variantState, setField: setCurrentVariantField } = useGFFLP(
-    'UpdateProductVariantInput',
-    'translations',
-    'price',
-    'sku',
-  )({});
+  const { state: variantState } = useGFFLP('UpdateProductVariantInput', 'translations', 'price', 'sku')({});
   const [currentTranslationLng, setCurrentTranslationLng] = useState(LanguageCode.en);
   const translations = state?.translations?.value || [];
   const currentTranslationValue = translations.find((v) => v.languageCode === currentTranslationLng);

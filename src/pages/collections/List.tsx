@@ -6,7 +6,7 @@ import { ResolverInputTypes } from '@/zeus';
 import { useTranslation } from 'react-i18next';
 
 const getCollections = async (paginate?: ResolverInputTypes['ProductListOptions']) => {
-  const response = await adminApiQuery()({
+  const response = await adminApiQuery({
     collections: [
       {
         options: {
@@ -25,8 +25,7 @@ export const CollectionsListPage = () => {
     route: async (p) => {
       return getCollections({ take: 10, skip: p.page });
     },
-    limit: 10,
-    cacheKey: 'collections',
+    listType: 'collections',
   });
   const { t } = useTranslation('products');
   return (

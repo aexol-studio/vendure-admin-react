@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useDebounce } from 'use-debounce';
-import { Input, ScrollArea, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components';
+import { Input, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components';
 import { adminApiQuery } from '@/common/client';
 import { useTranslation } from 'react-i18next';
 import { LogicalOperator } from '@/zeus';
@@ -21,7 +21,7 @@ export const CustomerSearch: React.FC<Props> = ({ onSelect, selectedCustomer }) 
 
   useEffect(() => {
     const search = async () => {
-      const data = await adminApiQuery()({
+      const data = await adminApiQuery({
         customers: [
           {
             options: {

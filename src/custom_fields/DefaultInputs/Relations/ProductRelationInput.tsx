@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { DefaultProps } from '../types';
+import { useEffect, useState } from 'react';
 import {
   Dialog,
   DialogClose,
@@ -15,16 +14,17 @@ import { adminApiQuery } from '@/common/client';
 import { ResolverInputTypes } from '@/zeus';
 import { useList } from '@/lists/useList';
 import { cn } from '@/lib/utils';
+import { useCustomFields } from '@/custom_fields';
 
 const getProducts = async (options: ResolverInputTypes['ProductListOptions']) => {
-  const response = await adminApiQuery()({
+  const response = await adminApiQuery({
     products: [{ options }, { totalItems: true, items: { id: true, featuredAsset: { preview: true } } }],
   });
   return response.products;
 };
 
-export function ProductRelationInput<T>(props: DefaultProps<T>) {
-  const { value, onChange } = props;
+export function ProductRelationInput() {
+  const { value, setValue } = useCustomFields();
   const [selectedProduct, setSelectedProduct] = useState<{
     id: string;
     featuredAsset?: { preview: string };
@@ -34,7 +34,7 @@ export function ProductRelationInput<T>(props: DefaultProps<T>) {
       const products = await getProducts({ skip: (page - 1) * perPage, take: perPage });
       return { items: products.items, totalItems: products.totalItems };
     },
-    cacheKey: `modal-products-list`,
+    listType: `modal-products-list`,
   });
 
   useEffect(() => {
@@ -82,7 +82,7 @@ export function ProductRelationInput<T>(props: DefaultProps<T>) {
                 )}
                 onClick={() => {
                   setSelectedProduct(product);
-                  onChange(product.id as T);
+                  setValue(product.id);
                 }}
               >
                 <span>{product.id}</span>

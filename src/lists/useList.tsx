@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils';
 import { cache } from '@/lists/cache';
 import { GenericReturn, PaginationInput, PromisePaginated } from '@/lists/models';
 import { ModelTypes, SortOrder } from '@/zeus';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 
@@ -39,11 +39,15 @@ const enum SearchParamKey {
 const arrayRange = (start: number, stop: number) =>
   Array.from({ length: stop - start + 1 }, (_, index) => start + index);
 
+//THERE ARE SOME BREAKING CHANGES IN THOSE TYPES BETWEEN 2.1.8 and 2.2.0
 export type ListType = {
   products: 'ProductFilterParameter';
   collections: 'CollectionFilterParameter';
   orders: 'OrderFilterParameter';
   facets: 'FacetFilterParameter';
+  'modal-product-variants-list': 'ProductVariantFilterParameter';
+  'modal-assets-list': 'AssetFilterParameter';
+  'modal-products-list': 'ProductFilterParameter';
 };
 
 export const useList = <T extends PromisePaginated, K extends keyof ListType>({
