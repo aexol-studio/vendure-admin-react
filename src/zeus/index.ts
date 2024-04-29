@@ -1,7 +1,7 @@
 /* eslint-disable */
 
 import { AllTypesProps, ReturnTypes, Ops } from './const';
-export const HOST = "http://localhost:3000/admin-api"
+export const HOST = "https://shop.dev.minko.aexol.work/admin-api"
 
 
 export const HEADERS = {}

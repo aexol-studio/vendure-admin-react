@@ -5,7 +5,7 @@ export * from './FulfillmentModal';
 export * from './LineItem';
 export * from './OrderStateBadge';
 export * from './ShippingMethod';
-export * from './SummaryCard';
+export * from './OrderSummary';
 export * from './ManualOrderChangeModal';
 export * from './OrderHistory';
 export * from './PossibleOrderStates';

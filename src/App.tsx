@@ -6,7 +6,7 @@ import { ProductListPage } from '@/pages/products/List';
 import { CollectionsListPage } from '@/pages/collections/List';
 import { ProductDetailPage } from '@/pages/products/Detail/Detail';
 import { OrderListPage } from '@/pages/orders/List';
-import { OrderCreatePage } from './pages/orders/Create';
+import { OrderPage } from './pages/orders/OrderPage.tsx';
 import { LoginScreen } from './pages/LoginScreen';
 import { Dashboard } from './pages/Dashboard';
 import { MarketPlaceListPage } from './pages/marketplace/List';
@@ -21,8 +21,8 @@ import {
 } from '@/graphql/base';
 import { useServer } from '@/state/server';
 import { countrySelector } from '@/graphql/base';
-import { toast } from 'sonner';
 import { I18nextProvider, useTranslation } from 'react-i18next';
+import { toast, Toaster } from 'sonner';
 import i18n from './i18.ts';
 
 const TAKE = 100;
@@ -99,7 +99,7 @@ const router = createBrowserRouter([
       },
       {
         path: 'orders/:id',
-        element: <OrderCreatePage />,
+        element: <OrderPage />,
       },
     ],
   },
@@ -110,37 +110,11 @@ function App() {
   const theme = useSettings((p) => p.theme);
 
   const { t } = useTranslation('common');
-  // const [needSocket, setNeedSocket] = useState(false);
   const setActiveAdministrator = useServer((p) => p.setActiveAdministrator);
   const setServerConfig = useServer((p) => p.setServerConfig);
   const setCountries = useServer((p) => p.setCountries);
   const setFulfillmentHandlers = useServer((p) => p.setFulfillmentHandlers);
   const setPaymentMethodsType = useServer((p) => p.setPaymentMethodsType);
-  // const activeAdministrator = useServer((p) => p.activeAdministrator);
-  // const setIsConnected = useServer((p) => p.setIsConnected);
-  // const setActiveClients = useServer((p) => p.setActiveClients);
-
-  // function onConnect() {
-  //   setIsConnected(true);
-  // }
-
-  // function onDisconnect() {
-  //   setIsConnected(false);
-  // }
-
-  // function onClients(clients) {
-  //   setActiveClients(
-  //     clients
-  //       .sort((a, b) => {
-  //         const aMe = a.id === activeAdministrator?.id;
-  //         const bMe = b.id === activeAdministrator?.id;
-  //         if (aMe && !bMe) return -1;
-  //         if (bMe && !aMe) return 1;
-  //         return new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime();
-  //       })
-  //       .map((client) => ({ ...client, me: client.id === activeAdministrator?.id })),
-  //   );
-  // }
 
   useEffect(() => {
     const init = async () => {
@@ -220,6 +194,19 @@ function App() {
   return (
     <I18nextProvider i18n={i18n} defaultNS={'translation'}>
       <AnimatePresence>{isLoggedIn ? <RouterProvider router={router} /> : <LoginScreen />}</AnimatePresence>
+      <Toaster
+        theme={theme}
+        richColors
+        toastOptions={{
+          classNames: {
+            error: 'border',
+            warning: 'border',
+            success: 'border',
+            info: 'border',
+            default: 'border',
+          },
+        }}
+      />
     </I18nextProvider>
   );
 }

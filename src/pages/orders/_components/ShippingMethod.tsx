@@ -1,3 +1,4 @@
+import { adminApiQuery } from '@/common/client';
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components';
 import {
   Dialog,
@@ -7,21 +8,42 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { DraftOrderType, EligibleShippingMethodsType } from '@/graphql/draft_order';
+import { DraftOrderType, EligibleShippingMethodsType, eligibleShippingMethodsSelector } from '@/graphql/draft_order';
 import { cn } from '@/lib/utils';
 import { priceFormatter } from '@/utils';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 
 export const ShippingMethod: React.FC<{
   order?: DraftOrderType;
   onSelectShippingMethod: (orderId: string, shippingMethodId: string) => Promise<void>;
-  shippingMethods: EligibleShippingMethodsType[];
-}> = ({ order, shippingMethods, onSelectShippingMethod }) => {
+}> = ({ order, onSelectShippingMethod }) => {
   const { t } = useTranslation('orders');
   const [open, setOpen] = useState(false);
   const [localSelectedShippingMethod, setLocalSelectedShippingMethod] = useState<string | undefined>(undefined);
+
+  const [shippingMethods, setShippingMethods] = useState<EligibleShippingMethodsType[]>([]);
   const data = shippingMethods.find((method) => method.id === order?.shippingLines?.[0]?.shippingMethod.id);
+
+  useEffect(() => {
+    const fetch = async () => {
+      if (order && order.id) {
+        const { eligibleShippingMethodsForDraftOrder } = await adminApiQuery({
+          eligibleShippingMethodsForDraftOrder: [{ orderId: order.id }, eligibleShippingMethodsSelector],
+        });
+        console.log(eligibleShippingMethodsForDraftOrder);
+
+        if (!eligibleShippingMethodsForDraftOrder) {
+          toast.error(t('toasts.orderLoadingDraftShippingError', { value: order.id }));
+        }
+        setShippingMethods(eligibleShippingMethodsForDraftOrder);
+      }
+    };
+    fetch();
+  }, [order]);
+
+  console.log('asdasda', order?.lines, shippingMethods, data);
 
   return (
     <Card
@@ -71,12 +93,7 @@ export const ShippingMethod: React.FC<{
                 {shippingMethods.map((shippingMethod) => (
                   <div key={shippingMethod.id} className="w-1/4 p-1">
                     <button
-                      onClick={() => {
-                        const method = shippingMethods.find((method) => method.id === shippingMethod.id);
-                        if (method) {
-                          setLocalSelectedShippingMethod(method.id);
-                        }
-                      }}
+                      onClick={() => setLocalSelectedShippingMethod(shippingMethod.id)}
                       className={cn(
                         'relative flex w-full gap-2 rounded-md border p-4',
                         localSelectedShippingMethod === shippingMethod.id

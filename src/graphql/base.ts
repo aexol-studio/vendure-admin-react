@@ -16,7 +16,7 @@ export type OrderStateType =
   | 'Delivered'
   | 'Modifying'
   | 'ArrangingAdditionalPayment';
-
+  
 export type NavigationType = CollectionTileType & {
   productVariants?: {
     items: CollectionTileProductVariantType[];
@@ -255,6 +255,7 @@ export const serverConfigSelector = Selector('ServerConfig')({
   // plugins: { name: true, version: true, path: true, active: true, status: true },
   // entityCustomFields: { customFields: CustomFieldConfigSelector, entityName: true },
   // moneyStrategyPrecision: true,
+  customFieldConfig: { OrderLine: CustomFieldConfigSelector },
   orderProcess: { name: true, to: true },
   permissions: { assignable: true, description: true, name: true },
   permittedAssetTypes: true,

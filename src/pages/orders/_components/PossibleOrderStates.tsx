@@ -16,21 +16,24 @@ import {
   TimelineContent,
   TimelineHeading,
 } from '@/components/ui/timeline';
+import { useServer } from '@/state/server';
+import { useTranslation } from 'react-i18next';
 
 export const PossibleOrderStates: React.FC<{
   orderState: string;
-  orderProcess: { name: string; to: string[] }[];
-}> = ({ orderState, orderProcess }) => {
+}> = ({ orderState }) => {
+  const { t } = useTranslation('orders');
+  const orderProcess = useServer((p) => p.serverConfig?.orderProcess || []);
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button size="sm">Order states</Button>
+        <Button size="sm">{t('orderStates.button')}</Button>
       </DialogTrigger>
       <DialogContent className="max-w-[40vw]">
         <DialogHeader>
-          <DialogTitle>Order states</DialogTitle>
+          <DialogTitle>{t('orderStates.title')}</DialogTitle>
           <DialogDescription>
-            Here you can see all possible states for the order, and the current state of the order.
+          {t('orderStates.description')}
           </DialogDescription>
         </DialogHeader>
         <ScrollArea className="h-[80vh]">

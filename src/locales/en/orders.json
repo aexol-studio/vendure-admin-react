@@ -19,6 +19,10 @@
     "filterPlaceholder": "Field for filter",
     "createOrder": "Create order",
     "create": {
+        "baseInfoCode": "Code: {{value}}",
+        "baseInfoUpdated": "Updated: {{value}}",
+        "baseInfoCreated": "Created: {{value}}",
+        "orderId": "Order #{{value}}",
         "addProduct": "Add Product",
         "back": "Back",
         "draftOrder": "Draft order",
@@ -44,7 +48,8 @@
             "lastNameLabel": "Last Name",
             "emailLabel": "Email*",
             "phoneNumberLabel": "Phone Number*",
-            "select": "Select Customer",
+            "select": "Customer",
+            "selectButton": "Select Customer",
             "change": "Change Customer",
             "create": "Create Customer",
             "customer": "Customer",
@@ -62,7 +67,10 @@
             "phoneNumber": "Phone Number",
             "id": "Id",
             "inputLabel": "To find specific customer use input below and select desired one from list below",
-            "selectCustomerFailed": "Failed to select customer"
+            "selectCustomerFailed": "Failed to select customer",
+            "success": "Customer added to order",
+            "error": "Failed to add customer to order",
+            "noResults": "No customer of specified value found"
         },
         "buttonAddPayment": "Add payment to order {{value}}",
         "addPaymentTitle": "Add payment to order",
@@ -107,14 +115,14 @@
         "setAsDefaultShipping": "Set as default shipping address",
         "setAsDefaultBilling": "Set as default billing address",
         "countrySelectLabel": " Country:",
-        "phoneNumberShort": "tel.",
+        "phoneNumberShort": "tel.{{value}}",
         "isDefaultBilling": "Customer default shipping address",
         "isDefaultShipping": "customer default billing address",
         "createForCustomer": "Create for customer"
     },
     "selectShipmentMethod": {
         "noLines": "At least one line item is required",
-        "cardTitle": "Select shipping method",
+        "cardTitle": "Shipping method",
         "cardDescription": "Select a shipping method",
         "noSelected": "No shipping method selected",
         "buttonLabel": "Set shipping method",
@@ -145,5 +153,15 @@
     "postalCode": "Postal Code",
     "country": "Country",
     "phoneNumber": "Phone Number",
-    "province": "Province"
+    "province": "Province",
+    "toasts": {
+        "orderLoadingError": "Failed to load order with id {{value}}",
+        "orderHistoryLoadingError": "Failed to load order history with id {{value}}",
+        "orderLoadingDraftShippingError": "Failed to load eligible shipping for order with id {{value}}"
+    },
+    "orderStates": {
+        "button": ">Order states",
+        "title": ">Order states",
+        "description": " Here you can see all possible states for the order, and the current state of the order."
+    }
 }

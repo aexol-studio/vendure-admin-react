@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "zeus": "zeus http://localhost:3000/admin-api  ./src/",
+    "zeus": "zeus https://shop.dev.minko.aexol.work/admin-api  ./src/",
     "preview": "vite preview",
     "toc": "i18next-resources-for-ts toc -i ./src/locales/en -o ./src/@types/resources.ts",
     "interface": "i18next-resources-for-ts interface -i ./src/locales/en -o ./src/@types/resources.d.ts"
@@ -31,6 +31,7 @@
     "@radix-ui/react-slot": "^1.0.2",
     "@radix-ui/react-switch": "^1.0.3",
     "@radix-ui/react-tabs": "^1.0.4",
+    "@radix-ui/react-toast": "^1.1.5",
     "@radix-ui/react-tooltip": "^1.0.7",
     "@tanstack/react-table": "^8.15.3",
     "class-variance-authority": "^0.7.0",

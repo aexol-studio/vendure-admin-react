@@ -39,11 +39,7 @@ const updateProductVariant = async (props: ModelTypes['UpdateProductVariantInput
 
 export const ProductDetailPage = () => {
   const { t } = useTranslation('products');
-
-  const { object, reset } = useDetail({
-    cacheKey: 'productDetail',
-    route: getProduct,
-  });
+  const { object, reset } = useDetail({ cacheKey: 'productDetail', route: getProduct });
 
   const { state, setField } = useGFFLP('UpdateProductInput', 'translations', 'featuredAssetId', 'enabled')({});
   const { state: variantState } = useGFFLP('UpdateProductVariantInput', 'translations', 'price', 'sku')({});
