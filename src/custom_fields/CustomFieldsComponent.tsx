@@ -3,6 +3,7 @@ import { generateCustomFields } from './logic';
 import { CustomFieldConfigType } from '@/graphql/base';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components';
 import { SearchProductVariantType } from '@/graphql/draft_order';
+import { useServer } from '@/state/server';
 
 declare global {
   interface Window {
@@ -16,8 +17,8 @@ export const CustomFieldsComponent: React.FC<{
   getValue: (field: CustomFieldConfigType) => string | number | boolean;
   setValue: (field: CustomFieldConfigType, data: string | number | boolean) => void;
   data: { variantToAdd: SearchProductVariantType };
-  customFields?: CustomFieldConfigType[];
-}> = ({ getValue, setValue, data, customFields }) => {
+}> = ({ getValue, setValue, data }) => {
+  const customFields = useServer((p) => p.serverConfig?.customFieldConfig.OrderLine);
   const [rendered, setRendered] = useState<Record<string, { name: string; component: React.ReactElement }[]>>({});
   useEffect(() => {
     if (!customFields) return;

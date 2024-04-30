@@ -30,15 +30,15 @@ export const RealizationCard: React.FC<{
         >
           <Card className="border-primary">
             <CardHeader>
-              <CardTitle>Realization</CardTitle>
-            </CardHeader>
-            <CardContent>
+              <CardTitle className="text-base">Realization</CardTitle>
+
               <Table>
                 <TableHeader>
                   <TableRow noHover>
                     <TableHead>Method</TableHead>
                     <TableHead>State</TableHead>
                     <TableHead>Tracking code</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -48,17 +48,19 @@ export const RealizationCard: React.FC<{
                         <TableCell>{fulfillment.method}</TableCell>
                         <TableCell>{fulfillment.state}</TableCell>
                         <TableCell>{fulfillment.trackingCode}</TableCell>
-                        {fulfillment.state === 'Shipped' ? (
-                          <Button size="sm" variant="outline" onClick={() => markAsDelivered(fulfillment.id)}>
-                            Mark as delivered
-                          </Button>
-                        ) : null}
+                        <TableCell className="text-right">
+                          {fulfillment.state === 'Shipped' ? (
+                            <Button size="sm" variant="outline" onClick={() => markAsDelivered(fulfillment.id)}>
+                              Mark as delivered
+                            </Button>
+                          ) : null}
+                        </TableCell>
                       </TableRow>
                     </React.Fragment>
                   ))}
                 </TableBody>
               </Table>
-            </CardContent>
+            </CardHeader>
           </Card>
         </motion.div>
       ) : null}

@@ -42,6 +42,25 @@
         "noItemsFound": "No items found",
         "cancel": "Cancel",
         "add": "Add item to order",
+        "addItem": " Add item",
+        "somethingWrong": "Something went wrong",
+        "sku": "SKU",
+        "quantity": "Quantity",
+        "remove": "Remove",
+        "edit": "Edit",
+        "noItems": "No items in draft order",
+        "price": "Price",
+        "priceWithTax": "Price with tax",
+        "totalWithTax": "Total with Tax",
+        "customFields": "Custom Fields",
+        "discount": "Discount",
+        "orderCancelSuccessfully": "Order canceled successfully",
+        "modifyOrder": "Modify order",
+        "cancelOrder": "Cancel order",
+        "realizeOrder": "Realize order",
+        "areYouSure": "Are you sure?",
+        "continue": "Continue",
+        "cancelOrderMessage": "After canceling order no action will be allowed",
         "selectCustomer": {
             "titleLabel": "Title*",
             "firstNameLabel": "First Name*",
@@ -117,19 +136,21 @@
         "countrySelectLabel": " Country:",
         "phoneNumberShort": "tel.{{value}}",
         "isDefaultBilling": "Customer default shipping address",
-        "isDefaultShipping": "customer default billing address",
+        "isDefaultShipping": "Customer default billing address",
         "createForCustomer": "Create for customer"
     },
     "selectShipmentMethod": {
         "noLines": "At least one line item is required",
         "cardTitle": "Shipping method",
         "cardDescription": "Select a shipping method",
-        "noSelected": "No shipping method selected",
+        "noSelected": "No shipping method selected.",
+        "noSelectedTip": "You need to add products before selecting shipment method.",
         "buttonLabel": "Set shipping method",
         "close": "Close",
         "save": "Save",
         "setMethodTitle": "Set shipping method",
-        "setMethodDescription": "Select a shipping method"
+        "setMethodDescription": "Select a shipping method",
+        "shippingAdded": "Shipping method added successfully"
     },
     "inputs": {
         "pickDate": "Pick a date"
@@ -160,8 +181,11 @@
         "orderLoadingDraftShippingError": "Failed to load eligible shipping for order with id {{value}}"
     },
     "orderStates": {
-        "button": ">Order states",
-        "title": ">Order states",
+        "button": "Order states",
+        "title": "> Order states",
         "description": " Here you can see all possible states for the order, and the current state of the order."
+    },
+    "realization": {
+        "Realization": "Realization"
     }
 }

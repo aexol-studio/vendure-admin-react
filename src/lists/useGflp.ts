@@ -22,7 +22,10 @@ export const useFFLP = <T>(config: {
     }>
   >({
     ...(Object.fromEntries(
-      Object.keys(config).map((v) => [v, { value: config[v as keyof T]?.initialValue as T[keyof T] }]),
+      Object.keys(config).map((v) => [
+        v,
+        { value: config[v as keyof T]?.initialValue as T[keyof T], ...config[v as keyof T] },
+      ]),
     ) as Partial<{
       [P in keyof T]: FormField<T[P]>;
     }>),

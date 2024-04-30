@@ -1,4 +1,4 @@
-import { Label } from '@/components';
+import { Button, Label } from '@/components';
 import { DraftOrderType } from '@/graphql/draft_order';
 import { format } from 'date-fns';
 import React from 'react';
@@ -6,7 +6,8 @@ import { useTranslation } from 'react-i18next';
 
 export const OrderSummary: React.FC<{
   order?: DraftOrderType;
-}> = ({ order }) => {
+  markAsDelivered: (fulfillmentId: string) => void;
+}> = ({ order, markAsDelivered }) => {
   const { t } = useTranslation('orders');
   return (
     <div className="flex flex-row flex-wrap gap-x-4 gap-y-2">

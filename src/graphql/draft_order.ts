@@ -131,6 +131,8 @@ export const draftOrderSelector = Selector('Order')({
   lines: {
     id: true,
     quantity: true,
+    discountedLinePrice: true,
+    discountedLinePriceWithTax: true,
     productVariant: searchProductVariantSelector,
     customFields: {
       attributes: true,

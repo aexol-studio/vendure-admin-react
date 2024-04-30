@@ -27,14 +27,14 @@ export const PossibleOrderStates: React.FC<{
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button size="sm">{t('orderStates.button')}</Button>
+        <Button variant="ghost" className="w-full justify-start">
+          {t('orderStates.button')}
+        </Button>
       </DialogTrigger>
       <DialogContent className="max-w-[40vw]">
         <DialogHeader>
           <DialogTitle>{t('orderStates.title')}</DialogTitle>
-          <DialogDescription>
-          {t('orderStates.description')}
-          </DialogDescription>
+          <DialogDescription>{t('orderStates.description')}</DialogDescription>
         </DialogHeader>
         <ScrollArea className="h-[80vh]">
           <Timeline>

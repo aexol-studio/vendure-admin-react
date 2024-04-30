@@ -20,11 +20,12 @@ import { priceFormatter } from '@/utils';
 
 interface Props {
   onSelectItem: (selected: SearchProductVariantType) => void;
+  disabled: boolean;
 }
 
 ///TODO Add clear select option
 
-export const ProductVariantSearch: React.FC<Props> = ({ onSelectItem }) => {
+export const ProductVariantSearch: React.FC<Props> = ({ onSelectItem, disabled }) => {
   const { t } = useTranslation('orders');
   const ref = useRef<HTMLInputElement>(null);
   const [focused, setFocused] = useState(false);
@@ -55,6 +56,7 @@ export const ProductVariantSearch: React.FC<Props> = ({ onSelectItem }) => {
   return (
     <div className="relative w-full">
       <Input
+        disabled={disabled}
         ref={ref}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}

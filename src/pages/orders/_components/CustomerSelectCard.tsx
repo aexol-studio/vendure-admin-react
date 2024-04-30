@@ -82,8 +82,6 @@ export const CustomerSelectCard: React.FC<{
   useEffect(() => setSelected(order?.customer), [order]);
 
   const validateAndSubmitIfCorrect = async () => {
-    console.log('aaaa', order?.id);
-
     if (order?.id) {
       if ((tab === 'create' && checkIfAllFieldsAreValid()) || (tab === 'select' && selected)) {
         const { setCustomerForDraftOrder } = await adminApiMutation({
@@ -127,12 +125,12 @@ export const CustomerSelectCard: React.FC<{
       )}
     >
       <CardHeader>
-        <CardTitle className="flex flex-row justify-between">
+        <CardTitle className="flex flex-row justify-between text-base">
           {t('create.selectCustomer.select')}
           {mode !== 'view' && (
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
-                <Edit className="cursor-pointer" />
+                <Edit size={20} className="cursor-pointer self-center" />
               </DialogTrigger>
               <DialogContent className="h-[80vh] min-w-max">
                 <DialogHeader>

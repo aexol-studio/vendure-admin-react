@@ -29,7 +29,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { AddressBaseType, CreateAddressBaseType, DraftOrderType, draftOrderSelector } from '@/graphql/draft_order';
+import {
+  AddressBaseType,
+  CreateAddressBaseType,
+  DraftOrderType,
+  addressBaseSelector,
+  draftOrderSelector,
+} from '@/graphql/draft_order';
 import { cn } from '@/lib/utils';
 import { useGFFLP } from '@/lists/useGflp';
 import { Mode } from '@/pages/orders/OrderPage';
@@ -46,93 +52,54 @@ type DefaultAddress = AddressBaseType & {
   defaultShippingAddress?: boolean;
   country?: { code?: string; name?: string };
 };
-interface DefaultAddressValue extends Omit<AddressBaseType, 'streetLine1'> {
-  streetLine1?: string;
-  country?: string;
-  countryCode?: string;
-}
 
 export const AddressCard: React.FC<{
   type: 'shipping' | 'billing';
   mode: Mode;
-  order?: DraftOrderType;
+  order: DraftOrderType;
   setOrder: React.Dispatch<React.SetStateAction<DraftOrderType | undefined>>;
 }> = ({ mode, order, setOrder, type }) => {
   const { t } = useTranslation('orders');
   const countries = useServer((p) => p.countries);
+
+  const [createForCustomer, setCreateForCustomer] = useState(false);
+  // const [createAsDefault, setCreateAsDefault] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [open, setOpen] = useState(false);
+
   const currentAddress = useMemo(
     () =>
-      order?.shippingAddress && type === 'shipping'
-        ? order?.shippingAddress
-        : order?.billingAddress && type === 'billing'
+      type === 'shipping' &&
+      order.shippingAddress &&
+      order.shippingAddress.streetLine1 &&
+      order.shippingAddress.countryCode
+        ? order.shippingAddress
+        : type === 'billing' &&
+            order.billingAddress &&
+            order.billingAddress.countryCode &&
+            order.billingAddress.streetLine1
           ? order.billingAddress
           : undefined,
     [order, type],
   );
-  const [selectedAddress, setSelectedAddress] = useState<DefaultAddress | undefined>(
-    currentAddress &&
-      order?.customer?.addresses?.find(
-        (i) =>
-          i.streetLine1 === currentAddress.streetLine1 &&
-          i.fullName === currentAddress.fullName &&
-          i.postalCode === currentAddress.postalCode,
-      ),
-  );
+
   const [tab, setTab] = useState<'select' | 'create'>(
     currentAddress &&
       order?.customer?.addresses?.some(
-        (i) =>
-          i.streetLine1 === currentAddress?.streetLine1 &&
-          i.fullName === currentAddress.fullName &&
-          i.postalCode === currentAddress.postalCode,
+        (i) => i.streetLine1 === currentAddress?.streetLine1 && i.country.code === currentAddress.countryCode,
       )
       ? 'select'
       : 'create',
   );
+
+  const [selectedAddress, setSelectedAddress] = useState<DefaultAddress | undefined>(
+    currentAddress &&
+      order?.customer?.addresses?.find(
+        (i) => i.streetLine1 === currentAddress.streetLine1 && i.country.code === currentAddress.countryCode,
+      ),
+  );
   const isShipping = type === 'shipping';
 
-  const handleMethodChange = async ({
-    address,
-    isShipping,
-    createForCustomer,
-  }: {
-    address: CreateAddressBaseType;
-    isShipping: boolean;
-    createForCustomer: boolean;
-  }) => {
-    const orderId = order?.id;
-    if (orderId && address) {
-      if (createForCustomer && order?.customer?.id) {
-        const { createCustomerAddress } = await adminApiMutation({
-          createCustomerAddress: [{ customerId: order.customer.id, input: address }, { streetLine1: true }],
-        });
-        if (createCustomerAddress.streetLine1) {
-          toast.success(t('selectAddress.newAddress', { address: createCustomerAddress.streetLine1 }));
-        } else {
-          toast.error(t('selectAddress.addressAddFailed'));
-        }
-      }
-      const { setDraftOrderShippingAddress, setDraftOrderBillingAddress } = await adminApiMutation(
-        isShipping
-          ? { setDraftOrderShippingAddress: [{ orderId, input: address }, draftOrderSelector] }
-          : { setDraftOrderBillingAddress: [{ orderId, input: address }, draftOrderSelector] },
-      );
-      if (setDraftOrderShippingAddress || setDraftOrderBillingAddress) {
-        setOrder(isShipping ? setDraftOrderShippingAddress : setDraftOrderBillingAddress);
-        toast(
-          t(createForCustomer ? 'selectAddress.addressSuccessCreateToast' : 'selectAddress.addressSuccessSelectToast'),
-        );
-      } else {
-        toast.error(
-          t(createForCustomer ? 'selectAddress.addressFailedCreateToast' : 'selectAddress.addressFailedSelectToast'),
-        );
-      }
-    }
-  };
-
-  const [createForCustomer, setCreateForCustomer] = useState(false);
   const { state, setField, checkIfAllFieldsAreValid, setState } = useGFFLP(
     'CreateAddressInput',
     'city',
@@ -147,94 +114,122 @@ export const AddressCard: React.FC<{
     'province',
   )({
     fullName: {
-      initialValue: currentAddress?.fullName,
+      initialValue: '',
       validate: (v) => {
         if (!v || v === '') return [t('selectAddress.nameRequired')];
       },
     },
-    company: { initialValue: currentAddress?.company },
+    company: { initialValue: '' },
     streetLine1: {
-      initialValue: currentAddress?.streetLine1,
+      initialValue: '',
       validate: (v) => {
         if (!v || v === '') return [t('selectAddress.streetRequired')];
       },
     },
-    streetLine2: { initialValue: currentAddress?.streetLine2 },
+    streetLine2: { initialValue: '' },
     postalCode: {
-      initialValue: currentAddress?.postalCode,
+      initialValue: '',
       validate: (v) => {
         if (!v || v === '') return [t('selectAddress.postalCodeRequired')];
       },
     },
     countryCode: {
-      initialValue: currentAddress?.country,
+      initialValue: '',
       validate: (v) => {
         if (!v || v === '') return [t('selectAddress.countryRequired')];
       },
     },
     phoneNumber: {
-      initialValue: currentAddress?.phoneNumber,
+      initialValue: '',
       validate: (v) => {
         if (!v || v === '') return [t('selectAddress.phoneNumberRequired')];
         if (!phoneNumberRegExp.test(v)) return [t('selectAddress.phoneError')];
       },
     },
     city: {
-      initialValue: currentAddress?.city,
+      initialValue: '',
       validate: (v) => {
         if (!v || v === '') return [t('selectAddress.cityRequired')];
       },
     },
     province: {
-      initialValue: currentAddress?.province,
+      initialValue: '',
     },
   });
 
   const submitAddress = async () => {
-    if (tab === 'create') {
-      const isValid = checkIfAllFieldsAreValid();
-      if (!isValid) return;
-      setSubmitting(true);
-      await handleMethodChange({
-        address: {
-          fullName: state.fullName?.validatedValue,
-          company: state.company?.validatedValue,
-          streetLine1: state.streetLine1?.validatedValue || '',
-          streetLine2: state.streetLine2?.validatedValue,
-          postalCode: state.postalCode?.validatedValue,
-          countryCode: state.countryCode?.validatedValue || '',
-          phoneNumber: state.phoneNumber?.validatedValue,
-          city: state.city?.validatedValue,
-          province: state.province?.validatedValue,
-        },
-        isShipping,
-        createForCustomer,
-      });
+    if (tab === 'select' && !selectedAddress) return;
+    const isValid = checkIfAllFieldsAreValid();
+    if (tab === 'create' && !isValid) return;
+    setSubmitting(true);
+    const newAddress: CreateAddressBaseType =
+      tab === 'select' && selectedAddress
+        ? {
+            fullName: selectedAddress.fullName,
+            company: selectedAddress.company,
+            streetLine1: selectedAddress.streetLine1,
+            streetLine2: selectedAddress.streetLine2,
+            countryCode: selectedAddress.country?.code || '',
+            city: selectedAddress.city,
+            phoneNumber: selectedAddress.phoneNumber,
+            postalCode: selectedAddress.postalCode,
+            province: selectedAddress.province,
+          }
+        : {
+            fullName: state.fullName?.validatedValue,
+            company: state.company?.validatedValue,
+            streetLine1: state.streetLine1?.validatedValue || '',
+            streetLine2: state.streetLine2?.validatedValue,
+            postalCode: state.postalCode?.validatedValue,
+            countryCode: state.countryCode?.validatedValue || '',
+            phoneNumber: state.phoneNumber?.validatedValue,
+            city: state.city?.validatedValue,
+            province: state.province?.validatedValue,
+          };
+
+    const { setDraftOrderShippingAddress, setDraftOrderBillingAddress } = await adminApiMutation(
+      type === 'shipping'
+        ? { setDraftOrderShippingAddress: [{ orderId: order.id, input: newAddress }, draftOrderSelector] }
+        : { setDraftOrderBillingAddress: [{ orderId: order.id, input: newAddress }, draftOrderSelector] },
+    );
+    if (setDraftOrderShippingAddress || setDraftOrderBillingAddress) {
+      setOrder(type === 'shipping' ? setDraftOrderShippingAddress : setDraftOrderBillingAddress);
+      toast(
+        t(tab === 'create' ? 'selectAddress.addressSuccessCreateToast' : 'selectAddress.addressSuccessSelectToast'),
+      );
       setSubmitting(false);
       setOpen(false);
     } else {
-      if (!selectedAddress) return;
-      setSubmitting(true);
-      await handleMethodChange({
-        address: {
-          fullName: selectedAddress.fullName,
-          company: selectedAddress.company,
-          streetLine1: selectedAddress.streetLine1,
-          streetLine2: selectedAddress.streetLine2,
-          countryCode: selectedAddress.country?.code || '',
-          city: selectedAddress.city,
-          phoneNumber: selectedAddress.phoneNumber,
-          postalCode: selectedAddress.postalCode,
-          province: selectedAddress.province,
-        },
-        isShipping,
-        createForCustomer,
+      toast.error(
+        t(tab === 'create' ? 'selectAddress.addressFailedCreateToast' : 'selectAddress.addressFailedSelectToast'),
+      );
+    }
+    if (tab === 'create' && createForCustomer && order.customer?.id) {
+      const { createCustomerAddress } = await adminApiMutation({
+        createCustomerAddress: [
+          {
+            customerId: order.customer.id,
+            input: newAddress,
+          },
+          addressBaseSelector,
+        ],
       });
-      setSubmitting(false);
-      setOpen(false);
+      // {
+      //   ...newAddress,
+      //   ...(createAsDefault && type === 'billing' && { defaultBillingAddress: true }),
+      //   ...(createAsDefault && type === 'shipping' && { defaultShippingAddress: true }),
+      // },
+      if (createCustomerAddress.streetLine1) {
+        toast.success(t('selectAddress.newAddress', { address: createCustomerAddress.streetLine1 }));
+        setSelectedAddress(createCustomerAddress);
+        setTab('select');
+        setCreateForCustomer(false);
+        // setCreateAsDefault(false);
+      } else {
+        toast.error(t('selectAddress.addressAddFailed'));
+      }
     }
   };
-  console.log('toto', currentAddress, order);
 
   return (
     <Card
@@ -243,12 +238,12 @@ export const AddressCard: React.FC<{
       )}
     >
       <CardHeader>
-        <CardTitle className="flex flex-row justify-between">
+        <CardTitle className="flex flex-row justify-between text-base">
           {t(isShipping ? 'selectAddress.shippingHeader' : 'selectAddress.billingHeader')}
           {mode !== 'view' && (
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
-                <Edit className="cursor-pointer" onClick={() => setOpen(true)} />
+                <Edit size={20} className="cursor-pointer self-center" onClick={() => setOpen(true)} />
               </DialogTrigger>
               <DialogContent className="flex h-[80vh] max-h-[80vh] min-h-[80vh] flex-col">
                 <DialogHeader>
@@ -281,7 +276,10 @@ export const AddressCard: React.FC<{
                   ) : null}
                   <TabsContent
                     value="select"
-                    className={cn('flex flex-1 flex-col overflow-hidden', tab !== 'select' && 'hidden')}
+                    className={cn(
+                      'flex flex-1 flex-col overflow-hidden focus-visible:ring-transparent',
+                      tab !== 'select' && 'hidden',
+                    )}
                   >
                     <ScrollArea>
                       <div className="flex flex-col gap-2 px-4">
@@ -295,13 +293,17 @@ export const AddressCard: React.FC<{
                             onClick={() => setSelectedAddress(address)}
                           >
                             <div>
-                              <CardDescription>{`${address.fullName} ${address.streetLine1} ${address.streetLine2}`}</CardDescription>
+                              <CardDescription>{`${address.fullName} ${address.streetLine1} ${address.streetLine2 ? ', ' + address.streetLine2 : ''}`}</CardDescription>
                               <CardDescription>{`${address.postalCode} ${address.city} ${address.country?.name || address.country?.code}`}</CardDescription>
                               <CardDescription>{`${t('selectAddress.phoneNumberShort', { value: address.phoneNumber })} ${address.company} `}</CardDescription>
-                              {((isShipping && address.defaultShippingAddress) ||
-                                (!isShipping && address.defaultBillingAddress)) && (
+                              {address.defaultBillingAddress && (
                                 <CardDescription className="pt-2 text-primary">
-                                  {t(isShipping ? 'selectAddress.isDefaultShipping' : 'selectAddress.isDefaultBilling')}
+                                  {t('selectAddress.isDefaultBilling')}
+                                </CardDescription>
+                              )}
+                              {address.defaultBillingAddress && (
+                                <CardDescription className="pt-2 text-primary">
+                                  {t('selectAddress.isDefaultShipping')}
                                 </CardDescription>
                               )}
                             </div>
@@ -319,7 +321,10 @@ export const AddressCard: React.FC<{
                   </TabsContent>
                   <TabsContent
                     value="create"
-                    className={cn('flex flex-1 flex-col overflow-hidden ', tab !== 'create' && 'hidden')}
+                    className={cn(
+                      'flex flex-1 flex-col overflow-hidden focus-visible:ring-transparent',
+                      tab !== 'create' && 'hidden',
+                    )}
                   >
                     <ScrollArea>
                       <Input
@@ -434,35 +439,7 @@ export const AddressCard: React.FC<{
                       <p className="mb-2 mt-1  min-h-5 border-orange-800 text-sm font-medium text-destructive">
                         {(state.countryCode?.errors || []).toString()}
                       </p>
-                      {/* TO BE DONE I THE FUTURE - SET NEW ADDRESS AS DEFAULT */}
-                      {/* {customerAddresses?.length ? (
-                     <div className="my-2 flex flex-col gap-2">
-                       <div className="flex items-center space-x-2">
-                         <Checkbox id="default" />
-                         <Label
-                           htmlFor="default"
-                           className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                         >
-                           {t(
-                             isShipping ? 'selectAddress.setAsDefaultShipping' : 'selectAddress.setAsDefaultBilling',
-                           )}
-                         </Label>
-                       </div>
-                     ) : null}
-                     <div className="my-2 flex items-center space-x-2">
-                       <Checkbox
-                         id="createForCustomer"
-                         value={createForCustomer ? 'true' : 'false'}
-                         onCheckedChange={() => setCreateForCustomer(!createForCustomer)}
-                       />
-                       <Label
-                         htmlFor="createForCustomer"
-                         className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                       >
-                         Create for customer
-                       </Label>
-                     </div>
-                   ) : null} */}
+
                       <div className="my-2 flex items-center space-x-2 py-2">
                         <Checkbox
                           id="createForCustomer"
@@ -476,13 +453,28 @@ export const AddressCard: React.FC<{
                           {t('selectAddress.createForCustomer')}
                         </Label>
                       </div>
+                      {/* DO ZROBIENIA W PRZYSZŁOŚCI */}
+                      {/* {createForCustomer && (
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="createAsDefault"
+                            value={createAsDefault ? 'true' : 'false'}
+                            onCheckedChange={() => setCreateAsDefault((p) => !p)}
+                          />
+                          <Label
+                            htmlFor="createAsDefault"
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                          >
+                            {t(isShipping ? 'selectAddress.setAsDefaultShipping' : 'selectAddress.setAsDefaultBilling')}
+                          </Label>
+                        </div>
+                      )} */}
                     </ScrollArea>
                   </TabsContent>
                 </Tabs>
 
                 <Button
-                  className="self-end"
-                  variant="outline"
+                  className="w-min place-self-end"
                   disabled={submitting || (tab === 'select' && !selectedAddress)}
                   onClick={submitAddress}
                 >

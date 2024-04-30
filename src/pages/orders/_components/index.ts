@@ -10,4 +10,5 @@ export * from './ManualOrderChangeModal';
 export * from './OrderHistory';
 export * from './PossibleOrderStates';
 export * from './RealizationCard';
+export * from './ProductsCard';
 export * from './TaxSummary';

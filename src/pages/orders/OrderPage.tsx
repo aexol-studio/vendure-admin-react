@@ -1,12 +1,16 @@
 import { adminApiMutation, adminApiQuery } from '@/common/client';
 import { useEffect, useMemo, useState } from 'react';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
   Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
   Dialog,
   DialogClose,
   DialogContent,
@@ -20,42 +24,25 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   Input,
-  Label,
-  ProductVariantSearch,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
   Spinner,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
 } from '@/components';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   DraftOrderType,
-  EligibleShippingMethodsType,
   draftOrderSelector,
-  eligibleShippingMethodsSelector,
   orderHistoryEntrySelector,
   OrderHistoryEntryType,
-  CreateAddressBaseType,
-  SearchProductVariantType,
   addFulfillmentToOrderResultSelector,
-  removeOrderItemsResultSelector,
-  updatedDraftOrderSelector,
 } from '@/graphql/draft_order';
 import { ResolverInputTypes, SortOrder } from '@/zeus';
 import { useTranslation } from 'react-i18next';
 import { useServer } from '@/state/server';
 import { toast } from 'sonner';
-import { CustomFieldsComponent } from '@/custom_fields';
-import { CustomFieldConfigType } from '@/graphql/base';
-import { useGFFLP } from '@/lists/useGflp';
 import {
   ManualOrderChangeModal,
   OrderStateBadge,
@@ -66,12 +53,12 @@ import {
   CustomerSelectCard,
   AddressCard,
   ShippingMethod,
-  LineItem,
   TaxSummary,
   OrderHistory,
+  ProductsCard,
 } from '@/pages/orders/_components';
 import { priceFormatter } from '@/utils';
-import { ChevronLeft, Grip } from 'lucide-react';
+import { ChevronLeft, EllipsisVerticalIcon, Grip } from 'lucide-react';
 
 export type Mode = 'view' | 'create' | 'update';
 const TAKE = 100;
@@ -110,11 +97,7 @@ export const OrderPage = () => {
   const [orderHistory, setOrderHistory] = useState<OrderHistoryEntryType[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [variantToAdd, setVariantToAdd] = useState<SearchProductVariantType | undefined>(undefined);
-  const [open, setOpen] = useState(false);
   const [manualChange, setManualChange] = useState(false);
-  const { state, setField } = useGFFLP('AddItemToDraftOrderInput', 'customFields')({});
-  const [orderLineCustomFieldsConfig, setOrderLineCustomFieldsConfig] = useState<CustomFieldConfigType[]>();
 
   const currentPossibilities = useMemo(() => {
     return serverConfig?.orderProcess?.find((state) => state.name === order?.state);
@@ -138,91 +121,6 @@ export const OrderPage = () => {
     };
     fetch();
   }, [id]);
-
-  const selectShippingMethod = async (orderId: string, shippingMethodId: string) => {
-    const { setDraftOrderShippingMethod } = await adminApiMutation({
-      setDraftOrderShippingMethod: [
-        { orderId, shippingMethodId },
-        {
-          __typename: true,
-          '...on Order': draftOrderSelector,
-          '...on IneligibleShippingMethodError': { message: true, errorCode: true },
-          '...on NoActiveOrderError': { message: true, errorCode: true },
-          '...on OrderModificationError': { message: true, errorCode: true },
-        },
-      ],
-    });
-    if (setDraftOrderShippingMethod.__typename === 'Order') {
-      setOrder(setDraftOrderShippingMethod);
-    } else toast.error(`${setDraftOrderShippingMethod.errorCode}: ${setDraftOrderShippingMethod.message}`);
-  };
-
-  const addToOrder = async (productVariantId: string, quantity: number, customFields: Record<string, unknown>) => {
-    const { addItemToDraftOrder } = await adminApiMutation({
-      addItemToDraftOrder: [
-        { input: { productVariantId, quantity, customFields }, orderId: id! },
-        updatedDraftOrderSelector,
-      ],
-    });
-    if (addItemToDraftOrder.__typename === 'Order' || addItemToDraftOrder.__typename === 'InsufficientStockError') {
-      if (addItemToDraftOrder.__typename === 'Order') setOrder(addItemToDraftOrder);
-      else setOrder(addItemToDraftOrder.order);
-      setVariantToAdd(undefined);
-      setOpen(false);
-    }
-  };
-
-  const removeLineItem = async (orderLineId: string) => {
-    const { removeDraftOrderLine } = await adminApiMutation({
-      removeDraftOrderLine: [{ orderId: id!, orderLineId }, removeOrderItemsResultSelector],
-    });
-    if (removeDraftOrderLine.__typename === 'Order') setOrder(removeDraftOrderLine);
-  };
-
-  const adjustLineItem = async (orderLineId: string, quantity: number) => {
-    const { adjustDraftOrderLine } = await adminApiMutation({
-      adjustDraftOrderLine: [
-        { orderId: id!, input: { orderLineId, quantity } },
-        {
-          __typename: true,
-          '...on Order': draftOrderSelector,
-          '...on InsufficientStockError': {
-            errorCode: true,
-            message: true,
-            order: draftOrderSelector,
-            quantityAvailable: true,
-          },
-          '...on NegativeQuantityError': {
-            errorCode: true,
-            message: true,
-          },
-          '...on OrderLimitError': {
-            errorCode: true,
-            message: true,
-            maxItems: true,
-          },
-          '...on OrderModificationError': {
-            errorCode: true,
-            message: true,
-          },
-        },
-      ],
-    });
-    if (adjustDraftOrderLine.__typename === 'Order' || adjustDraftOrderLine.__typename === 'InsufficientStockError') {
-      if (adjustDraftOrderLine.__typename === 'Order') setOrder(adjustDraftOrderLine);
-      else setOrder(adjustDraftOrderLine.order);
-    }
-  };
-
-  const openAddVariantDialog = (variant: SearchProductVariantType) => {
-    setOpen(true);
-    setVariantToAdd(variant);
-  };
-
-  const closeAddVariantDialog = () => {
-    setOpen(false);
-    setVariantToAdd(undefined);
-  };
 
   const onSubmit = async () => {
     const isValid = order?.shippingAddress && order?.billingAddress && order?.shippingLines.length && order?.customer;
@@ -406,7 +304,10 @@ export const OrderPage = () => {
 
   const mode: Mode = useMemo(
     () =>
-      order?.state === 'Draft' || order?.state === 'AddingItems' || order?.state === 'ArrangingPayment'
+      order?.state === 'Draft' ||
+      order?.state === 'AddingItems' ||
+      order?.state === 'ArrangingPayment' ||
+      order?.state === 'Modifying'
         ? 'create'
         : order?.state === 'PaymentSettled' ||
             order?.state === 'PaymentAuthorized' ||
@@ -430,6 +331,47 @@ export const OrderPage = () => {
       </div>
     );
   }
+
+  const cancelOrder = async () => {
+    if (order) {
+      const { cancelOrder } = await adminApiMutation({
+        cancelOrder: [
+          { input: { orderId: order.id } },
+          {
+            __typename: true,
+            '...on Order': draftOrderSelector,
+            '...on EmptyOrderLineSelectionError': {
+              errorCode: true,
+              message: true,
+            },
+            '...on QuantityTooGreatError': {
+              errorCode: true,
+              message: true,
+            },
+            '...on MultipleOrderError': {
+              errorCode: true,
+              message: true,
+            },
+            '...on CancelActiveOrderError': {
+              errorCode: true,
+              message: true,
+            },
+            '...on OrderStateTransitionError': {
+              errorCode: true,
+              message: true,
+            },
+          },
+        ],
+      });
+      if (cancelOrder.__typename === 'Order') {
+        setOrder(cancelOrder);
+        toast.info('Order canceled successfully');
+      } else {
+        toast.error(`Something went wrong while canceling order ${cancelOrder.message}`, { position: 'top-center' });
+      }
+    }
+  };
+
   return (
     <main>
       <ManualOrderChangeModal
@@ -438,7 +380,7 @@ export const OrderPage = () => {
         order={order}
         currentPossibilities={currentPossibilities}
       />
-      <div className="mx-auto flex  w-full flex-col gap-4 2xl:px-8">
+      <div className="mx-auto flex  w-full max-w-[1440px] flex-col gap-4 2xl:px-8">
         <div className="flex items-center gap-4">
           <Button
             variant="outline"
@@ -558,31 +500,47 @@ export const OrderPage = () => {
                       });
                     }}
                   >
-                    Zrealizuj zamówienie
+                    {t('create.realizeOrder')}
                   </Button>
                 </>
               ) : null}
             </div>
           )}
-          <PossibleOrderStates orderState={order.state} />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="icon">
-                <Grip className="h-4 w-4" />
+                <EllipsisVerticalIcon className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="mr-8 w-56">
               {order.state === 'PaymentSettled' ? (
-                <DropdownMenuItem>
+                <DropdownMenuItem asChild>
                   <Button variant="ghost" className="w-full justify-start">
-                    Modyfikuj zamówienie
+                    {t('create.modifyOrder')}
                   </Button>
                 </DropdownMenuItem>
               ) : null}
+              <DropdownMenuItem asChild>
+                <PossibleOrderStates orderState={order.state} />
+              </DropdownMenuItem>
               <DropdownMenuItem asChild className="cursor-pointer">
-                <Button variant="ghost" className="w-full justify-start">
-                  Anuluj zamówienie
-                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="ghost" className="w-full justify-start">
+                      {t('create.cancelOrder')}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>{t('create.areYouSure')}</AlertDialogTitle>
+                      <AlertDialogDescription>{t('create.cancelOrderMessage')}</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>{t('create.cancel')}</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => cancelOrder()}>{t('create.continue')}</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </DropdownMenuItem>
               <DropdownMenuItem asChild className="cursor-pointer">
                 <Button onClick={() => setManualChange(true)} variant="ghost" className="w-full justify-start">
@@ -592,109 +550,15 @@ export const OrderPage = () => {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <OrderSummary order={order} />
+        <OrderSummary order={order} markAsDelivered={markAsDelivered} />
         <RealizationCard order={order} markAsDelivered={markAsDelivered} />
         <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
           <CustomerSelectCard mode={mode} order={order} setOrder={setOrder} />
           <AddressCard mode={mode} type="billing" order={order} setOrder={setOrder} />
           <AddressCard mode={mode} type="shipping" order={order} setOrder={setOrder} />
-
-          <ShippingMethod order={order} onSelectShippingMethod={selectShippingMethod} />
+          <ShippingMethod mode={mode} order={order} setOrder={setOrder} />
         </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle> {t('create.addTitle')}</CardTitle>
-            <CardDescription> {t('create.addHeader')}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-6">
-              <Label htmlFor="product">{t('create.searchPlaceholder')}</Label>
-              <ProductVariantSearch onSelectItem={(i) => openAddVariantDialog(i)} />
-              <Dialog open={open} onOpenChange={(e) => (!e ? closeAddVariantDialog() : setOpen(true))}>
-                <DialogContent className="h-[90vh] max-w-[90vw]">
-                  {variantToAdd ? (
-                    <form
-                      className="flex h-full w-full flex-col"
-                      onSubmit={async (e) => {
-                        e.preventDefault();
-                        await addToOrder(variantToAdd.id, 1, state.customFields?.value || {});
-                      }}
-                    >
-                      <div className="flex w-full flex-col items-center gap-2">
-                        <div className="flex w-full">
-                          <LineItem noBorder noHover variant={{ ...variantToAdd, quantity: 1 }}>
-                            <Button type="submit" size="sm" variant="outline">
-                              Add item
-                            </Button>
-                          </LineItem>
-                        </div>
-                      </div>
-                      <CustomFieldsComponent
-                        getValue={(field) => {
-                          const value = state.customFields?.value ? state.customFields?.value[field.name as never] : '';
-                          return value;
-                        }}
-                        setValue={(field, data) => {
-                          setField('customFields', { ...state.customFields?.value, [field.name]: data });
-                        }}
-                        customFields={orderLineCustomFieldsConfig}
-                        data={{ variantToAdd }}
-                      />
-                      {/* HERE COMPONENT FOR CUSTOM FIELDS */}
-                      <div className="float-end flex flex-row justify-end gap-4">
-                        <Button type="submit">{t('create.add')}</Button>
-                      </div>
-                    </form>
-                  ) : (
-                    <div>Something went wrong</div>
-                  )}
-                </DialogContent>
-              </Dialog>
-              <Table>
-                <TableHeader>
-                  <TableRow noHover>
-                    <TableHead>Product</TableHead>
-                    <TableHead>SKU</TableHead>
-                    <TableHead>Quantity</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {order.lines.length ? (
-                    order.lines.map((line) => (
-                      <LineItem
-                        adjustLineItem={(quantity) => adjustLineItem(line.id, quantity)}
-                        key={line.id}
-                        variant={{ ...line.productVariant, quantity: line.quantity }}
-                      >
-                        <Button size="sm" variant="ghost" onClick={() => removeLineItem(line.id)}>
-                          Remove
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => {
-                            setVariantToAdd(line.productVariant);
-                            setOpen(true);
-                          }}
-                        >
-                          Edit
-                        </Button>
-                      </LineItem>
-                    ))
-                  ) : (
-                    <TableCell colSpan={4}>
-                      <div className="mt-4 flex items-center justify-center">
-                        <span>No items in draft order</span>
-                      </div>
-                    </TableCell>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
+        <ProductsCard mode={mode} order={order} setOrder={setOrder} />
         <TaxSummary order={order} />
         {order && orderHistory.length ? (
           <OrderHistory

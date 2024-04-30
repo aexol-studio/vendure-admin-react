@@ -26,3 +26,4 @@ export * from './textarea';
 export * from './timeline';
 export * from './tooltip';
 export * from './sonner';
+export * from './alert-dialog';
