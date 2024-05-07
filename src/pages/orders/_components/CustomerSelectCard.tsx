@@ -10,10 +10,6 @@ import {
   TabsContent,
   Input,
   CardDescription,
-  CardFooter,
-} from '@/components';
-import { CustomerSearch } from '@/components/AutoComplete/CustomerSearch';
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -21,9 +17,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
+  
+} from '@/components';
+import { CustomerSearch } from '@/components/AutoComplete/CustomerSearch';
 import { DraftOrderType, SearchCustomerType, draftOrderSelector } from '@/graphql/draft_order';
-import { ResolverInputTypes } from '@/zeus';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGFFLP } from '@/lists/useGflp';

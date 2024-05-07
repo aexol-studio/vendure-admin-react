@@ -1,5 +1,5 @@
 import { adminApiQuery } from '@/common/client';
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -50,6 +50,7 @@ import { clearAllCache } from '@/lists/cache';
 import { channelSelector } from '@/graphql/base';
 import { useServer } from '@/state/server';
 import { languages, useSettings } from '@/state/settings';
+import { Routes } from '@/utils';
 
 const ResizablePanelGroup = ({ className, ...props }: React.ComponentProps<typeof ResizablePrimitive.PanelGroup>) => (
   <ResizablePrimitive.PanelGroup
@@ -87,11 +88,11 @@ const removableCrumbs = ['draft'];
 export const Menu: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   const linkPath: string[] = [];
   const { t } = useTranslation('common');
-  const [isCollapsed, setIsCollapsed] = React.useState<boolean>(false);
   const setSelectedChannel = useSettings((p) => p.setSelectedChannel);
   const logOut = useSettings((p) => p.logOut);
-
   const setChannels = useServer((p) => p.setChannels);
+
+  const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
 
   useEffect(() => {
     adminApiQuery({
@@ -116,6 +117,8 @@ export const Menu: React.FC<{ children?: React.ReactNode }> = ({ children }) => 
         .filter((crumb) => !removableCrumbs.includes(crumb)),
     [matches],
   );
+  console.log('aaa', crumbs);
+
   const theme = useSettings((p) => p.theme);
   const setTheme = useSettings((p) => p.setTheme);
   const language = useSettings((p) => p.language);
@@ -160,13 +163,13 @@ export const Menu: React.FC<{ children?: React.ReactNode }> = ({ children }) => 
                 <Nav
                   isCollapsed={isCollapsed}
                   links={[
-                    { title: t('menu.dashboard'), href: '/', icon: BarChart },
-                    { title: t('menu.marketplace'), href: '/marketplace', icon: Store },
-                    { title: t('menu.products'), href: '/products', icon: Barcode },
-                    { title: t('menu.collections'), href: '/collections', icon: Folder },
-                    { title: t('menu.orders'), href: '/orders', icon: ShoppingCart },
+                    { title: t('menu.dashboard'), href: Routes.dashboard, icon: BarChart },
+                    { title: t('menu.marketplace'), href: Routes.marketplace, icon: Store },
+                    { title: t('menu.products'), href: Routes.products, icon: Barcode },
+                    { title: t('menu.collections'), href: Routes.collections, icon: Folder },
+                    { title: t('menu.orders'), href: Routes.orders, icon: ShoppingCart },
                   ]}
-                  settings={[{ title: t('menu.channels'), href: '/channels', icon: Globe2 }]}
+                  settings={[{ title: t('menu.channels'), href: Routes.channels, icon: Globe2 }]}
                 />
               </ResizablePanel>
               <ResizableHandle withHandle />
@@ -199,7 +202,7 @@ export const Menu: React.FC<{ children?: React.ReactNode }> = ({ children }) => 
                           })
                         ) : (
                           <BreadcrumbItem>
-                            <NavLink to="/">
+                            <NavLink to={Routes.dashboard}>
                               <p>{t('dashboard')}</p>
                             </NavLink>
                           </BreadcrumbItem>

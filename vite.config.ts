@@ -33,6 +33,7 @@ const htmlPlugin = (): Plugin => {
 };
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: '/admin-ui/',
   plugins: [
     htmlPlugin(),
     tsconfigPaths(),

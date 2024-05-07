@@ -13,25 +13,27 @@ import {
 import { DraftOrderType } from '@/graphql/draft_order';
 import { priceFormatter } from '@/utils';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
-export const TaxSummary: React.FC<{ order?: DraftOrderType }> = ({ order }) => {
+export const TaxSummary: React.FC<{ order: DraftOrderType }> = ({ order }) => {
+  const { t } = useTranslation('orders');
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Tax summary</CardTitle>
-        <CardDescription>Order tax summary</CardDescription>
+        <CardTitle>{t('taxSummary.title')}</CardTitle>
+        <CardDescription>{t('taxSummary.subTitle')}</CardDescription>
         <Table>
           <TableHeader>
             <TableRow noHover>
-              <TableHead>Description</TableHead>
-              <TableHead>Tax rate</TableHead>
-              <TableHead>Tax base</TableHead>
-              <TableHead>Tax total</TableHead>
+              <TableHead>{t('taxSummary.description')}</TableHead>
+              <TableHead>{t('taxSummary.taxRate')}</TableHead>
+              <TableHead>{t('taxSummary.taxBase')}</TableHead>
+              <TableHead>{t('taxSummary.taxTotal')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {order?.taxSummary.length ? (
-              order?.taxSummary.map(({ description, taxRate, taxBase, taxTotal }) => (
+            {order.taxSummary.length ? (
+              order.taxSummary.map(({ description, taxRate, taxBase, taxTotal }) => (
                 <TableRow key={description} noHover>
                   <TableCell className="capitalize">{description}</TableCell>
                   <TableCell>{taxRate}%</TableCell>
@@ -41,7 +43,7 @@ export const TaxSummary: React.FC<{ order?: DraftOrderType }> = ({ order }) => {
               ))
             ) : (
               <TableRow noHover>
-                <TableCell colSpan={4}>No tax summary</TableCell>
+                <TableCell colSpan={4}>{t('taxSummary.noTaxSummary')}</TableCell>
               </TableRow>
             )}
           </TableBody>

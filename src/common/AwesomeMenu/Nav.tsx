@@ -7,6 +7,7 @@ import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, butt
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { Routes } from '@/utils';
 
 interface NavProps {
   isCollapsed: boolean;
@@ -138,7 +139,7 @@ export function Nav({ links, settings, isCollapsed }: NavProps) {
               <CardDescription className="pt-4 md:pt-2">{t('awesomeMenu.cardDescription')}</CardDescription>
             </CardHeader>
             <CardContent className="p-2 pt-0 md:p-4 md:pt-0">
-              <NavLink to="/marketplace">
+              <NavLink to={Routes.marketplace}>
                 <Button size="sm" className="w-full">
                   {t('awesomeMenu.cardButton')}
                 </Button>

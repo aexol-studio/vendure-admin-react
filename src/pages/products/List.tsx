@@ -22,6 +22,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Routes } from '@/utils';
 
 const getProducts = async (paginate: ResolverInputTypes['ProductListOptions']) => {
   const response = await adminApiQuery({
@@ -71,14 +72,14 @@ export const ProductListPage = () => {
                 <img className="h-8" src={p.featuredAsset?.preview + '?preset=tiny'} />
               </TableCell>
               <TableCell>
-                <Link to={`/products/${p.slug}/`}>
+                <Link to={Routes.product.to(p.slug)}>
                   <b>{p.name}</b>
                 </Link>
               </TableCell>
               <TableCell>{p.slug}</TableCell>
               <TableCell>{p.variantList.totalItems}</TableCell>
               <TableCell>
-                <ProductMenu editHref={`/products/${p.slug}/`} onDelete={() => {}} />
+                <ProductMenu editHref={Routes.product.to(p.slug)} onDelete={() => {}} />
               </TableCell>
             </TableRow>
           );

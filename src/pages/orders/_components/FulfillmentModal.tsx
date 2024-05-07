@@ -29,14 +29,12 @@ import { ResolverInputTypes } from '@/zeus';
 import { useTranslation } from 'react-i18next';
 import { useServer } from '@/state/server';
 
-export const FulfillmentModal = ({
-  draftOrder,
-
-  onSubmitted,
-}: {
+interface Props {
   draftOrder: DraftOrderType;
   onSubmitted: (data: ResolverInputTypes['FulfillOrderInput']) => Promise<void>;
-}) => {
+}
+
+export const FulfillmentModal: React.FC<Props> = ({ draftOrder, onSubmitted }) => {
   const { t } = useTranslation('orders');
   const neededFulfillmentHandlers = draftOrder?.shippingLines?.map(
     (line) => line.shippingMethod.fulfillmentHandlerCode,

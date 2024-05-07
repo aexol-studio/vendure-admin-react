@@ -183,6 +183,8 @@ export const orderHistoryEntrySelector = Selector('HistoryEntry')({
   isPublic: true,
   type: true,
   data: true,
+  createdAt: true,
+  updatedAt: true,
 });
 
 export type OrderHistoryEntryType = FromSelectorWithScalars<typeof orderHistoryEntrySelector, 'HistoryEntry'>;

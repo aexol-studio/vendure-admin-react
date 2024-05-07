@@ -35,7 +35,6 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { OrderStateBadge } from './_components/OrderStateBadge';
-import { ColumnsVisibilityStoreType, columnsVisibilityStore } from '@/state';
 import {
   Dialog,
   DialogClose,
@@ -47,6 +46,8 @@ import {
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { OrdersSortOptions, ordersSortOptionsArray } from '@/lists/types';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { Routes } from '@/utils';
 
 type ParamFilterFieldTuple = [OrdersSortOptions, Record<string, string>];
 
@@ -92,8 +93,12 @@ const getOrders = async (options: ResolverInputTypes['OrderListOptions']) => {
 export const OrderListPage = () => {
   const { t } = useTranslation('orders');
   const navigate = useNavigate();
-  const columnsVisibilityState = columnsVisibilityStore((state: ColumnsVisibilityStoreType) => state.orders);
-  const setColumnsVisibilityState = columnsVisibilityStore((state: ColumnsVisibilityStoreType) => state.setOrders);
+
+  const [columnsVisibilityState, setColumnsVisibilityState] = useLocalStorage<VisibilityState>(
+    'orders-table-visibility',
+    {},
+  );
+
   const {
     objects: orders,
     Paginate,
@@ -165,61 +170,60 @@ export const OrderListPage = () => {
     },
     {
       accessorKey: 'id',
+      enableHiding: false,
+      enableColumnFilter: false,
       header: () => (
         <SortButton currSort={optionInfo.sort} sortKey="code" onClick={() => setSort('id')}>
-          ID
+          {t('table.id')}
         </SortButton>
       ),
-      cell: ({ row }) => {
-        const to = `/orders/${row.original.id}`;
-        return (
-          <Link to={to} className="text-primary-600">
-            <Badge variant="outline" className="flex w-full items-center justify-center">
-              {row.original.id}
-              <ArrowRight className="pl-1" size={16} />
-            </Badge>
-          </Link>
-        );
-      },
+      cell: ({ row }) => (
+        <Link to={Routes.order.to(row.original.id)} className="text-primary-600">
+          <Badge variant="outline" className="flex w-full items-center justify-center">
+            {row.original.id}
+            <ArrowRight className="pl-1" size={16} />
+          </Badge>
+        </Link>
+      ),
     },
     {
       accessorKey: 'state',
       header: () => (
         <SortButton currSort={optionInfo.sort} sortKey="state" onClick={() => setSort('state')}>
-          State
+          {t('table.state')}
         </SortButton>
       ),
       cell: ({ row }) => <OrderStateBadge state={row.original.state} />,
     },
     {
       accessorKey: 'firstName',
-      header: () => <div>Customer First name</div>,
+      header: () => <div> {t('table.firstName')}</div>,
       cell: ({ row }) => <div className="capitalize">{row.original.customer?.firstName}</div>,
     },
     {
       accessorKey: 'lastName',
       header: () => (
         <SortButton currSort={optionInfo.sort} sortKey="code" onClick={() => setSort('customerLastName')}>
-          Customer Last name
+          {t('table.lastName')}
         </SortButton>
       ),
       cell: ({ row }) => <div className="capitalize">{row.original.customer?.lastName}</div>,
     },
     {
       accessorKey: 'emailAddress',
-      header: 'emailAddress',
+      header: t('table.emailAddress'),
       cell: ({ row }) => <div className="capitalize">{row.original.customer?.emailAddress}</div>,
     },
     {
       accessorKey: 'phoneNumber',
-      header: 'phoneNumber',
+      header: t('table.phoneNumber'),
       cell: ({ row }) => <div className="capitalize">{row.original.customer?.phoneNumber}</div>,
     },
     {
       accessorKey: 'code',
       header: () => (
         <SortButton currSort={optionInfo.sort} sortKey="code" onClick={() => setSort('code')}>
-          Code
+          {t('table.code')}
         </SortButton>
       ),
     },
@@ -227,7 +231,7 @@ export const OrderListPage = () => {
       accessorKey: 'createdAt',
       header: () => (
         <SortButton currSort={optionInfo.sort} sortKey="createdAt" onClick={() => setSort('createdAt')}>
-          Created at
+          {t('table.createdAt')}
         </SortButton>
       ),
       cell: ({ row }) => (
@@ -238,7 +242,7 @@ export const OrderListPage = () => {
       accessorKey: 'orderPlacedAt',
       header: () => (
         <SortButton currSort={optionInfo.sort} sortKey="orderPlacedAt" onClick={() => setSort('orderPlacedAt')}>
-          Order Placed At
+          {t('table.placedAt')}
         </SortButton>
       ),
       cell: ({ row }) => (
@@ -251,13 +255,13 @@ export const OrderListPage = () => {
       accessorKey: 'shipping',
       header: () => (
         <SortButton currSort={optionInfo.sort} sortKey="shipping" onClick={() => setSort('shipping')}>
-          Shipping
+          {t('table.shipping')}
         </SortButton>
       ),
     },
     {
       accessorKey: 'type',
-      header: 'type',
+      header: t('table.type'),
     },
     {
       accessorKey: 'updatedAt',
@@ -266,7 +270,7 @@ export const OrderListPage = () => {
       ),
       header: () => (
         <SortButton currSort={optionInfo.sort} sortKey="updatedAt" onClick={() => setSort('updatedAt')}>
-          Updated at
+          {t('table.updatedAt')}
         </SortButton>
       ),
     },
@@ -279,14 +283,14 @@ export const OrderListPage = () => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
+                <span className="sr-only">{t('table.openMenu')}</span>
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuLabel>{t('table.actions')}</DropdownMenuLabel>
               <DropdownMenuItem onClick={() => navigator.clipboard.writeText(payment.id)}>
-                Copy payment ID
+                {t('table.copyId')}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -295,13 +299,13 @@ export const OrderListPage = () => {
                   setOrdersToDelete([payment]);
                 }}
               >
-                Delete draft order
+                {t('table.delete')}
               </DropdownMenuItem>
-              <DropdownMenuItem>View customer</DropdownMenuItem>
-              <DropdownMenuItem>View payment details</DropdownMenuItem>
+              <DropdownMenuItem>{t('table.viewCustomer')}</DropdownMenuItem>
+              <DropdownMenuItem>{t('table.viewPayment')}</DropdownMenuItem>
               <DropdownMenuItem>
-                <Link to={`/orders/${row.original.id}`} className="text-primary-600">
-                  View order
+                <Link to={Routes.order.to(row.original.id)} className="text-primary-600">
+                  {t('table.viewOrder')}
                 </Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -311,30 +315,24 @@ export const OrderListPage = () => {
     },
   ];
 
-  // const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(columnsVisibilityState);
   const [rowSelection, setRowSelection] = useState({});
-
-  useEffect(() => setColumnsVisibilityState(columnVisibility), [columnVisibility, setColumnsVisibilityState]);
 
   const table = useReactTable({
     data: orders || [],
     manualPagination: true,
     columns,
-    // onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
+    onColumnVisibilityChange: setColumnsVisibilityState,
     onRowSelectionChange: setRowSelection,
 
     state: {
-      // sorting,
       columnFilters,
-      columnVisibility,
+      columnVisibility: columnsVisibilityState,
       rowSelection,
       pagination: { pageIndex: optionInfo.page, pageSize: optionInfo.perPage },
     },
@@ -411,7 +409,7 @@ export const OrderListPage = () => {
             <Button
               onClick={async () => {
                 const id = await createDraftOrder();
-                if (id) navigate(`/orders/${id}`);
+                if (id) navigate(Routes.order.to(id));
                 else console.error('Failed to create order');
               }}
             >

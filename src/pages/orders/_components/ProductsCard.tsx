@@ -21,7 +21,6 @@ import {
   HoverCardContent,
 } from '@/components';
 import { CustomFieldsComponent } from '@/custom_fields';
-import { CustomFieldConfigType } from '@/graphql/base';
 import {
   DraftOrderType,
   SearchProductVariantType,
@@ -209,7 +208,7 @@ export const ProductsCard: React.FC<Props> = ({ mode, order, setOrder }) => {
                     <TableCell>{line.productVariant.sku}</TableCell>
                     <TableCell>
                       {line.customFields && (
-                        <HoverCard>
+                        <HoverCard openDelay={100}>
                           <HoverCardTrigger asChild>
                             <Info />
                           </HoverCardTrigger>
