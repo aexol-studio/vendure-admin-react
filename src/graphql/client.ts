@@ -56,7 +56,7 @@ const apiFetchVendure =
       });
   };
 
-export const VendureChain = (...options: chainOptions) => Thunder(apiFetchVendure(options));
+export const VendureChain = (...options: chainOptions) => Thunder(apiFetchVendure(options), { scalars });
 
 const buildHeaders = (): Parameters<typeof VendureChain>[1] => {
   const channel = useSettings.getState().selectedChannel;
@@ -75,6 +75,10 @@ const buildHeaders = (): Parameters<typeof VendureChain>[1] => {
       };
 };
 const buildURL = (language: string): string => `${VENDURE_HOST}?languageCode=${language}`;
+
+export const apiCall = VendureChain(buildURL(useSettings.getState().language), {
+  ...buildHeaders(),
+});
 
 export const adminApiQuery = VendureChain(buildURL(useSettings.getState().language), {
   ...buildHeaders(),

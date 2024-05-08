@@ -1,4 +1,4 @@
-import { adminApiQuery } from '@/common/client';
+import { adminApiQuery } from '@/graphql/client';
 import { ProductTileSelector } from '@/graphql/products';
 import { useList } from '@/lists/useList';
 import { ResolverInputTypes } from '@/zeus';

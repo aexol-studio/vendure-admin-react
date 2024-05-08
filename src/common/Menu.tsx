@@ -1,4 +1,4 @@
-import { adminApiQuery } from '@/common/client';
+import { adminApiQuery } from '@/graphql/client';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 

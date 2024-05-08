@@ -17,7 +17,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  
 } from '@/components';
 import { CustomerSearch } from '@/components/AutoComplete/CustomerSearch';
 import { DraftOrderType, SearchCustomerType, draftOrderSelector } from '@/graphql/draft_order';
@@ -28,7 +27,7 @@ import { cn } from '@/lib/utils';
 import { emailRegExp, phoneNumberRegExp } from '@/utils/regExp';
 import { toast } from 'sonner';
 import { Mode } from '@/pages/orders/OrderPage';
-import { adminApiMutation } from '@/common/client';
+import { adminApiMutation } from '@/graphql/client';
 import { Edit } from 'lucide-react';
 
 export const CustomerSelectCard: React.FC<{

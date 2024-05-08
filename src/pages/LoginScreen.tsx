@@ -1,5 +1,5 @@
 import { Layout } from '@/common/Layout';
-import { adminApiMutation } from '@/common/client';
+import { adminApiMutation } from '@/graphql/client';
 import { Button, Checkbox, Input, Label } from '@/components';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';

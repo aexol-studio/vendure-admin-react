@@ -82,7 +82,7 @@ const TimelineDot = React.forwardRef<HTMLDivElement, TimelineDotProps>(
 );
 TimelineDot.displayName = 'TimelineDot';
 
-const timelineContentVariants = cva('w-full row-start-2 row-end-2 pb-8 text-muted-foreground', {
+const timelineContentVariants = cva('w-full row-start-2 row-end-2 pb-2 text-muted-foreground', {
   variants: {
     side: {
       right: 'col-start-3 col-end-4 mr-auto text-left ',

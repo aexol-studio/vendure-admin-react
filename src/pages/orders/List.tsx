@@ -1,4 +1,4 @@
-import { adminApiMutation, adminApiQuery } from '@/common/client';
+import { apiCall } from '@/graphql/client';
 import { Stack } from '@/components/Stack';
 import { Button } from '@/components/ui/button';
 import { OrderListSelector, OrderListType } from '@/graphql/orders';
@@ -25,12 +25,20 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ArrowDown, ArrowUp, ArrowUpDown, ChevronDown, MoreHorizontal, ArrowRight } from 'lucide-react';
+import { ArrowDown, ArrowUp, ArrowUpDown, ChevronDown, MoreHorizontal, ArrowRight, Copy } from 'lucide-react';
 import React, { PropsWithChildren, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { PaginationInput } from '@/lists/models';
-import { Badge, EmptyState, Search, ordersSearchProps } from '@/components';
+import {
+  Badge,
+  EmptyState,
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+  Search,
+  ordersSearchProps,
+} from '@/components';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -71,14 +79,14 @@ const SortButton: React.FC<
 };
 
 const createDraftOrder = async () => {
-  const response = await adminApiMutation({
+  const response = await apiCall('mutation')({
     createDraftOrder: { id: true },
   });
   return response.createDraftOrder.id;
 };
 
 const getOrders = async (options: ResolverInputTypes['OrderListOptions']) => {
-  const response = await adminApiQuery({
+  const response = await apiCall('query')({
     orders: [
       { options },
       {
@@ -139,7 +147,7 @@ export const OrderListPage = () => {
   const deleteOrdersToDelete = async () => {
     const resp = await Promise.all(
       ordersToDelete.map((i) =>
-        adminApiMutation({ deleteDraftOrder: [{ orderId: i.id }, { message: true, result: true }] }),
+        apiCall('mutation')({ deleteDraftOrder: [{ orderId: i.id }, { message: true, result: true }] }),
       ),
     );
     resp.forEach((i) =>
@@ -212,12 +220,28 @@ export const OrderListPage = () => {
     {
       accessorKey: 'emailAddress',
       header: t('table.emailAddress'),
-      cell: ({ row }) => <div className="capitalize">{row.original.customer?.emailAddress}</div>,
+      cell: ({ row }) => (
+        <HoverCard openDelay={100}>
+          <HoverCardTrigger asChild>
+            <div className="max-w-[200px] truncate">{row.original.customer?.emailAddress}</div>
+          </HoverCardTrigger>
+          <HoverCardContent className="flex w-auto flex-shrink items-center justify-between gap-4">
+            {row.original.customer?.emailAddress}{' '}
+            <Copy
+              className="cursor-pointer"
+              onClick={() => {
+                navigator.clipboard.writeText(row.original.customer?.emailAddress || '');
+                toast.info(t('copied'), { position: 'top-center' });
+              }}
+            />
+          </HoverCardContent>
+        </HoverCard>
+      ),
     },
     {
       accessorKey: 'phoneNumber',
       header: t('table.phoneNumber'),
-      cell: ({ row }) => <div className="capitalize">{row.original.customer?.phoneNumber}</div>,
+      cell: ({ row }) => <div className="text-nowrap">{row.original.customer?.phoneNumber}</div>,
     },
     {
       accessorKey: 'code',
@@ -419,7 +443,7 @@ export const OrderListPage = () => {
         </div>
         <div ref={tableWrapperRef} className={`h-full overflow-auto rounded-md border`}>
           <Table className="w-full" {...(!table.getRowModel().rows?.length && { containerClassName: 'flex' })}>
-            <TableHeader>
+            <TableHeader className="sticky top-0 bg-primary-foreground">
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => {

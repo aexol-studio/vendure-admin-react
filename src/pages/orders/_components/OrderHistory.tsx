@@ -37,7 +37,7 @@ import {
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { OrderStateBadge } from './OrderStateBadge';
 import { OrderHistoryEntryType, draftOrderSelector, orderHistoryEntrySelector } from '@/graphql/draft_order';
-import { adminApiMutation, adminApiQuery } from '@/common/client';
+import { adminApiMutation, adminApiQuery } from '@/graphql/client';
 import { DeletionResult, HistoryEntryType, ModelTypes, ResolverInputTypes, SortOrder } from '@/zeus';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
@@ -192,7 +192,12 @@ export const OrderHistory = forwardRef<OrderHistoryRefType, Props>(({ orderId },
               <TimelineHeading side="right" className="w-full">
                 <div className="flex w-full items-center justify-between">
                   <div>
-                    {history.administrator?.firstName} {history.administrator?.lastName}
+                    {history.administrator?.firstName} {history.administrator?.lastName}{' '}
+                    <span className="text-sm text-muted-foreground">
+                      {t(`history.createdAt`, { value: format(new Date(history.createdAt), 'dd.MM.yyyy hh:mm') })}{' '}
+                      {history.createdAt !== history.updatedAt &&
+                        t(`history.updatedAt`, { value: format(new Date(history.updatedAt), 'dd.MM.yyyy hh:mm') })}
+                    </span>
                   </div>
                   <div className="flex items-center gap-2">
                     {'from' in history.data && (
@@ -214,18 +219,21 @@ export const OrderHistory = forwardRef<OrderHistoryRefType, Props>(({ orderId },
               <TimelineLine done />
               <TimelineContent className="relative">
                 <div className="flex flex-col">
-                  <div className="text-sm">
-                    {t(`history.createdAt`, { value: format(new Date(history.createdAt), 'dd.MM.yyyy hh:mm') })}{' '}
-                    {history.createdAt !== history.updatedAt &&
-                      t(`history.updatedAt`, { value: format(new Date(history.updatedAt), 'dd.MM.yyyy hh:mm') })}
-                  </div>
-                  <div>{t(`history.entryType.${history.type}`)}</div>
-                  {history.type === HistoryEntryType.ORDER_NOTE && (
-                    <div className="flex items-center justify-between">
-                      <span className="text-primary">
+                  <div>
+                    {t(`history.entryType.${history.type}`)}{' '}
+                    {history.type === HistoryEntryType.ORDER_NOTE ? (
+                      <>
+                        -{' '}
                         <span className={cn(history.isPublic ? 'text-yellow-600' : 'text-green-600')}>
                           {t(history.isPublic ? 'history.public' : 'history.private')}
-                        </span>{' '}
+                        </span>
+                      </>
+                    ) : null}
+                  </div>
+                  {history.type === HistoryEntryType.ORDER_NOTE && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">
+                        {t('history.noteContent')}
                         {history.data?.note as string}
                       </span>
                       <DropdownMenu>
@@ -249,26 +257,6 @@ export const OrderHistory = forwardRef<OrderHistoryRefType, Props>(({ orderId },
                       </DropdownMenu>
                     </div>
                   )}
-                  {/* Zrobić dialogi edycji i usuwania */}
-                  {/* {!history.isPublic ? (
-                    <div>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button size="sm" variant="ghost">
-                            <Trash className="h-4 w-4" />
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-42">
-                          <div className="flex flex-col gap-2">
-                            <p>{t('history.sure')}</p>
-                            <Button size="sm" variant="outline" onClick={() => deleteMessageFromOrder(history.id)}>
-                              {t('history.delete')}
-                            </Button>
-                          </div>
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-                  ) : null} */}
                   {'paymentId' in history.data ? (
                     <div className="flex flex-col gap-2">
                       <Label>{t('history.paymentId', { value: history.data.paymentId as string })}</Label>

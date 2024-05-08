@@ -156,66 +156,83 @@ export const InternalsBuildQuery = ({
   return ibb;
 };
 
+type UnionOverrideKeys<T, U> = Omit<T, keyof U> & U;
+
 export const Thunder =
-  (fn: FetchFunction) =>
-  <O extends keyof typeof Ops, SCLR extends ScalarDefinition, R extends keyof ValueTypes = GenericOperation<O>>(
+  <SCLR extends ScalarDefinition>(fn: FetchFunction, thunderGraphQLOptions?: ThunderGraphQLOptions<SCLR>) =>
+  <O extends keyof typeof Ops, OVERRIDESCLR extends ScalarDefinition, R extends keyof ValueTypes = GenericOperation<O>>(
     operation: O,
-    graphqlOptions?: ThunderGraphQLOptions<SCLR>,
+    graphqlOptions?: ThunderGraphQLOptions<OVERRIDESCLR>,
   ) =>
   <Z extends ValueTypes[R]>(
-    o: (Z & ValueTypes[R]) | ValueTypes[R],
+    o: Z & {
+      [P in keyof Z]: P extends keyof ValueTypes[R] ? Z[P] : never;
+    },
     ops?: OperationOptions & { variables?: Record<string, unknown> },
-  ) =>
-    fn(
+  ) => {
+    const options = {
+      ...thunderGraphQLOptions,
+      ...graphqlOptions,
+    };
+	console.log(options)
+    return fn(
       Zeus(operation, o, {
         operationOptions: ops,
-        scalars: graphqlOptions?.scalars,
+        scalars: options?.scalars,
       }),
       ops?.variables,
     ).then((data) => {
-      if (graphqlOptions?.scalars) {
+      if (options?.scalars) {
         return decodeScalarsInResponse({
           response: data,
           initialOp: operation,
           initialZeusQuery: o as VType,
           returns: ReturnTypes,
-          scalars: graphqlOptions.scalars,
+          scalars: options.scalars,
           ops: Ops,
         });
       }
       return data;
-    }) as Promise<InputType<GraphQLTypes[R], Z, SCLR>>;
+    }) as Promise<InputType<GraphQLTypes[R], Z, UnionOverrideKeys<SCLR, OVERRIDESCLR>>>;
+  };
 
 export const Chain = (...options: chainOptions) => Thunder(apiFetch(options));
 
 export const SubscriptionThunder =
-  (fn: SubscriptionFunction) =>
-  <O extends keyof typeof Ops, SCLR extends ScalarDefinition, R extends keyof ValueTypes = GenericOperation<O>>(
+  <SCLR extends ScalarDefinition>(fn: SubscriptionFunction, thunderGraphQLOptions?: ThunderGraphQLOptions<SCLR>) =>
+  <O extends keyof typeof Ops, OVERRIDESCLR extends ScalarDefinition, R extends keyof ValueTypes = GenericOperation<O>>(
     operation: O,
-    graphqlOptions?: ThunderGraphQLOptions<SCLR>,
+    graphqlOptions?: ThunderGraphQLOptions<OVERRIDESCLR>,
   ) =>
   <Z extends ValueTypes[R]>(
-    o: (Z & ValueTypes[R]) | ValueTypes[R],
+    o: Z & {
+      [P in keyof Z]: P extends keyof ValueTypes[R] ? Z[P] : never;
+    },
     ops?: OperationOptions & { variables?: ExtractVariables<Z> },
   ) => {
+    const options = {
+      ...thunderGraphQLOptions,
+      ...graphqlOptions,
+    };
+    type CombinedSCLR = UnionOverrideKeys<SCLR, OVERRIDESCLR>;
     const returnedFunction = fn(
       Zeus(operation, o, {
         operationOptions: ops,
-        scalars: graphqlOptions?.scalars,
+        scalars: options?.scalars,
       }),
-    ) as SubscriptionToGraphQL<Z, GraphQLTypes[R], SCLR>;
-    if (returnedFunction?.on && graphqlOptions?.scalars) {
+    ) as SubscriptionToGraphQL<Z, GraphQLTypes[R], CombinedSCLR>;
+    if (returnedFunction?.on && options?.scalars) {
       const wrapped = returnedFunction.on;
-      returnedFunction.on = (fnToCall: (args: InputType<GraphQLTypes[R], Z, SCLR>) => void) =>
-        wrapped((data: InputType<GraphQLTypes[R], Z, SCLR>) => {
-          if (graphqlOptions?.scalars) {
+      returnedFunction.on = (fnToCall: (args: InputType<GraphQLTypes[R], Z, CombinedSCLR>) => void) =>
+        wrapped((data: InputType<GraphQLTypes[R], Z, CombinedSCLR>) => {
+          if (options?.scalars) {
             return fnToCall(
               decodeScalarsInResponse({
                 response: data,
                 initialOp: operation,
                 initialZeusQuery: o as VType,
                 returns: ReturnTypes,
-                scalars: graphqlOptions.scalars,
+                scalars: options.scalars,
                 ops: Ops,
               }),
             );
@@ -233,7 +250,7 @@ export const Zeus = <
   R extends keyof ValueTypes = GenericOperation<O>,
 >(
   operation: O,
-  o: (Z & ValueTypes[R]) | ValueTypes[R],
+  o: Z,
   ops?: {
     operationOptions?: OperationOptions;
     scalars?: ScalarDefinition;
@@ -751,7 +768,11 @@ export type ScalarResolver = {
   decode?: (s: unknown) => unknown;
 };
 
-export type SelectionFunction<V> = <T>(t: T | V) => T;
+export type SelectionFunction<V> = <Z extends V>(
+  t: Z & {
+    [P in keyof Z]: P extends keyof V ? Z[P] : never;
+  },
+) => Z;
 
 type BuiltInVariableTypes = {
   ['String']: string;

@@ -1,4 +1,4 @@
-import { adminApiMutation, adminApiQuery } from '@/common/client';
+import { adminApiMutation, adminApiQuery } from '@/graphql/client';
 import { Stack } from '@/components/Stack';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

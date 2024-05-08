@@ -40,7 +40,7 @@ export const OrderStateBadge: React.FC<{ fullWidth?: boolean; state?: string; cl
     <Badge
       noHover
       className={cn(
-        'text-center',
+        'text-nowrap text-center',
         fullWidth && 'flex w-full items-center justify-center',
         labelAndStyles.className,
         className,

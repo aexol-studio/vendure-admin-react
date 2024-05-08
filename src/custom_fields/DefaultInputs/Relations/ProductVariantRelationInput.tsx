@@ -10,7 +10,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button, ScrollArea } from '@/components';
-import { adminApiQuery } from '@/common/client';
+import { adminApiQuery } from '@/graphql/client';
 import { ResolverInputTypes } from '@/zeus';
 import { useList } from '@/lists/useList';
 import { cn } from '@/lib/utils';

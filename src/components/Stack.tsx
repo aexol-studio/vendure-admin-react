@@ -9,5 +9,5 @@ export const Stack = ({
   column?: boolean;
   className?: string;
 }) => {
-  return <div className={`flex${column ? ' flex-col' : ''}${className ? ` ${className}` : ''}`}>{children}</div>;
+  return <div className={`flex ${column ? ' flex-col' : ''}${className ? ` ${className}` : ''}`}>{children}</div>;
 };

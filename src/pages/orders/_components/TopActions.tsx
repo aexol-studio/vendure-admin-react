@@ -1,4 +1,4 @@
-import { adminApiMutation, adminApiQuery } from '@/common/client';
+import { adminApiMutation, adminApiQuery } from '@/graphql/client';
 import {
   DialogHeader,
   Input,

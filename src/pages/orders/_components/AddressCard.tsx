@@ -1,4 +1,4 @@
-import { adminApiMutation } from '@/common/client';
+import { adminApiMutation } from '@/graphql/client';
 import {
   Card,
   CardHeader,

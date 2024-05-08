@@ -1,4 +1,4 @@
-import { adminApiQuery } from '@/common/client';
+import { adminApiQuery } from '@/graphql/client';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Spinner } from '@/components';
 import { useParams } from 'react-router-dom';

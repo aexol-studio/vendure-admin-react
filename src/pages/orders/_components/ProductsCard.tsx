@@ -1,4 +1,4 @@
-import { adminApiMutation } from '@/common/client';
+import { adminApiMutation } from '@/graphql/client';
 import {
   Card,
   CardHeader,
@@ -120,7 +120,7 @@ export const ProductsCard: React.FC<Props> = ({ mode, order, setOrder }) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle> {t('create.addTitle')}</CardTitle>
+        <CardTitle> {t(mode === 'view' ? 'create.viewHeader' : 'create.addTitle')}</CardTitle>
         <CardDescription> {t('create.addHeader')}</CardDescription>
       </CardHeader>
       <CardContent>

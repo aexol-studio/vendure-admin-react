@@ -12,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components';
-import { adminApiQuery } from '@/common/client';
+import { adminApiQuery } from '@/graphql/client';
 import { useTranslation } from 'react-i18next';
 import { LogicalOperator } from '@/zeus';
 import { SearchProductVariantType, searchProductVariantSelector } from '@/graphql/draft_order';

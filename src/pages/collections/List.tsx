@@ -1,4 +1,4 @@
-import { adminApiQuery } from '@/common/client';
+import { adminApiQuery } from '@/graphql/client';
 import { Table, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { CollectionSelector } from '@/graphql/base';
 import { useList } from '@/lists/useList';

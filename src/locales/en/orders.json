@@ -9,6 +9,7 @@
         "create": "Create Order",
         "update": "Update Order"
     },
+    "copied": "Text copied to clipboard",
     "noFilterField": "None",
     "filterField": {
         "customerLastName": "Customer last name",
@@ -52,6 +53,8 @@
         "discardButton": "Discard",
         "completeOrderButton": "Complete draft order",
         "addTitle": "Add item to draft order",
+        "viewTitle": "Items in order",
+        "viewHeader": "Here you can check items in order",
         "addHeader": "Here you can add items to draft order",
         "searchHeader": "Product",
         "searchPlaceholder": "Type to search for products...",
@@ -260,6 +263,7 @@
         "updatedAt": "Updated at: {{value}}",
         "private": "private",
         "public": "public",
+        "noteContent": "Note content: ",
         "entryType": {
             "CUSTOMER_REGISTERED": "Customer registered",
             "CUSTOMER_VERIFIED": "Customer verified",

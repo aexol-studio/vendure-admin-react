@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { adminApiQuery } from '@/common/client';
+import { adminApiQuery } from '@/graphql/client';
 import { useCustomFields } from '@/custom_fields';
 import { Selector } from '@/zeus';
 import { FromSelectorWithScalars } from '@/graphql/scalars';
