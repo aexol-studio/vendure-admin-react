@@ -1,4 +1,4 @@
-import { adminApiMutation, adminApiQuery } from '@/graphql/client';
+import { apiCall } from '@/graphql/client';
 import {
   Button,
   Card,
@@ -52,7 +52,7 @@ export const ShippingMethod: React.FC<{
   useEffect(() => {
     const fetch = async () => {
       if (order && order.id) {
-        const { eligibleShippingMethodsForDraftOrder } = await adminApiQuery({
+        const { eligibleShippingMethodsForDraftOrder } = await apiCall('query')({
           eligibleShippingMethodsForDraftOrder: [{ orderId: order.id }, eligibleShippingMethodsSelector],
         });
         if (!eligibleShippingMethodsForDraftOrder) {
@@ -65,7 +65,7 @@ export const ShippingMethod: React.FC<{
   }, [order]);
 
   const selectShippingMethod = async (orderId: string, shippingMethodId: string) => {
-    const { setDraftOrderShippingMethod } = await adminApiMutation({
+    const { setDraftOrderShippingMethod } = await apiCall('mutation')({
       setDraftOrderShippingMethod: [
         { orderId, shippingMethodId },
         {

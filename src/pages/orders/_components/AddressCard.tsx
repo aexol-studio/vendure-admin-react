@@ -1,4 +1,4 @@
-import { adminApiMutation } from '@/graphql/client';
+import { apiCall } from '@/graphql/client';
 import {
   Card,
   CardHeader,
@@ -187,7 +187,7 @@ export const AddressCard: React.FC<{
             province: state.province?.validatedValue,
           };
 
-    const { setDraftOrderShippingAddress, setDraftOrderBillingAddress } = await adminApiMutation(
+    const { setDraftOrderShippingAddress, setDraftOrderBillingAddress } = await apiCall('mutation')(
       type === 'shipping'
         ? { setDraftOrderShippingAddress: [{ orderId: order.id, input: newAddress }, draftOrderSelector] }
         : { setDraftOrderBillingAddress: [{ orderId: order.id, input: newAddress }, draftOrderSelector] },
@@ -205,7 +205,7 @@ export const AddressCard: React.FC<{
       );
     }
     if (tab === 'create' && createForCustomer && order.customer?.id) {
-      const { createCustomerAddress } = await adminApiMutation({
+      const { createCustomerAddress } = await apiCall('mutation')({
         createCustomerAddress: [
           {
             customerId: order.customer.id,

@@ -27,7 +27,7 @@ import { cn } from '@/lib/utils';
 import { emailRegExp, phoneNumberRegExp } from '@/utils/regExp';
 import { toast } from 'sonner';
 import { Mode } from '@/pages/orders/OrderPage';
-import { adminApiMutation } from '@/graphql/client';
+import { apiCall } from '@/graphql/client';
 import { Edit } from 'lucide-react';
 
 export const CustomerSelectCard: React.FC<{
@@ -80,7 +80,7 @@ export const CustomerSelectCard: React.FC<{
   const validateAndSubmitIfCorrect = async () => {
     if (order?.id) {
       if ((tab === 'create' && checkIfAllFieldsAreValid()) || (tab === 'select' && selected)) {
-        const { setCustomerForDraftOrder } = await adminApiMutation({
+        const { setCustomerForDraftOrder } = await apiCall('mutation')({
           setCustomerForDraftOrder: [
             {
               orderId: order.id,

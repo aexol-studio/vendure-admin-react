@@ -1,4 +1,4 @@
-import { adminApiQuery } from '@/graphql/client';
+import { apiCall } from '@/graphql/client';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Spinner } from '@/components';
 import { useParams } from 'react-router-dom';
@@ -34,7 +34,7 @@ export const OrderPage = () => {
     const fetch = async () => {
       if (id) {
         setLoading(true);
-        const { order } = await adminApiQuery({ order: [{ id }, draftOrderSelector] });
+        const { order } = await apiCall('query')({ order: [{ id }, draftOrderSelector] });
         if (!order) toast.error(t('toasts.orderLoadingError', { value: id }));
         setOrder(order);
         setLoading(false);

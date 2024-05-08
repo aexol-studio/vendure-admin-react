@@ -76,9 +76,7 @@ const buildHeaders = (): Parameters<typeof VendureChain>[1] => {
 };
 const buildURL = (language: string): string => `${VENDURE_HOST}?languageCode=${language}`;
 
-export const apiCall = VendureChain(buildURL(useSettings.getState().language), {
-  ...buildHeaders(),
-});
+export const apiCall = VendureChain(buildURL(useSettings.getState().language), { ...buildHeaders() });
 
 export const adminApiQuery = VendureChain(buildURL(useSettings.getState().language), {
   ...buildHeaders(),

@@ -1,4 +1,4 @@
-import { adminApiMutation, adminApiQuery } from '@/graphql/client';
+import { apiCall } from '@/graphql/client';
 import { Stack } from '@/components/Stack';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -19,19 +19,19 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
 const getProduct = async ({ slug }: { slug: string }) => {
-  const response = await adminApiQuery({
+  const response = await apiCall('query')({
     product: [{ slug }, ProductDetailSelector],
   });
   return response.product;
 };
 const updateProduct = async (props: ModelTypes['UpdateProductInput']) => {
-  const response = await adminApiMutation({
+  const response = await apiCall('mutation')({
     updateProduct: [{ input: props }, { id: true }],
   });
   return response.updateProduct.id;
 };
 const updateProductVariant = async (props: ModelTypes['UpdateProductVariantInput']) => {
-  const response = await adminApiMutation({
+  const response = await apiCall('mutation')({
     updateProduct: [{ input: props }, { id: true }],
   });
   return response.updateProduct.id;

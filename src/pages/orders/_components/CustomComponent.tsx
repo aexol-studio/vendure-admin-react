@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { adminApiQuery } from '@/graphql/client';
+import { apiCall } from '@/graphql/client';
 import { useCustomFields } from '@/custom_fields';
 import { Selector } from '@/zeus';
 import { FromSelectorWithScalars } from '@/graphql/scalars';
@@ -64,7 +64,7 @@ export const CustomComponent = () => {
     const init = async () => {
       if (!data) return;
       const id = data.variantToAdd.product.id;
-      const { product } = await adminApiQuery({
+      const { product } = await apiCall('query')({
         product: [{ id }, ProductSelector],
       });
       const facets = match(product?.facetValues);

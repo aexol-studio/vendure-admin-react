@@ -1,4 +1,4 @@
-import { adminApiQuery } from '@/graphql/client';
+import { apiCall } from '@/graphql/client';
 import { ProductTileSelector } from '@/graphql/products';
 import { useList } from '@/lists/useList';
 import { ResolverInputTypes } from '@/zeus';
@@ -25,7 +25,7 @@ import {
 import { Routes } from '@/utils';
 
 const getProducts = async (paginate: ResolverInputTypes['ProductListOptions']) => {
-  const response = await adminApiQuery({
+  const response = await apiCall('query')({
     products: [{ options: paginate }, { items: ProductTileSelector, totalItems: true }],
   });
   return response.products;

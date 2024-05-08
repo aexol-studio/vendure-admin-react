@@ -1,4 +1,4 @@
-import { apiCall } from '@/graphql/client';
+import {  apiCall } from '@/graphql/client';
 import { Stack } from '@/components/Stack';
 import { Button } from '@/components/ui/button';
 import { OrderListSelector, OrderListType } from '@/graphql/orders';
@@ -86,6 +86,15 @@ const createDraftOrder = async () => {
 };
 
 const getOrders = async (options: ResolverInputTypes['OrderListOptions']) => {
+  const response1 = await apiCall('query')({
+    orders: [
+      { options },
+      {
+        totalItems: true,
+        items: OrderListSelector,
+      },
+    ],
+  });
   const response = await apiCall('query')({
     orders: [
       { options },
@@ -353,7 +362,6 @@ export const OrderListPage = () => {
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnsVisibilityState,
     onRowSelectionChange: setRowSelection,
-
     state: {
       columnFilters,
       columnVisibility: columnsVisibilityState,

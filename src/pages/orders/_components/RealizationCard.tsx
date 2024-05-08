@@ -1,4 +1,4 @@
-import { adminApiMutation, adminApiQuery } from '@/graphql/client';
+import {  apiCall } from '@/graphql/client';
 import {
   Card,
   CardHeader,
@@ -25,7 +25,7 @@ export const RealizationCard: React.FC<{
   const { t } = useTranslation('orders');
 
   const markAsDelivered = async (fulfillmentId: string) => {
-    const { transitionFulfillmentToState } = await adminApiMutation({
+    const { transitionFulfillmentToState } = await apiCall('mutation')({
       transitionFulfillmentToState: [
         { id: fulfillmentId, state: 'Delivered' },
         {
@@ -44,7 +44,7 @@ export const RealizationCard: React.FC<{
       ],
     });
     if (transitionFulfillmentToState.__typename === 'Fulfillment') {
-      const resp = await adminApiQuery({ order: [{ id: order.id }, draftOrderSelector] });
+      const resp = await apiCall('query')({ order: [{ id: order.id }, draftOrderSelector] });
       setOrder(resp.order);
       refetchHistory();
       toast.success('Fulfillment marked as delivered', { position: 'top-center' });

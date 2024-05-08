@@ -10,7 +10,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button, ScrollArea } from '@/components';
-import { adminApiQuery } from '@/graphql/client';
+import { apiCall } from '@/graphql/client';
 import { ResolverInputTypes } from '@/zeus';
 import { AssetType, assetsSelector } from '@/graphql/base';
 import { useList } from '@/lists/useList';
@@ -19,7 +19,7 @@ import { ImageUp } from 'lucide-react';
 import { useCustomFields } from '@/custom_fields';
 
 const getAssets = async (options: ResolverInputTypes['AssetListOptions']) => {
-  const response = await adminApiQuery({
+  const response = await apiCall('query')({
     assets: [{ options }, { totalItems: true, items: assetsSelector }],
   });
   return response.assets;

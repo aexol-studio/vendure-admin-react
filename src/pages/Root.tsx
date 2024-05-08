@@ -1,6 +1,6 @@
 import { Layout } from '@/common/Layout';
 import { Menu } from '@/common/Menu';
-import { adminApiQuery } from '@/graphql/client';
+import { apiCall } from '@/graphql/client';
 import {
   serverConfigSelector,
   activeAdministratorSelector,
@@ -24,7 +24,7 @@ const getAllPaginatedCountries = async () => {
   do {
     const {
       countries: { items, totalItems: total },
-    } = await adminApiQuery({
+    } = await apiCall('query')({
       countries: [{ options: { skip, take: TAKE } }, { items: countrySelector, totalItems: true }],
     });
     countries = [...countries, ...items];
@@ -41,7 +41,7 @@ const getAllPaymentMethods = async () => {
   do {
     const {
       paymentMethods: { items, totalItems: total },
-    } = await adminApiQuery({
+    } = await apiCall('query')({
       paymentMethods: [
         { options: { skip, take: TAKE, filter: { enabled: { eq: true } } } },
         { items: paymentMethodsSelector, totalItems: true },
@@ -72,11 +72,11 @@ export const Root = () => {
         paymentsResponse,
         fulfillmentsResponse,
       ] = await Promise.allSettled([
-        adminApiQuery({ globalSettings: { serverConfig: serverConfigSelector } }),
-        adminApiQuery({ activeAdministrator: activeAdministratorSelector }),
+        apiCall('query')({ globalSettings: { serverConfig: serverConfigSelector } }),
+        apiCall('query')({ activeAdministrator: activeAdministratorSelector }),
         getAllPaginatedCountries(),
         getAllPaymentMethods(),
-        adminApiQuery({ fulfillmentHandlers: configurableOperationDefinitionSelector }),
+        apiCall('query')({ fulfillmentHandlers: configurableOperationDefinitionSelector }),
       ]);
       if (serverConfigResponse.status === 'rejected') {
         toast.error(t('setup.failedServer'));

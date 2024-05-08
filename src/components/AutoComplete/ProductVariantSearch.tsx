@@ -12,20 +12,23 @@ import {
   TableHeader,
   TableRow,
 } from '@/components';
-import { adminApiQuery } from '@/graphql/client';
+import { apiCall } from '@/graphql/client';
 import { useTranslation } from 'react-i18next';
-import { LogicalOperator } from '@/zeus';
-import { SearchProductVariantType, searchProductVariantSelector } from '@/graphql/draft_order';
+import {
+  ProductVariantType,
+  SearchProductVariantType,
+  productVariantSelector,
+  searchProductVariantSelector,
+} from '@/graphql/draft_order';
 import { priceFormatter } from '@/utils';
+import { CircleX } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface Props {
-  onSelectItem: (selected: SearchProductVariantType) => void;
-  disabled: boolean;
+  onSelectItem: (selected: ProductVariantType) => void;
 }
 
-///TODO Add clear select option
-
-export const ProductVariantSearch: React.FC<Props> = ({ onSelectItem, disabled }) => {
+export const ProductVariantSearch: React.FC<Props> = ({ onSelectItem }) => {
   const { t } = useTranslation('orders');
   const ref = useRef<HTMLInputElement>(null);
   const [focused, setFocused] = useState(false);
@@ -35,37 +38,42 @@ export const ProductVariantSearch: React.FC<Props> = ({ onSelectItem, disabled }
 
   useEffect(() => {
     const search = async () => {
-      const data = await adminApiQuery({
-        productVariants: [
+      const data = await apiCall('query')({
+        search: [
           {
-            options: {
-              take: 10,
-              filter: { name: { contains: debouncedValue }, sku: { contains: debouncedValue } },
-              filterOperator: LogicalOperator.OR,
-            },
+            input: { take: 10, groupByProduct: false, term: debouncedValue },
           },
           { items: searchProductVariantSelector },
         ],
       });
-      setResults(data.productVariants.items);
+      setResults(data.search.items);
     };
     search();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedValue]);
 
+  console.log(results);
+
   return (
     <div className="relative w-full">
       <Input
-        disabled={disabled}
         ref={ref}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
-        placeholder="Type to search for customers..."
+        placeholder={t('searchProduct.placeholder')}
         value={value}
         className="min-w-full max-w-full"
         onChange={(e) => setValue(e.currentTarget.value)}
       />
-
+      {value !== '' && (
+        <CircleX
+          className="absolute right-3 top-3 z-10 h-4 w-4 cursor-pointer"
+          onClick={(e) => {
+            setValue('');
+            ref.current?.focus();
+          }}
+        />
+      )}
       {focused && (
         <div
           onMouseDown={(e) => e.preventDefault()}
@@ -75,34 +83,49 @@ export const ProductVariantSearch: React.FC<Props> = ({ onSelectItem, disabled }
             <Table>
               <TableHeader>
                 <TableRow noHover>
-                  <TableHead>ID</TableHead>
-                  <TableHead>Image</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Price</TableHead>
-                  <TableHead>Action</TableHead>
+                  <TableHead>{t('searchProduct.id')}</TableHead>
+                  <TableHead>{t('searchProduct.image')}</TableHead>
+                  <TableHead>{t('searchProduct.name')}</TableHead>
+                  <TableHead>{t('searchProduct.price')}</TableHead>
+                  <TableHead>{t('searchProduct.action')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {results && results.length > 0 ? (
                   results.map((r) => (
-                    <TableRow key={r.id}>
-                      <TableCell>{r.id}</TableCell>
+                    <TableRow key={r.productVariantId}>
+                      <TableCell>{r.productVariantId}</TableCell>
                       <TableCell>
-                        <ImageWithPreview src={r.product?.featuredAsset?.preview} alt={r.name} />
+                        <ImageWithPreview src={r.productAsset?.preview} alt={r.productVariantName} />
                       </TableCell>
                       <TableCell>
                         <div>
-                          <p className="text-sm">{r.product.name}</p>
-                          <p className="text-xs">{r.name}</p>
+                          <p className="text-sm">{r.productVariantName}</p>
+                          <p className="text-sm">{r.productName}</p>
+                          <p className="text-xs">{r.sku}</p>
                         </div>
                       </TableCell>
-                      <TableCell>{priceFormatter(r.priceWithTax, r.currencyCode)}</TableCell>
+                      <TableCell>
+                        {priceFormatter(
+                          r.priceWithTax.__typename === 'SinglePrice'
+                            ? r.priceWithTax.value
+                            : { from: r.priceWithTax.min, to: r.priceWithTax.max },
+                          r.currencyCode,
+                        )}
+                      </TableCell>
                       <TableCell>
                         <Button
                           variant="outline"
-                          onClick={() => {
-                            onSelectItem(r);
-                            ref.current?.blur();
+                          onClick={async () => {
+                            const { productVariant } = await apiCall('query')({
+                              productVariant: [{ id: r.productVariantId }, productVariantSelector],
+                            });
+                            if (productVariant) {
+                              onSelectItem(productVariant);
+                              ref.current?.blur();
+                            } else {
+                              toast.error(t('toasts.productVariantLoadingError'));
+                            }
                           }}
                         >
                           {t('create.addProduct')}

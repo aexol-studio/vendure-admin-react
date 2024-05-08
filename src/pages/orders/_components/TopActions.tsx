@@ -1,4 +1,4 @@
-import { adminApiMutation, adminApiQuery } from '@/graphql/client';
+import {  apiCall} from '@/graphql/client';
 import {
   DialogHeader,
   Input,
@@ -78,7 +78,7 @@ export const TopActions: React.FC<Props> = ({ order, setOrder, refetchHistory })
       toast.error(t('topActions.fillAll'), { position: 'top-center', closeButton: true });
       return;
     }
-    const { transitionOrderToState } = await adminApiMutation({
+    const { transitionOrderToState } = await apiCall('mutation')({
       transitionOrderToState: [
         { id: order.id, state: 'ArrangingPayment' },
         {
@@ -107,7 +107,7 @@ export const TopActions: React.FC<Props> = ({ order, setOrder, refetchHistory })
   };
 
   const addPaymentToOrder = async (input: ResolverInputTypes['ManualPaymentInput']) => {
-    const { addManualPaymentToOrder } = await adminApiMutation({
+    const { addManualPaymentToOrder } = await apiCall('mutation')({
       addManualPaymentToOrder: [
         { input },
         {
@@ -126,11 +126,11 @@ export const TopActions: React.FC<Props> = ({ order, setOrder, refetchHistory })
   };
 
   const fulfillOrder = async (input: ResolverInputTypes['FulfillOrderInput']) => {
-    const { addFulfillmentToOrder } = await adminApiMutation({
+    const { addFulfillmentToOrder } = await apiCall('mutation')({
       addFulfillmentToOrder: [{ input }, addFulfillmentToOrderResultSelector],
     });
     if (addFulfillmentToOrder.__typename === 'Fulfillment') {
-      const { transitionFulfillmentToState } = await adminApiMutation({
+      const { transitionFulfillmentToState } = await apiCall('mutation')({
         transitionFulfillmentToState: [
           { id: addFulfillmentToOrder.id, state: 'Shipped' },
           {
@@ -149,7 +149,7 @@ export const TopActions: React.FC<Props> = ({ order, setOrder, refetchHistory })
         ],
       });
       if (transitionFulfillmentToState.__typename === 'Fulfillment') {
-        const resp = await adminApiQuery({ order: [{ id: order.id }, draftOrderSelector] });
+        const resp = await apiCall('query')({ order: [{ id: order.id }, draftOrderSelector] });
         setOrder(resp.order);
         refetchHistory();
         toast.success(t('topActions.fulfillmentAdded'), { position: 'top-center' });
@@ -164,7 +164,7 @@ export const TopActions: React.FC<Props> = ({ order, setOrder, refetchHistory })
 
   const cancelOrder = async () => {
     if (order) {
-      const { cancelOrder } = await adminApiMutation({
+      const { cancelOrder } = await apiCall('mutation')({
         cancelOrder: [
           { input: { orderId: order.id } },
           {

@@ -1,4 +1,4 @@
-import { adminApiMutation } from '@/graphql/client';
+import { apiCall } from '@/graphql/client';
 import {
   Card,
   CardHeader,
@@ -23,7 +23,7 @@ import {
 import { CustomFieldsComponent } from '@/custom_fields';
 import {
   DraftOrderType,
-  SearchProductVariantType,
+  ProductVariantType,
   draftOrderSelector,
   removeOrderItemsResultSelector,
   updatedDraftOrderSelector,
@@ -45,13 +45,13 @@ interface Props {
 export const ProductsCard: React.FC<Props> = ({ mode, order, setOrder }) => {
   const { t } = useTranslation('orders');
 
-  const [variantToAdd, setVariantToAdd] = useState<SearchProductVariantType | undefined>(undefined);
+  const [variantToAdd, setVariantToAdd] = useState<ProductVariantType | undefined>(undefined);
   const [open, setOpen] = useState(false);
 
   const { state, setField } = useGFFLP('AddItemToDraftOrderInput', 'customFields')({});
 
   const addToOrder = async (productVariantId: string, quantity: number, customFields: Record<string, unknown>) => {
-    const { addItemToDraftOrder } = await adminApiMutation({
+    const { addItemToDraftOrder } = await apiCall('mutation')({
       addItemToDraftOrder: [
         { input: { productVariantId, quantity, customFields }, orderId: order.id },
         updatedDraftOrderSelector,
@@ -66,14 +66,14 @@ export const ProductsCard: React.FC<Props> = ({ mode, order, setOrder }) => {
   };
 
   const removeLineItem = async (orderLineId: string) => {
-    const { removeDraftOrderLine } = await adminApiMutation({
+    const { removeDraftOrderLine } = await apiCall('mutation')({
       removeDraftOrderLine: [{ orderId: order.id, orderLineId }, removeOrderItemsResultSelector],
     });
     if (removeDraftOrderLine.__typename === 'Order') setOrder(removeDraftOrderLine);
   };
 
   const adjustLineItem = async (orderLineId: string, quantity: number) => {
-    const { adjustDraftOrderLine } = await adminApiMutation({
+    const { adjustDraftOrderLine } = await apiCall('mutation')({
       adjustDraftOrderLine: [
         { orderId: order.id, input: { orderLineId, quantity } },
         {
@@ -107,7 +107,7 @@ export const ProductsCard: React.FC<Props> = ({ mode, order, setOrder }) => {
     }
   };
 
-  const openAddVariantDialog = (variant: SearchProductVariantType) => {
+  const openAddVariantDialog = (variant: ProductVariantType) => {
     setOpen(true);
     setVariantToAdd(variant);
   };
@@ -120,61 +120,65 @@ export const ProductsCard: React.FC<Props> = ({ mode, order, setOrder }) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle> {t(mode === 'view' ? 'create.viewHeader' : 'create.addTitle')}</CardTitle>
-        <CardDescription> {t('create.addHeader')}</CardDescription>
+        <CardTitle> {t(mode === 'view' ? 'create.viewTitle' : 'create.addTitle')}</CardTitle>
+        <CardDescription> {t(mode === 'view' ? 'create.viewHeader' : 'create.addHeader')}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="grid gap-6">
-          <Label htmlFor="product">{t('create.searchPlaceholder')}</Label>
-          <ProductVariantSearch disabled={mode === 'view'} onSelectItem={(i) => openAddVariantDialog(i)} />
-          <Dialog open={open} onOpenChange={(e) => (!e ? closeAddVariantDialog() : setOpen(true))}>
-            <DialogContent className="h-[90vh] max-w-[90vw]">
-              {variantToAdd ? (
-                <form
-                  className="flex h-full w-full flex-col"
-                  onSubmit={async (e) => {
-                    e.preventDefault();
-                    await addToOrder(variantToAdd.id, 1, state.customFields?.value || {});
-                  }}
-                >
-                  <div className="flex w-full flex-col items-center gap-2">
-                    <div className="flex w-full">
-                      <LineItem
-                        noBorder
-                        noHover
-                        variant={{
-                          ...variantToAdd,
-                          quantity: 1,
+          {mode !== 'view' ? (
+            <>
+              <Label htmlFor="product">{t('create.searchPlaceholder')}</Label>
+              <ProductVariantSearch onSelectItem={(i) => openAddVariantDialog(i)} />
+              <Dialog open={open} onOpenChange={(e) => (!e ? closeAddVariantDialog() : setOpen(true))}>
+                <DialogContent className="h-[90vh] max-w-[90vw]">
+                  {variantToAdd ? (
+                    <form
+                      className="flex h-full w-full flex-col"
+                      onSubmit={async (e) => {
+                        e.preventDefault();
+                        await addToOrder(variantToAdd.id, 1, state.customFields?.value || {});
+                      }}
+                    >
+                      <div className="flex w-full flex-col items-center gap-2">
+                        <div className="flex w-full">
+                          <LineItem
+                            noBorder
+                            noHover
+                            variant={{
+                              ...variantToAdd,
+                              quantity: 1,
+                            }}
+                          >
+                            <Button type="submit" size="sm" variant="outline">
+                              {t('create.addItem')}
+                            </Button>
+                          </LineItem>
+                        </div>
+                      </div>
+                      <CustomFieldsComponent
+                        getValue={(field) => {
+                          const value = state.customFields?.value ? state.customFields?.value[field.name as never] : '';
+                          return value;
                         }}
-                      >
-                        <Button type="submit" size="sm" variant="outline">
-                          {t('create.addItem')}
-                        </Button>
-                      </LineItem>
-                    </div>
-                  </div>
-                  <CustomFieldsComponent
-                    getValue={(field) => {
-                      const value = state.customFields?.value ? state.customFields?.value[field.name as never] : '';
-                      return value;
-                    }}
-                    setValue={(field, data) => {
-                      setField('customFields', { ...state.customFields?.value, [field.name]: data });
-                    }}
-                    data={{ variantToAdd }}
-                  />
-                  {/* HERE COMPONENT FOR CUSTOM FIELDS */}
-                  <div className="float-end flex flex-row justify-end gap-4">
-                    <Button type="submit">{t('create.add')}</Button>
-                  </div>
-                </form>
-              ) : (
-                <div>{t('create.somethingWrong')}</div>
-              )}
-            </DialogContent>
-          </Dialog>
+                        setValue={(field, data) => {
+                          setField('customFields', { ...state.customFields?.value, [field.name]: data });
+                        }}
+                        data={{ variantToAdd }}
+                      />
+                      {/* HERE COMPONENT FOR CUSTOM FIELDS */}
+                      <div className="float-end flex flex-row justify-end gap-4">
+                        <Button type="submit">{t('create.add')}</Button>
+                      </div>
+                    </form>
+                  ) : (
+                    <div>{t('create.somethingWrong')}</div>
+                  )}
+                </DialogContent>
+              </Dialog>
+            </>
+          ) : null}
           <Table>
-            <TableHeader>
+            <TableHeader className="text-nowrap">
               <TableRow noHover>
                 <TableHead>{t('create.product')}</TableHead>
                 <TableHead>{t('create.sku')}</TableHead>
@@ -191,7 +195,7 @@ export const ProductsCard: React.FC<Props> = ({ mode, order, setOrder }) => {
                 order.lines.map((line) => (
                   <TableRow>
                     <TableCell>
-                      <div className="flex items-center gap-2">
+                      <div className="flex w-max items-center gap-2">
                         <img
                           alt="Product image"
                           className="aspect-square w-10 rounded-md object-cover"
@@ -202,10 +206,10 @@ export const ProductsCard: React.FC<Props> = ({ mode, order, setOrder }) => {
                             line.productVariant.product?.featuredAsset?.preview
                           }
                         />
-                        <span className="font-semibold">{line.productVariant.product.name}</span>
+                        <div className="font-semibold">{line.productVariant.product.name}</div>
                       </div>
                     </TableCell>
-                    <TableCell>{line.productVariant.sku}</TableCell>
+                    <TableCell className="min-w-[200px]">{line.productVariant.sku}</TableCell>
                     <TableCell>
                       {line.customFields && (
                         <HoverCard openDelay={100}>
@@ -222,40 +226,37 @@ export const ProductsCard: React.FC<Props> = ({ mode, order, setOrder }) => {
                         </HoverCard>
                       )}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-nowrap">
                       {line.discountedLinePrice / 100} {line.productVariant.currencyCode}
                     </TableCell>
-                    <TableCell>{line.discountedLinePriceWithTax / 100}</TableCell>
-
-                    {line.quantity ? (
-                      <TableCell>
-                        {adjustLineItem ? (
-                          <div className="flex items-center gap-2">
-                            {mode !== 'view' && (
-                              <Button
-                                variant="ghost"
-                                type="button"
-                                onClick={() => adjustLineItem(line.id, line.quantity ? line.quantity + 1 : 1)}
-                              >
-                                +
-                              </Button>
-                            )}
-                            <span>{line.quantity}</span>
-                            {mode !== 'view' && (
-                              <Button
-                                variant="ghost"
-                                type="button"
-                                onClick={() => adjustLineItem(line.id, line.quantity ? line.quantity - 1 : 1)}
-                              >
-                                -
-                              </Button>
-                            )}
-                          </div>
-                        ) : (
-                          line.quantity
-                        )}
-                      </TableCell>
-                    ) : null}
+                    <TableCell className="text-nowrap">{line.discountedLinePriceWithTax / 100}</TableCell>
+                    <TableCell>
+                      {adjustLineItem ? (
+                        <div className="flex items-center gap-2">
+                          {mode !== 'view' && (
+                            <Button
+                              variant="ghost"
+                              type="button"
+                              onClick={() => adjustLineItem(line.id, line.quantity ? line.quantity + 1 : 1)}
+                            >
+                              +
+                            </Button>
+                          )}
+                          <span>{line.quantity}</span>
+                          {mode !== 'view' && (
+                            <Button
+                              variant="ghost"
+                              type="button"
+                              onClick={() => adjustLineItem(line.id, line.quantity ? line.quantity - 1 : 1)}
+                            >
+                              -
+                            </Button>
+                          )}
+                        </div>
+                      ) : (
+                        line.quantity
+                      )}
+                    </TableCell>
                     <TableCell>{(line.productVariant.priceWithTax * (line.quantity || 1)) / 100}</TableCell>
                     {mode !== 'view' && (
                       <TableCell>

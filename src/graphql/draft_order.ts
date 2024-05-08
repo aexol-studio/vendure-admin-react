@@ -40,7 +40,23 @@ export const createAddressBaseSelector = Selector('CreateAddressInput')({
 
 export type CreateAddressBaseType = FromSelectorWithScalars<typeof createAddressBaseSelector, 'CreateAddressInput'>;
 
-export const searchProductVariantSelector = Selector('ProductVariant')({
+export const searchProductVariantSelector = Selector('SearchResult')({
+  sku: true,
+  productAsset: { id: true, preview: true, focalPoint: { x: true, y: true } },
+  currencyCode: true,
+  price: { __typename: true, '...on PriceRange': { max: true, min: true }, '...on SinglePrice': { value: true } },
+  priceWithTax: {
+    __typename: true,
+    '...on PriceRange': { max: true, min: true },
+    '...on SinglePrice': { value: true },
+  },
+  productName: true,
+  productVariantName: true,
+  productVariantId: true,
+});
+export type SearchProductVariantType = FromSelectorWithScalars<typeof searchProductVariantSelector, 'SearchResult'>;
+
+export const productVariantSelector = Selector('ProductVariant')({
   id: true,
   featuredAsset: { preview: true },
   sku: true,
@@ -53,7 +69,7 @@ export const searchProductVariantSelector = Selector('ProductVariant')({
   stockLevels: { stockOnHand: true },
 });
 
-export type SearchProductVariantType = FromSelectorWithScalars<typeof searchProductVariantSelector, 'ProductVariant'>;
+export type ProductVariantType = FromSelectorWithScalars<typeof productVariantSelector, 'ProductVariant'>;
 
 export const searchCustomerSelector = Selector('Customer')({
   firstName: true,
@@ -133,7 +149,7 @@ export const draftOrderSelector = Selector('Order')({
     quantity: true,
     discountedLinePrice: true,
     discountedLinePriceWithTax: true,
-    productVariant: searchProductVariantSelector,
+    productVariant: productVariantSelector,
     customFields: {
       attributes: true,
       discountBy: true,

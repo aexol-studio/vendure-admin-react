@@ -1,4 +1,4 @@
-import { adminApiQuery } from '@/graphql/client';
+import { apiCall } from '@/graphql/client';
 import { Table, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { CollectionSelector } from '@/graphql/base';
 import { useList } from '@/lists/useList';
@@ -6,7 +6,7 @@ import { ResolverInputTypes } from '@/zeus';
 import { useTranslation } from 'react-i18next';
 
 const getCollections = async (paginate?: ResolverInputTypes['ProductListOptions']) => {
-  const response = await adminApiQuery({
+  const response = await apiCall('query')({
     collections: [
       {
         options: {

@@ -2,7 +2,7 @@ import React, { PropsWithChildren, Suspense, useEffect, useState } from 'react';
 import { generateCustomFields } from './logic';
 import { CustomFieldConfigType } from '@/graphql/base';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components';
-import { SearchProductVariantType } from '@/graphql/draft_order';
+import { ProductVariantType } from '@/graphql/draft_order';
 import { useServer } from '@/state/server';
 
 declare global {
@@ -16,7 +16,7 @@ declare global {
 export const CustomFieldsComponent: React.FC<{
   getValue: (field: CustomFieldConfigType) => string | number | boolean;
   setValue: (field: CustomFieldConfigType, data: string | number | boolean) => void;
-  data: { variantToAdd: SearchProductVariantType };
+  data: { variantToAdd: ProductVariantType };
 }> = ({ getValue, setValue, data }) => {
   const customFields = useServer((p) => p.serverConfig?.customFieldConfig.OrderLine);
   const [rendered, setRendered] = useState<Record<string, { name: string; component: React.ReactElement }[]>>({});
@@ -80,14 +80,14 @@ type DynamicContext<DATA> = {
   data?: DATA;
 };
 
-const CustomFieldsContext = React.createContext<DynamicContext<{ variantToAdd: SearchProductVariantType }>>({
+const CustomFieldsContext = React.createContext<DynamicContext<{ variantToAdd: ProductVariantType }>>({
   field: undefined,
   value: undefined,
   setValue: () => console.error('setValue not implemented'),
   data: undefined,
 });
 export const CustomFieldsProvider: React.FC<
-  PropsWithChildren<DynamicContext<{ variantToAdd: SearchProductVariantType }>>
+  PropsWithChildren<DynamicContext<{ variantToAdd: ProductVariantType }>>
 > = ({ children, ...value }) => {
   return <CustomFieldsContext.Provider value={value}>{children}</CustomFieldsContext.Provider>;
 };

@@ -1,4 +1,4 @@
-import { adminApiQuery } from '@/graphql/client';
+import {  apiCall } from '@/graphql/client';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -95,7 +95,7 @@ export const Menu: React.FC<{ children?: React.ReactNode }> = ({ children }) => 
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
 
   useEffect(() => {
-    adminApiQuery({
+    apiCall('query')({
       channels: [{ options: { take: 10 } }, { items: channelSelector, totalItems: true }],
       activeChannel: channelSelector,
     }).then(({ activeChannel, channels }) => {
@@ -117,7 +117,6 @@ export const Menu: React.FC<{ children?: React.ReactNode }> = ({ children }) => 
         .filter((crumb) => !removableCrumbs.includes(crumb)),
     [matches],
   );
-  console.log('aaa', crumbs);
 
   const theme = useSettings((p) => p.theme);
   const setTheme = useSettings((p) => p.setTheme);

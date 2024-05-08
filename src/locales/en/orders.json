@@ -5,12 +5,20 @@
     "slug": "slug",
     "variants": "variants",
     "enabled": "enabled",
+    "copied": "Text copied to clipboard",
+    "noFilterField": "None",
+    "searchProduct": {
+        "id": "ID",
+        "image": "Image",
+        "name": "Name",
+        "price": "Price",
+        "action": "Action",
+        "placeholder": "Type to search products..."
+    },
     "forms": {
         "create": "Create Order",
         "update": "Update Order"
     },
-    "copied": "Text copied to clipboard",
-    "noFilterField": "None",
     "filterField": {
         "customerLastName": "Customer last name",
         "transactionId": "Transaction ID",
@@ -202,7 +210,8 @@
     "toasts": {
         "orderLoadingError": "Failed to load order with id {{value}}",
         "orderHistoryLoadingError": "Failed to load order history with id {{value}}",
-        "orderLoadingDraftShippingError": "Failed to load eligible shipping for order with id {{value}}"
+        "orderLoadingDraftShippingError": "Failed to load eligible shipping for order with id {{value}}",
+        "productVariantLoadingError": "Failed to load product variant data"
     },
     "orderStates": {
         "button": "Order states",
@@ -238,6 +247,8 @@
         "orderCancelError": "Something went wrong while canceling order {{value}}"
     },
     "history": {
+        "deleteNoteHeader": "Delete note?",
+        "editNoteHeader": "Edit note",
         "title": "History",
         "description": "Order history",
         "addCommentButton": "Add comment",
@@ -256,6 +267,7 @@
         "showFulfillment": "Show fulfillment",
         "fulfillmentId": "Fulfillment ID: {{value}}",
         "deleteError": "Something went wrong while deleting note from order: {{value}}",
+        "editError": "Something went wrong while editing note",
         "addError": "Something went wrong while adding note to order",
         "from": "From:",
         "to": "to:",

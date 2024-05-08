@@ -10,14 +10,14 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button, ScrollArea } from '@/components';
-import { adminApiQuery } from '@/graphql/client';
+import { apiCall } from '@/graphql/client';
 import { ResolverInputTypes } from '@/zeus';
 import { useList } from '@/lists/useList';
 import { cn } from '@/lib/utils';
 import { useCustomFields } from '@/custom_fields';
 
 const getProductsVariants = async (options: ResolverInputTypes['ProductVariantListOptions']) => {
-  const response = await adminApiQuery({
+  const response = await apiCall('query')({
     productVariants: [{ options }, { totalItems: true, items: { id: true } }],
   });
   return response.productVariants;

@@ -7,8 +7,7 @@ import {
   TimelineLine,
 } from '@/components/ui/timeline';
 import { EllipsisVerticalIcon, Pencil, Trash } from 'lucide-react';
-import React, { Ref, forwardRef, useEffect, useImperativeHandle, useState } from 'react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,16 +33,14 @@ import {
   Spinner,
   Textarea,
 } from '@/components';
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { OrderStateBadge } from './OrderStateBadge';
-import { OrderHistoryEntryType, draftOrderSelector, orderHistoryEntrySelector } from '@/graphql/draft_order';
-import { adminApiMutation, adminApiQuery } from '@/graphql/client';
-import { DeletionResult, HistoryEntryType, ModelTypes, ResolverInputTypes, SortOrder } from '@/zeus';
+import { OrderHistoryEntryType, orderHistoryEntrySelector } from '@/graphql/draft_order';
+import {  apiCall } from '@/graphql/client';
+import { DeletionResult, HistoryEntryType, ModelTypes, SortOrder } from '@/zeus';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
-import { PossibleOrderStates } from '@/pages/orders/_components/PossibleOrderStates';
 
 const TAKE = 100;
 
@@ -52,7 +49,7 @@ const getAllOrderHistory = async (id: string) => {
   let totalItems = 0;
   let skip = 0;
   do {
-    const { order } = await adminApiQuery({
+    const { order } = await apiCall('query')({
       order: [
         { id },
         {
@@ -85,6 +82,9 @@ export const OrderHistory = forwardRef<OrderHistoryRefType, Props>(({ orderId },
   const [error, setError] = useState(false);
   const [newNote, setNewNote] = useState('');
   const [isPrivate, setIsPrivate] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [selectedNote, setSelectedNote] = useState<OrderHistoryEntryType | undefined>();
 
   const refetchHistory = async () => {
     setLoading(true);
@@ -107,7 +107,7 @@ export const OrderHistory = forwardRef<OrderHistoryRefType, Props>(({ orderId },
   }, [orderId]);
 
   const addMessageToOrder = async () => {
-    const { addNoteToOrder } = await adminApiMutation({
+    const { addNoteToOrder } = await apiCall('mutation')({
       addNoteToOrder: [{ input: { id: orderId, isPublic: !isPrivate, note: newNote } }, { id: true }],
     });
     if (addNoteToOrder.id) {
@@ -120,7 +120,7 @@ export const OrderHistory = forwardRef<OrderHistoryRefType, Props>(({ orderId },
   };
 
   const deleteMessageFromOrder = async (id: string) => {
-    const { deleteOrderNote } = await adminApiMutation({ deleteOrderNote: [{ id }, { message: true, result: true }] });
+    const { deleteOrderNote } = await apiCall('mutation')({ deleteOrderNote: [{ id }, { message: true, result: true }] });
     if (deleteOrderNote.result === DeletionResult.DELETED) {
       const { history } = await getAllOrderHistory(orderId);
       setOrderHistory(history);
@@ -129,9 +129,9 @@ export const OrderHistory = forwardRef<OrderHistoryRefType, Props>(({ orderId },
     }
   };
   const editMessageInOrder = (input: ModelTypes['UpdateOrderNoteInput']) => {
-    adminApiMutation({ updateOrderNote: [{ input }, {}] })
+    apiCall('mutation')({ updateOrderNote: [{ input }, { id: true }] })
       .then(() => getAllOrderHistory(orderId).then((e) => setOrderHistory(e.history)))
-      .catch(() => toast.error(t('history.deleteError'), { position: 'top-center' }));
+      .catch(() => toast.error(t('history.editError'), { position: 'top-center' }));
   };
 
   if (loading) {
@@ -148,7 +148,6 @@ export const OrderHistory = forwardRef<OrderHistoryRefType, Props>(({ orderId },
       </div>
     );
   }
-  console.log(orderHistory);
 
   return (
     <Card>
@@ -164,11 +163,11 @@ export const OrderHistory = forwardRef<OrderHistoryRefType, Props>(({ orderId },
               id="comment"
               onKeyUp={(e) => {
                 e.currentTarget.style.height = '1px';
-                e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px';
+                e.currentTarget.style.height = 12 + e.currentTarget.scrollHeight + 'px';
               }}
               value={newNote}
               onChange={(e) => setNewNote(e.currentTarget.value)}
-              className="h-[36px] min-h-[36px] w-full resize-none overflow-hidden rounded-md p-2"
+              className="h-min max-h-[300px] min-h-[36px] w-full resize-none overflow-auto rounded-md p-2"
             />
             <Button disabled={newNote === ''} size="sm" onClick={addMessageToOrder}>
               {t('history.addComment')}
@@ -199,20 +198,52 @@ export const OrderHistory = forwardRef<OrderHistoryRefType, Props>(({ orderId },
                         t(`history.updatedAt`, { value: format(new Date(history.updatedAt), 'dd.MM.yyyy hh:mm') })}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    {'from' in history.data && (
-                      <>
-                        <div>{t('history.from')}</div>
-                        <OrderStateBadge state={history.data.from as string} />
-                      </>
-                    )}
-                    {'to' in history.data && (
-                      <>
-                        <div>{t('history.to')}</div>
-                        <OrderStateBadge state={history.data.to as string} />
-                      </>
-                    )}
-                  </div>
+                  {history.type === HistoryEntryType.ORDER_NOTE ? (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="icon">
+                          <EllipsisVerticalIcon className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem>
+                          <Button
+                            variant="ghost"
+                            onClick={() => {
+                              setIsEditOpen(true);
+                              setSelectedNote(history);
+                            }}
+                            className="flex w-full justify-start gap-2"
+                          >
+                            <Pencil className="h-4 w-4" /> {t('history.edit')}
+                          </Button>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <Button
+                            variant="ghost"
+                            onClick={() => {
+                              setIsDeleteOpen(true);
+                              setSelectedNote(history);
+                            }}
+                            className="flex w-full justify-start gap-2"
+                          >
+                            <Trash className="h-4 w-4" /> {t('history.delete')}
+                          </Button>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      {'from' in history.data && 'to' in history.data && (
+                        <>
+                          <div>{t('history.from')}</div>
+                          <OrderStateBadge state={history.data.from as string} />
+                          <div>{t('history.to')}</div>
+                          <OrderStateBadge state={history.data.to as string} />
+                        </>
+                      )}
+                    </div>
+                  )}
                 </div>
               </TimelineHeading>
               <TimelineDot status="done" />
@@ -231,31 +262,9 @@ export const OrderHistory = forwardRef<OrderHistoryRefType, Props>(({ orderId },
                     ) : null}
                   </div>
                   {history.type === HistoryEntryType.ORDER_NOTE && (
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">
-                        {t('history.noteContent')}
-                        {history.data?.note as string}
-                      </span>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="outline" size="icon">
-                            <EllipsisVerticalIcon className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem asChild>
-                            <Button variant="ghost" className="flex w-full justify-start gap-2">
-                              <Pencil className="h-4 w-4" /> {t('history.edit')}
-                            </Button>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem asChild>
-                            <Button variant="ghost" className="flex w-full justify-start gap-2">
-                              <Trash className="h-4 w-4" /> {t('history.delete')}
-                            </Button>
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
+                    <span className="max-h-[250px] overflow-y-auto whitespace-pre text-muted-foreground">
+                      {history.data?.note as string}
+                    </span>
                   )}
                   {'paymentId' in history.data ? (
                     <div className="flex flex-col gap-2">
@@ -273,6 +282,67 @@ export const OrderHistory = forwardRef<OrderHistoryRefType, Props>(({ orderId },
           ))}
         </Timeline>
       </CardContent>
+      <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('history.deleteNoteHeader')}</AlertDialogTitle>
+            <AlertDialogDescription className="max-h-[60vh] overflow-y-auto whitespace-pre">
+              {selectedNote?.data?.note as string}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('history.cancel')}</AlertDialogCancel>
+            <AlertDialogAction onClick={() => selectedNote && deleteMessageFromOrder(selectedNote.id)}>
+              {t('history.delete')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      <AlertDialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+        <AlertDialogContent className="min-w-min">
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('history.editNoteHeader')}</AlertDialogTitle>
+          </AlertDialogHeader>
+          <Textarea
+            onChange={(e) =>
+              setSelectedNote((p) => (p ? { ...p, data: { ...p?.data, note: e.currentTarget.value } } : undefined))
+            }
+            value={(selectedNote?.data.note as string) || ''}
+            className="h-[60vh] w-auto min-w-[50vh] resize-none overflow-auto rounded-md p-2"
+          />
+          <div className="flex items-center gap-2 pb-4">
+            <Checkbox
+              id="isPublicEdit"
+              name="isPublicEdit"
+              checked={!selectedNote?.isPublic}
+              onClick={() => setSelectedNote((p) => (p ? { ...p, isPublic: !p.isPublic } : undefined))}
+            />
+            <Label htmlFor="isPublicEdit" className="cursor-pointer">
+              {t('history.isPrivate')}
+              <span className="ml-2 text-gray-500">{t('history.isPrivateDescription')}</span>
+            </Label>
+            <Label className={cn('ml-auto', !selectedNote?.isPublic ? 'text-green-600' : 'text-yellow-600')}>
+              {t(!selectedNote?.isPublic ? 'history.toAdmins' : 'history.toAdminsAndCustomer')}
+            </Label>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('history.cancel')}</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={(selectedNote?.data.note as string) === ''}
+              onClick={() =>
+                selectedNote &&
+                editMessageInOrder({
+                  noteId: selectedNote.id,
+                  isPublic: selectedNote.isPublic,
+                  note: selectedNote.data.note as string,
+                })
+              }
+            >
+              {t('history.edit')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 });

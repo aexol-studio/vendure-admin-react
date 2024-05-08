@@ -1,9 +1,9 @@
-import { adminApiQuery } from '@/graphql/client';
+import { apiCall } from '@/graphql/client';
 import { MetricInterval, MetricType } from '@/zeus';
 import React from 'react';
 
 const getMetrics = async () => {
-  const { metricSummary } = await adminApiQuery({
+  const { metricSummary } = await apiCall('query')({
     metricSummary: [
       { input: { interval: MetricInterval.Daily, types: [MetricType.OrderTotal], refresh: false } },
       { title: true, entries: { label: true, value: true }, interval: true, type: true },

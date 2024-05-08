@@ -1,5 +1,5 @@
 import { Layout } from '@/common/Layout';
-import { adminApiMutation } from '@/graphql/client';
+import { apiCall } from '@/graphql/client';
 import { Button, Checkbox, Input, Label } from '@/components';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -34,7 +34,7 @@ export const LoginScreen = () => {
     const username = (e.currentTarget.elements.namedItem('username') as HTMLInputElement).value;
     const password = (e.currentTarget.elements.namedItem('password') as HTMLInputElement).value;
     const rememberMe = (e.currentTarget.elements.namedItem('rememberMe') as HTMLInputElement).checked;
-    const data = await adminApiMutation({
+    const data = await apiCall('mutation')({
       login: [
         { username, password, rememberMe },
         {
