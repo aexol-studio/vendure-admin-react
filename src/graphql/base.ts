@@ -16,7 +16,7 @@ export type OrderStateType =
   | 'Delivered'
   | 'Modifying'
   | 'ArrangingAdditionalPayment';
-  
+
 export type NavigationType = CollectionTileType & {
   productVariants?: {
     items: CollectionTileProductVariantType[];
@@ -166,23 +166,6 @@ export const ActiveAddressSelector = Selector('Address')({
 
 export type ActiveAddressType = FromSelectorWithScalars<typeof ActiveAddressSelector, 'Address'>;
 
-export const EditActiveAddressSelector = Selector('UpdateAddressInput')({
-  id: true,
-  fullName: true,
-  company: true,
-  streetLine1: true,
-  streetLine2: true,
-  city: true,
-  province: true,
-  postalCode: true,
-  countryCode: true,
-  phoneNumber: true,
-  defaultShippingAddress: true,
-  defaultBillingAddress: true,
-});
-
-export type EditActiveAddressType = FromSelectorWithScalars<typeof EditActiveAddressSelector, 'UpdateAddressInput'>;
-
 export const CurrentUserSelector = Selector('CurrentUser')({
   id: true,
   identifier: true,
@@ -201,30 +184,6 @@ export const ActiveCustomerSelector = Selector('Customer')({
 });
 
 export type ActiveCustomerType = FromSelectorWithScalars<typeof ActiveCustomerSelector, 'Customer'>;
-export const CreateCustomerSelector = Selector('CreateCustomerInput')({
-  emailAddress: true,
-  firstName: true,
-  lastName: true,
-  phoneNumber: true,
-});
-
-export type CreateCustomerType = FromSelectorWithScalars<typeof CreateCustomerSelector, 'CreateCustomerInput'>;
-
-export const CreateAddressSelector = Selector('CreateAddressInput')({
-  fullName: true,
-  company: true,
-  streetLine1: true,
-  streetLine2: true,
-  city: true,
-  province: true,
-  postalCode: true,
-  countryCode: true,
-  phoneNumber: true,
-  defaultShippingAddress: true,
-  defaultBillingAddress: true,
-});
-
-export type CreateAddressType = FromSelectorWithScalars<typeof CreateAddressSelector, 'CreateAddressInput'>;
 
 export type LoginCustomerInputType = {
   emailAddress: string;

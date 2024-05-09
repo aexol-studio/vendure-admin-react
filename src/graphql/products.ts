@@ -210,19 +210,3 @@ export type NewestProductType = FromSelectorWithScalars<typeof NewestProductSele
 
 export type ProductTileType = FromSelectorWithScalars<typeof ProductTileSelector, 'Product'>;
 
-export const ProductVariantSelector = Selector('ProductVariant')({
-  id: true,
-  name: true,
-  slug: true,
-  collections: {
-    name: true,
-  },
-  variants: {
-    currencyCode: true,
-    price: true,
-  },
-  featuredAsset: {
-    source: true,
-    preview: true,
-  },
-});

@@ -1,4 +1,3 @@
-import { Layout } from '@/common/Layout';
 import { Menu } from '@/common/Menu';
 import { apiCall } from '@/graphql/client';
 import {
@@ -10,7 +9,6 @@ import {
   countrySelector,
 } from '@/graphql/base';
 import { useServer } from '@/state';
-import styled from '@emotion/styled';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Outlet } from 'react-router-dom';
@@ -112,27 +110,12 @@ export const Root = () => {
   }, []);
 
   return (
-    <Layout>
+    <div className="flex max-h-[100vh] w-full  max-w-full overflow-hidden bg-background text-foreground">
       <Menu>
-        <Content className="flex h-full flex-1 flex-col gap-y-4 space-y-4 p-4 pt-6 md:p-8">
+        <div className="flex h-full w-full flex-1 flex-col gap-y-4 space-y-4 overflow-y-auto p-4 pt-6 md:p-8">
           <Outlet />
-        </Content>
+        </div>
       </Menu>
-    </Layout>
+    </div>
   );
 };
-
-const Content = styled.div`
-  height: 100%;
-  width: 100%;
-  overflow-y: auto;
-`;
-const Main = styled.div`
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  a {
-    display: contents;
-    text-decoration: none;
-  }
-`;

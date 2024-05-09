@@ -7,6 +7,14 @@
     "enabled": "enabled",
     "copied": "Text copied to clipboard",
     "noFilterField": "None",
+    "columns":"Columns",
+    "deleteDraft": {
+        "button":"Delete draft",
+        "title": "Are you sure?",
+        "description": "The draft order will be deleted permanently.",
+        "confirm": "Confirm",
+        "cancel": "Cancel"
+    },
     "searchProduct": {
         "id": "ID",
         "image": "Image",
@@ -38,8 +46,8 @@
         "updatedAt": "Updated At",
         "openMenu": "Open menu",
         "actions": "Actions",
-        "copyId": "Copy payment ID",
-        "delete": "Delete draft order",
+        "copyId": "Copy order ID",
+        "deleteDraft": "Delete draft order",
         "viewCustomer": "View customer",
         "viewPayment": "View payment details",
         "viewOrder": "View order",
@@ -244,7 +252,9 @@
         "errMsg": "Something went wrong",
         "fulfillmentAdded": "Fulfillment added successfully",
         "orderCanceledSuccessfully": "Order canceled successfully",
-        "orderCancelError": "Something went wrong while canceling order {{value}}"
+        "draftDeletedSuccessfully": "Draft order deleted successfully",
+        "orderCancelError": "Something went wrong while canceling order: {{value}}",
+        "draftDeleteError": "Something went wrong while deleting draft order: {{value}}"
     },
     "history": {
         "deleteNoteHeader": "Delete note?",

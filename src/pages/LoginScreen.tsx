@@ -1,4 +1,3 @@
-import { Layout } from '@/common/Layout';
 import { apiCall } from '@/graphql/client';
 import { Button, Checkbox, Input, Label } from '@/components';
 import React, { useEffect, useState } from 'react';
@@ -48,7 +47,7 @@ export const LoginScreen = () => {
     if (data.login.__typename !== 'CurrentUser') toast(data.login.message, {});
   };
   return (
-    <Layout>
+    <div className="flex h-[100vh] w-[100vw] bg-background text-foreground">
       <div className="w-full lg:grid lg:min-h-[600px] lg:grid-cols-2 xl:min-h-[800px]">
         <div className="flex items-center justify-center py-12">
           <div className="mx-auto grid w-[350px] gap-6">
@@ -148,6 +147,6 @@ export const LoginScreen = () => {
           </div>
         </div>
       </div>
-    </Layout>
+    </div>
   );
 };

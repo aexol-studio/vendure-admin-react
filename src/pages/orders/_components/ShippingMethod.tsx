@@ -1,17 +1,5 @@
 import { apiCall } from '@/graphql/client';
-import {
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  Label,
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components';
+import { Button, Card, CardDescription, CardHeader, CardTitle, Label } from '@/components';
 import {
   Dialog,
   DialogContent,

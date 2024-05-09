@@ -2,7 +2,6 @@ import {
   Card,
   CardHeader,
   CardTitle,
-  CardContent,
   Button,
   Tabs,
   TabsList,

@@ -1,6 +1,5 @@
 import { apiCall } from '@/graphql/client';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Spinner } from '@/components';
 import { useParams } from 'react-router-dom';
 import { DraftOrderType, draftOrderSelector } from '@/graphql/draft_order';
 import { useTranslation } from 'react-i18next';
@@ -63,7 +62,7 @@ export const OrderPage = () => {
   if (loading) {
     return (
       <div className="flex min-h-[80vh] w-full items-center justify-center">
-        <Spinner />
+        <div className="customSpinner" />
       </div>
     );
   }

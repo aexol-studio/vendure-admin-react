@@ -3,7 +3,6 @@ import {
   Card,
   CardHeader,
   CardTitle,
-  CardContent,
   Button,
   Select,
   SelectContent,
@@ -29,22 +28,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import {
-  AddressBaseType,
-  CreateAddressBaseType,
-  DraftOrderType,
-  addressBaseSelector,
-  draftOrderSelector,
-} from '@/graphql/draft_order';
+import { AddressBaseType, DraftOrderType, addressBaseSelector, draftOrderSelector } from '@/graphql/draft_order';
 import { cn } from '@/lib/utils';
 import { useGFFLP } from '@/lists/useGflp';
 import { Mode } from '@/pages/orders/OrderPage';
 import { useServer } from '@/state/server';
 import { phoneNumberRegExp } from '@/utils/regExp';
 import { Edit } from 'lucide-react';
-import React, { PropsWithChildren, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
+import { ResolverInputTypes } from '@/zeus';
 
 type DefaultAddress = AddressBaseType & {
   id?: string;
@@ -162,7 +156,7 @@ export const AddressCard: React.FC<{
     const isValid = checkIfAllFieldsAreValid();
     if (tab === 'create' && !isValid) return;
     setSubmitting(true);
-    const newAddress: CreateAddressBaseType =
+    const newAddress: ResolverInputTypes['CreateAddressInput'] =
       tab === 'select' && selectedAddress
         ? {
             fullName: selectedAddress.fullName,

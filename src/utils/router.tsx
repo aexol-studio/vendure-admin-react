@@ -8,6 +8,8 @@ import { ProductListPage } from '@/pages/products/List';
 import { createBrowserRouter } from 'react-router-dom';
 import { Root } from '@/pages/Root';
 import { ChannelsPage } from '@/pages/channels/ChannelsPage';
+import { CustomersListPage } from '@/pages/customers/CustomersListPage';
+import { CustomerDetailsPage } from '@/pages/customers/CustomerDetailsPage';
 
 export const Routes = {
   dashboard: '/admin-ui/',
@@ -17,6 +19,8 @@ export const Routes = {
   collections: '/admin-ui/collections',
   orders: '/admin-ui/orders',
   order: { route: '/admin-ui/orders/:id', to: (orderId: string) => `/admin-ui/orders/${orderId}` },
+  customers: '/admin-ui/customers',
+  customer: { route: '/admin-ui/customers/:id', to: (customerId: string) => `/admin-ui/customers/${customerId}` },
   channels: '/admin-ui/channels',
 } as const;
 
@@ -51,6 +55,14 @@ export const router = createBrowserRouter([
       {
         path: Routes.order.route,
         element: <OrderPage />,
+      },
+      {
+        path: Routes.customers,
+        element: <CustomersListPage />,
+      },
+      {
+        path: Routes.customer.route,
+        element: <CustomerDetailsPage />,
       },
       {
         path: Routes.channels,

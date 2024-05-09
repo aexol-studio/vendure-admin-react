@@ -31,6 +31,7 @@ function App() {
         theme={theme}
         richColors
         toastOptions={{
+          closeButton: true,
           classNames: {
             error: 'border',
             warning: 'border',

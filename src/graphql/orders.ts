@@ -39,7 +39,6 @@ export const ShippingMethodsSelector = Selector('ShippingMethodQuote')({
 
 export type ShippingMethodType = FromSelectorWithScalars<typeof ShippingMethodsSelector, 'ShippingMethodQuote'>;
 
-
 export const ActiveOrderSelector = Selector('Order')({
   id: true,
   createdAt: true,
@@ -135,6 +134,7 @@ export const OrderListSelector = Selector('Order')({
     fullName: true,
   },
   customer: {
+    id: true,
     emailAddress: true,
     firstName: true,
     lastName: true,

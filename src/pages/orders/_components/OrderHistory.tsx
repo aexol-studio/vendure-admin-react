@@ -17,7 +17,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
   Button,
   Card,
   CardContent,
@@ -30,12 +29,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   Label,
-  Spinner,
   Textarea,
 } from '@/components';
 import { OrderStateBadge } from './OrderStateBadge';
 import { OrderHistoryEntryType, orderHistoryEntrySelector } from '@/graphql/draft_order';
-import {  apiCall } from '@/graphql/client';
+import { apiCall } from '@/graphql/client';
 import { DeletionResult, HistoryEntryType, ModelTypes, SortOrder } from '@/zeus';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
@@ -120,7 +118,9 @@ export const OrderHistory = forwardRef<OrderHistoryRefType, Props>(({ orderId },
   };
 
   const deleteMessageFromOrder = async (id: string) => {
-    const { deleteOrderNote } = await apiCall('mutation')({ deleteOrderNote: [{ id }, { message: true, result: true }] });
+    const { deleteOrderNote } = await apiCall('mutation')({
+      deleteOrderNote: [{ id }, { message: true, result: true }],
+    });
     if (deleteOrderNote.result === DeletionResult.DELETED) {
       const { history } = await getAllOrderHistory(orderId);
       setOrderHistory(history);
@@ -137,7 +137,7 @@ export const OrderHistory = forwardRef<OrderHistoryRefType, Props>(({ orderId },
   if (loading) {
     return (
       <div className="flex h-full w-full items-center justify-center">
-        <Spinner />
+        <div className="customSpinner" />
       </div>
     );
   }

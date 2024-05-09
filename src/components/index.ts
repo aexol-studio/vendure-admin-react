@@ -5,4 +5,3 @@ export * from './ui';
 export * from './ImageWithPreview';
 export * from './AutoComplete/ProductVariantSearch';
 export * from './EmptyState';
-export * from './Spinner';

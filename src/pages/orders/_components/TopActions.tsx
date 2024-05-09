@@ -1,13 +1,8 @@
-import {  apiCall} from '@/graphql/client';
+import { apiCall } from '@/graphql/client';
 import {
-  DialogHeader,
-  Input,
-  DialogFooter,
   AlertDialogHeader,
   AlertDialogFooter,
   Button,
-  DialogTrigger,
-  SelectContent,
   DropdownMenu,
   AlertDialog,
   AlertDialogAction,
@@ -16,18 +11,9 @@ import {
   AlertDialogDescription,
   AlertDialogTitle,
   AlertDialogTrigger,
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  Select,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
 } from '@/components';
 import { DraftOrderType, addFulfillmentToOrderResultSelector, draftOrderSelector } from '@/graphql/draft_order';
 import { AddPaymentDialog } from '@/pages/orders/_components/AddPaymentDialog';
@@ -36,14 +22,15 @@ import { ManualOrderChangeModal } from '@/pages/orders/_components/ManualOrderCh
 import { OrderStateBadge } from '@/pages/orders/_components/OrderStateBadge';
 import { PossibleOrderStates } from '@/pages/orders/_components/PossibleOrderStates';
 import { useServer } from '@/state';
-import { Routes, priceFormatter } from '@/utils';
-import { ResolverInputTypes } from '@/zeus';
+import { Routes } from '@/utils';
+import { DeletionResult, ResolverInputTypes } from '@/zeus';
 
 import { ChevronLeft, EllipsisVerticalIcon } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { Renderer } from '@/plugins';
 
 interface Props {
   order: DraftOrderType;
@@ -202,6 +189,18 @@ export const TopActions: React.FC<Props> = ({ order, setOrder, refetchHistory })
     }
   };
 
+  const deleteDraftOrder = async () => {
+    const { deleteDraftOrder } = await apiCall('mutation')({
+      deleteDraftOrder: [{ orderId: order.id }, { message: true, result: true }],
+    });
+    if (deleteDraftOrder.result === DeletionResult.DELETED) {
+      toast.info(t('topActions.draftDeletedSuccessfully'));
+      navigate(-1);
+    } else {
+      toast.error(t('topActions.draftDeleteError', { value: deleteDraftOrder.message }), { position: 'top-center' });
+    }
+  };
+
   return (
     <div className="flex items-center gap-4">
       <ManualOrderChangeModal
@@ -282,6 +281,7 @@ export const TopActions: React.FC<Props> = ({ order, setOrder, refetchHistory })
           </>
         ) : null}
       </div>
+      <Renderer position="top-buttons" />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline" size="icon">
@@ -299,25 +299,48 @@ export const TopActions: React.FC<Props> = ({ order, setOrder, refetchHistory })
           <DropdownMenuItem asChild>
             <PossibleOrderStates orderState={order.state} />
           </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="ghost" className="w-full justify-start">
-                  {t('create.cancelOrder')}
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>{t('create.areYouSure')}</AlertDialogTitle>
-                  <AlertDialogDescription>{t('create.cancelOrderMessage')}</AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>{t('create.cancel')}</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => cancelOrder()}>{t('create.continue')}</AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </DropdownMenuItem>
+          {order.state !== 'Cancelled' && order.state !== 'Draft' && (
+            <DropdownMenuItem asChild>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="ghost" className="w-full justify-start">
+                    {t('create.cancelOrder')}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>{t('create.areYouSure')}</AlertDialogTitle>
+                    <AlertDialogDescription>{t('create.cancelOrderMessage')}</AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>{t('create.cancel')}</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => cancelOrder()}>{t('create.continue')}</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </DropdownMenuItem>
+          )}
+          {order.state === 'Draft' && (
+            <DropdownMenuItem asChild>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="ghost" className="w-full justify-start">
+                    {t('deleteDraft.button')}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>{t('deleteDraft.title')}</AlertDialogTitle>
+                    <AlertDialogDescription>{t('deleteDraft.description')}</AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>{t('deleteDraft.cancel')}</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => deleteDraftOrder()}>{t('deleteDraft.confirm')}</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem asChild>
             <Button onClick={() => setManualChange(true)} variant="ghost" className="w-full justify-start">
               {t('topActions.manualChangeStatus')}

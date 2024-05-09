@@ -1,4 +1,4 @@
-import {  apiCall } from '@/graphql/client';
+import { apiCall } from '@/graphql/client';
 import { Stack } from '@/components/Stack';
 import { Button } from '@/components/ui/button';
 import { OrderListSelector, OrderListType } from '@/graphql/orders';
@@ -22,7 +22,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ArrowDown, ArrowUp, ArrowUpDown, ChevronDown, MoreHorizontal, ArrowRight, Copy } from 'lucide-react';
@@ -86,15 +85,6 @@ const createDraftOrder = async () => {
 };
 
 const getOrders = async (options: ResolverInputTypes['OrderListOptions']) => {
-  const response1 = await apiCall('query')({
-    orders: [
-      { options },
-      {
-        totalItems: true,
-        items: OrderListSelector,
-      },
-    ],
-  });
   const response = await apiCall('query')({
     orders: [
       { options },
@@ -141,17 +131,21 @@ export const OrderListPage = () => {
 
   const tableWrapperRef = useRef<HTMLDivElement>(null);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const PADDING_X_VALUE = 64;
-    setTimeout(() => {
-      if (tableWrapperRef.current) {
-        const wrapperWidth = document.getElementById('scrollArea')?.getBoundingClientRect().width;
-        if (wrapperWidth) tableWrapperRef.current.style.maxWidth = wrapperWidth - PADDING_X_VALUE + 'px';
-      }
-    }, 0);
-  }, [tableWrapperRef]);
+    const updateSize = () => {
+      setTimeout(() => {
+        if (tableWrapperRef.current) {
+          const wrapperWidth = document.getElementById('scrollArea')?.getBoundingClientRect().width;
+          if (wrapperWidth) tableWrapperRef.current.style.maxWidth = wrapperWidth - PADDING_X_VALUE + 'px';
+        }
+      }, 0);
+    };
 
-  //make and array of columns based on passed type
+    window.addEventListener('resize', updateSize);
+    updateSize();
+    return () => window.removeEventListener('resize', updateSize);
+  }, [tableWrapperRef]);
 
   const deleteOrdersToDelete = async () => {
     const resp = await Promise.all(
@@ -310,41 +304,52 @@ export const OrderListPage = () => {
     {
       id: 'actions',
       enableHiding: false,
-      cell: ({ row }) => {
-        const payment = row.original;
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">{t('table.openMenu')}</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>{t('table.actions')}</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => navigator.clipboard.writeText(payment.id)}>
-                {t('table.copyId')}
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
+      cell: ({ row }) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">{t('table.openMenu')}</span>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>{t('table.actions')}</DropdownMenuLabel>
+            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(row.original.id)}>
+              {t('table.copyId')}
+            </DropdownMenuItem>
+            {row.original.state === 'Draft' && (
               <DropdownMenuItem
                 onClick={() => {
                   setDeleteDialogOpened(true);
-                  setOrdersToDelete([payment]);
+                  setOrdersToDelete([row.original]);
                 }}
               >
-                {t('table.delete')}
+                {t('table.deleteDraft')}
               </DropdownMenuItem>
-              <DropdownMenuItem>{t('table.viewCustomer')}</DropdownMenuItem>
-              <DropdownMenuItem>{t('table.viewPayment')}</DropdownMenuItem>
+            )}
+            {row.original.state !== 'Draft' && row.original.state !== 'Cancelled' && (
+              <DropdownMenuItem
+                onClick={() => {
+                  setDeleteDialogOpened(true);
+                  setOrdersToDelete([row.original]);
+                }}
+              >
+                {t('create.cancelOrder')}
+              </DropdownMenuItem>
+            )}
+            {row.original.customer?.id && (
               <DropdownMenuItem>
-                <Link to={Routes.order.to(row.original.id)} className="text-primary-600">
-                  {t('table.viewOrder')}
-                </Link>
+                <Link to={Routes.customer.to(row.original.customer.id)}>{t('table.viewCustomer')}</Link>
               </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
-      },
+            )}
+            <DropdownMenuItem>
+              <Link to={Routes.order.to(row.original.id)} className="text-primary-600">
+                {t('table.viewOrder')}
+              </Link>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
     },
   ];
 
@@ -407,10 +412,26 @@ export const OrderListPage = () => {
       <div className="page-content-h flex w-full flex-col">
         <div className="mb-4 flex items-end justify-between gap-4">
           <div className="flex gap-2">
+            <Search {...ordersSearchProps} searchFilterField={handleSearchChange} />
+            <Button onClick={() => resetFilter()}>Reset filters</Button>
+            {/* <Input onChange={(e) => setFilterField('customerLastName', { contains: e.target.value })} /> */}
+            {/* <Button onClick={() => removeFilterField('customerLastName')}>Reset Field</Button>
+            <Button onClick={() => setFilterField('code', { contains: 'dddddupa' })}>set filter</Button> */}
+          </div>
+          <div className="flex gap-2">
+            <Button
+              onClick={async () => {
+                const id = await createDraftOrder();
+                if (id) navigate(Routes.order.to(id));
+                else console.error('Failed to create order');
+              }}
+            >
+              {t('createOrder')}
+            </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="ml-auto">
-                  Columns <ChevronDown className="ml-2 h-4 w-4" />
+                  {t('columns')} <ChevronDown className="ml-2 h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -431,24 +452,9 @@ export const OrderListPage = () => {
                   })}
               </DropdownMenuContent>
             </DropdownMenu>
-            <Search {...ordersSearchProps} searchFilterField={handleSearchChange} />
-            <Button onClick={() => resetFilter()}>Reset filters</Button>
-            {/* <Input onChange={(e) => setFilterField('customerLastName', { contains: e.target.value })} /> */}
-            {/* <Button onClick={() => removeFilterField('customerLastName')}>Reset Field</Button>
-            <Button onClick={() => setFilterField('code', { contains: 'dddddupa' })}>set filter</Button> */}
-          </div>
-          <div>
-            <Button
-              onClick={async () => {
-                const id = await createDraftOrder();
-                if (id) navigate(Routes.order.to(id));
-                else console.error('Failed to create order');
-              }}
-            >
-              {t('createOrder')}
-            </Button>
           </div>
         </div>
+
         <div ref={tableWrapperRef} className={`h-full overflow-auto rounded-md border`}>
           <Table className="w-full" {...(!table.getRowModel().rows?.length && { containerClassName: 'flex' })}>
             <TableHeader className="sticky top-0 bg-primary-foreground">
@@ -486,29 +492,28 @@ export const OrderListPage = () => {
           </div>
           <div className="space-x-2">{Paginate}</div>
         </div>
+        <Dialog open={deleteDialogOpened} onOpenChange={setDeleteDialogOpened}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle> {t('deleteDraft.title')}</DialogTitle>
+              <DialogDescription>{t('deleteDraft.description')}</DialogDescription>
+              <DialogDescription>
+                {ordersToDelete.map((i) => (
+                  <div>
+                    {i.id} {i.code} {i.customer?.firstName} {i.customer?.firstName} {i.customer?.emailAddress}
+                  </div>
+                ))}
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button>{t('deleteDraft.cancel')}</Button>
+              </DialogClose>
+              <Button onClick={deleteOrdersToDelete}>{t('deleteDraft.confirm')}</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
-      <Dialog open={deleteDialogOpened} onOpenChange={setDeleteDialogOpened}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Do you want to delete following draft orders?</DialogTitle>
-            <DialogDescription>
-              {ordersToDelete.map((i) => (
-                <div>
-                  {i.id} {i.code} {i.customer?.firstName} {i.customer?.firstName} {i.customer?.emailAddress}
-                </div>
-              ))}
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button>Cancel</Button>
-            </DialogClose>
-            <Button variant="destructive" onClick={deleteOrdersToDelete}>
-              Delete
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </Stack>
   );
 };
