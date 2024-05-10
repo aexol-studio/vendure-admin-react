@@ -1,11 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Accordion,
   Button,
   Input,
   ParamObjectT,
   ScrollArea,
-  SearchPropsI,
   Sheet,
   SheetContent,
   SheetHeader,
@@ -14,23 +13,34 @@ import {
   Stack,
 } from '@/components';
 import { SearchAccordion } from './searchAccordion';
+import { ModelTypes } from '@/zeus';
+import { useDebounce } from '@/hooks';
 
-export const Search: React.FC<SearchPropsI & { searchFilterField: (filterField: string) => void }> = ({
-  advancedSearch,
-  defaultSearch,
-  searchFilterField,
-}) => {
-  const groupedAdvancedParams = advancedSearch?.paramsArray.map((p) => {
-    const array = p.array.reduce((acc, cur) => {
-      if (acc[acc.length - 1] && acc[acc.length - 1].length == 1) {
-        acc[acc.length - 1].push(cur);
-      } else {
-        acc.push([cur]);
-      }
-      return acc;
-    }, [] as ParamObjectT[][]);
-    return { ...p, array };
-  });
+type FiltersType =
+  | 'ProductFilterParameter'
+  | 'CollectionFilterParameter'
+  | 'OrderFilterParameter'
+  | 'FacetFilterParameter'
+  | 'ProductVariantFilterParameter'
+  | 'AssetFilterParameter'
+  | 'ProductFilterParameter';
+  
+interface Props<T extends FiltersType> {
+  type: T;
+  filter: ModelTypes[T];
+  setFilterField: (filterField: keyof ModelTypes[T], fieldValue: ModelTypes[T][keyof ModelTypes[T]]) => void;
+  removeFilterField: (filterField: keyof ModelTypes[T]) => void;
+  resetFilter: () => void;
+}
+
+export function Search<T extends FiltersType>(props: Props<T>): JSX.Element {
+  const { filter, removeFilterField, setFilterField, resetFilter, type } = props;
+  const [isAdvanced, setIsAdvanced] = useState(false);
+
+  const [defaultSearch, setDefaultSearch] = useState<string>(
+    type === 'OrderFilterParameter' &&  ((filter as ModelTypes[typeof type]).) ? '' : ''),
+  );
+  const [debouncedSearch] = useDebounce(defaultSearch, 500);
 
   return (
     <Stack className="justify-end gap-4">
@@ -58,4 +68,4 @@ export const Search: React.FC<SearchPropsI & { searchFilterField: (filterField: 
       )}
     </Stack>
   );
-};
+}
