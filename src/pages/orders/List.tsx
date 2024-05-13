@@ -3,7 +3,7 @@ import { Stack } from '@/components/Stack';
 import { Button } from '@/components/ui/button';
 import { OrderListSelector, OrderListType } from '@/graphql/orders';
 import { useList } from '@/lists/useList';
-import { DeletionResult, ResolverInputTypes, SortOrder } from '@/zeus';
+import { DeletionResult, LogicalOperator, ResolverInputTypes, SortOrder } from '@/zeus';
 import { format } from 'date-fns';
 import {
   ColumnDef,
@@ -113,6 +113,8 @@ export const OrderListPage = () => {
     optionInfo,
     setFilterField,
     resetFilter,
+    setFilter,
+    removeFilterField,
     isFilterOn,
     refetch: refetchOrders,
   } = useList({
@@ -120,12 +122,14 @@ export const OrderListPage = () => {
       return getOrders({
         take: perPage,
         skip: (page - 1) * perPage,
+        filterOperator: LogicalOperator.OR,
         ...(sort && { sort: { [sort.key]: sort.sortDir } }),
         ...(filter && { filter }),
       });
     },
     listType: 'orders',
   });
+
   const [ordersToDelete, setOrdersToDelete] = useState<OrderListType[]>([]);
   const [deleteDialogOpened, setDeleteDialogOpened] = useState(false);
 
@@ -402,22 +406,19 @@ export const OrderListPage = () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     filters.forEach((f) => setFilterField(f[0] as any, f[1]));
   }, [searchParams, setFilterField]);
-
-  const handleSearchChange = (value: string) => {
-    setFilterField('customerLastName', { contains: value });
-  };
+  console.log(orders);
 
   return (
     <Stack column className="gap-6">
       <div className="page-content-h flex w-full flex-col">
-        <div className="mb-4 flex items-end justify-between gap-4">
-          <div className="flex gap-2">
-            <Search {...ordersSearchProps} searchFilterField={handleSearchChange} />
-            <Button onClick={() => resetFilter()}>Reset filters</Button>
-            {/* <Input onChange={(e) => setFilterField('customerLastName', { contains: e.target.value })} /> */}
-            {/* <Button onClick={() => removeFilterField('customerLastName')}>Reset Field</Button>
-            <Button onClick={() => setFilterField('code', { contains: 'dddddupa' })}>set filter</Button> */}
-          </div>
+        <div className="mb-4 flex flex-wrap justify-between gap-4">
+          <Search
+            filter={optionInfo.filter}
+            type="OrderFilterParameter"
+            setFilter={setFilter}
+            setFilterField={setFilterField}
+            removeFilterField={removeFilterField}
+          />
           <div className="flex gap-2">
             <Button
               onClick={async () => {

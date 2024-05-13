@@ -93,5 +93,62 @@
     "notifications": "Notifications",
     "noNewNotifications": "No new notifications",
     "toggleNotifications": "Toggle notifications",
-    "dashboard": "Dashboard"
+    "dashboard": "Dashboard",
+    "search": {
+        "advanceToggle": "Advanced search",
+        "addFilter": "Add filter",
+        "filterBy":"Filter by {{value}}:",
+        "CollectionFilterParameter": {
+            "placeholder": "Search by customer last name / code / transaction ID",
+            "": "",
+            "": "",
+            "": "",
+            "": "",
+            "": ""
+        },
+        "FacetFilterParameter": {
+            "placeholder": "Search by name",
+            "": "",
+            "": "",
+            "": "",
+            "": "",
+            "": ""
+        },
+        "OrderFilterParameter": {
+            "placeholder": "Search by name",
+            "": ""
+        },
+        "ProductFilterParameter": {
+            "placeholder": "Search by name",
+            "": "",
+            "": "",
+            "": "",
+            "": "",
+            "": ""
+        },
+        "filterLabels": {
+            "active": "Active",
+            "additionalInformation": "additional information",
+            "code": "Code",
+            "createdAt": "Created at",
+            "currencyCode": "Currency code",
+            "customerLastName": "Customer last name",
+            "id": "Id",
+            "orderPlacedAt": "Order placed at",
+            "shipping": "Shipping",
+            "shippingWithTax": "Shipping with tax",
+            "state": "State",
+            "subTotal": "Sub total",
+            "subTotalWithTax": "Sub total with tax",
+            "total": "total",
+            "totalQuantity": "Total quantity",
+            "totalWithTax": "Total with tax",
+            "transactionId": "Transaction id",
+            "type": "Type",
+            "updatedAt": "Updated at",
+            "aggregateOrderId": "Aggregate order id",
+            "getProforma": "Get proforma",
+            "registeredOnCheckout": "Registered on checkout"
+        }
+    }
 }

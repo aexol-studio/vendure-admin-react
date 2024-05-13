@@ -1,8 +1,9 @@
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useDebounce } from '@/hooks';
+
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useDebounce } from 'use-debounce';
 
 export enum FilterFieldType {
   IDOperators = 'IDOperators',
@@ -39,7 +40,7 @@ export const FieldFilter: React.FC<Props> = ({
   );
 
   const [optionValueString] = useState(optionValue || '');
-  const debouncedOptionStringValue = useDebounce(optionValueString);
+  const [debouncedOptionStringValue] = useDebounce(optionValueString, 500);
 
   useEffect(() => {
     if (

@@ -202,7 +202,7 @@ export const TopActions: React.FC<Props> = ({ order, setOrder, refetchHistory })
   };
 
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-4 ">
       <ManualOrderChangeModal
         open={manualChange}
         setOpen={setManualChange}

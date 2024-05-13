@@ -38,7 +38,6 @@ const enum SearchParamKey {
 
 const arrayRange = (start: number, stop: number) =>
   Array.from({ length: stop - start + 1 }, (_, index) => start + index);
-
 //THERE ARE SOME BREAKING CHANGES IN THOSE TYPES BETWEEN 2.1.8 and 2.2.0
 export type ListType = {
   products: 'ProductFilterParameter';
@@ -64,6 +63,7 @@ export const useList = <T extends PromisePaginated, K extends keyof ListType>({
   optionInfo: PaginationInput;
   refetch: () => void;
   resetFilter: () => void;
+  setFilter: (filter: ModelTypes[ListType[K]] | undefined) => void;
   setFilterField: (
     filterField: keyof ModelTypes[ListType[K]],
     fieldValue: ModelTypes[ListType[K]][keyof ModelTypes[ListType[K]]],
@@ -75,6 +75,16 @@ export const useList = <T extends PromisePaginated, K extends keyof ListType>({
   const [searchParams, setSearchParams] = useSearchParams();
   const [total, setTotal] = useState(0);
   const [objects, setObjects] = useState<GenericReturn<T>>();
+
+  const setFilter = (filter: ModelTypes[ListType[typeof listType]] | undefined) => {
+    if (filter === undefined || !Object.keys(filter).length) {
+      searchParams.delete(SearchParamKey.FILTER);
+      setSearchParams(searchParams);
+    } else {
+      searchParams.set(SearchParamKey.FILTER, JSON.stringify(filter));
+      setSearchParams(searchParams);
+    }
+  };
 
   const setFilterField = (
     filterField: keyof ModelTypes[ListType[typeof listType]],
@@ -305,6 +315,7 @@ export const useList = <T extends PromisePaginated, K extends keyof ListType>({
     objects,
     setSort,
     resetFilter,
+    setFilter,
     setFilterField,
     removeFilterField,
     optionInfo: searchParamValues,
